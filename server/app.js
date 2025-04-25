@@ -16,7 +16,7 @@ const productRouter = require('./routers/product_router.js');
 
 // 기본 라우팅
 app.get('/', (req, res)=>{
-  res.send('Welcome!!');
+  res.send('Welcome!! / lisa branch test ');
 })
 
 // 라우터 모듈 등록
