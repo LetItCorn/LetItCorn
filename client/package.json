@@ -12,13 +12,16 @@
     "ag-grid-vue3": "^33.2.4",
     "axios": "^1.8.4",
     "core-js": "^3.8.3",
+    "pinia": "^2.1.4",
+    "pinia-plugin-persistedstate": "^4.2.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
-    "@vue/cli-service": "~5.0.0"
+    "@vue/cli-service": "~5.0.0",
+    "vue-cli-plugin-pinia": "~0.2.4"
   },
   "browserslist": [
     "> 1%",
