@@ -6,7 +6,7 @@
 // 조건없이 전체조회
 const selectProductList =
 `SELECT no
-		, name
+		    , name
         , key2
         , condition
         , ord_date
