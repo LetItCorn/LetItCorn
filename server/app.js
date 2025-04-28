@@ -7,7 +7,7 @@ app.use(express.json());
 
 
 // Server 실행 
-app.listen(3306, ()=>{
+app.listen(3000, ()=>{
   console.log('Server Start');
   console.log('http://localhost:3000');
 })
