@@ -14,6 +14,7 @@ app.listen(3000, ()=>{
 
 // 라우팅 등록 영역 아래는 예시입니다~
 const productRouter = require('./routers/product_router.js');
+const itemRouter = require('./routers/item_router.js');
 
 // 기본 라우팅
 app.get('/', (req, res)=>{
@@ -22,3 +23,4 @@ app.get('/', (req, res)=>{
 
 // 라우터 모듈 등록 확인
 app.use('/', productRouter);
+app.use('/', itemRouter);
