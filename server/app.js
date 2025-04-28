@@ -21,6 +21,7 @@ app.get('/', (req, res)=>{
   res.send('Welcome!!');
 })
 
+
 // 라우터 모듈 등록
 app.use('/', productRouter);
 app.use('/', userRouter);
@@ -39,3 +40,4 @@ let sessionSetting = session({
 });
  // Session 설정 등록
 app.use(sessionSetting);
+
