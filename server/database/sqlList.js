@@ -8,9 +8,9 @@ const qcLog = require('./sqls/pQcLog.js');
 const prLogDt = require('./sqls/prLogDt.js');
 const prLog = require('./sqls/processLog.js');
 const testQc = require('./sqls/testQc.js');
-const products = require('./sqls/products.js');
+//const products = require('./sqls/products.js');
 const items = require('./sqls/items.js');
-const users = require('./sqls/users.js');
+const users = require('./sqls/user.js');
 const materials = require('./sqls/materials.js'); 
 module.exports = {
   // 펼침연산자(spread operator, ...)을 활용해 객체의 필드를 다른 객체로 쉽게 복사
@@ -22,8 +22,8 @@ module.exports = {
   ...prLogDt,
   ...prLog,
   ...testQc,
-  ...products,
+  //...products,
   ...items,
   ...users,
-    ...materials,
+  ...materials,
 }

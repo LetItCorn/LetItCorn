@@ -29,7 +29,7 @@ router.post('/process', async(req, res)=>{
   
 // 수정
 router.put('/process/:p_log_no', async(req, res)=>{
-    let prLogNo = req.params.no;
+    let prLogNo = req.params.p_log_no;
     let prLogInfo = req.body;
     let result = await processService.modifyPrLogInfo(prLogNo, prLogInfo)
                                     .catch(err => console.log(err));
@@ -38,7 +38,7 @@ router.put('/process/:p_log_no', async(req, res)=>{
   
 // 삭제
 router.delete('/process/:p_log_no', async (req, res)=>{
-    let prLogNo = req.params.no;
+    let prLogNo = req.params.p_log_no;
 
     let resInfo = await processService.removePrLogInfo(prLogNo)
  .catch(err => console.log(err));

@@ -5,33 +5,42 @@
 
 // 조건없이 전체조회
 const selectPlanHeaderList =
-`SELECT plans_head
-		    , plan_start
-        , plan_end
-        , plan_stat
-        , plans_reg
-        , planer         
+`SELECT plans_head,
+      plan_start,
+      plan_end,
+      plan_stat,
+      plans_reg,
+      planer
 FROM plan_header
-ORDER BY plans_head`;
+ORDER BY plans_reg DESC`;
 
 const selectPlanHeaderOne =
-`SELECT plans_head
-		    , plan_start
-        , plan_end
-        , plan_stat
-        , plans_reg
-        , planer         
+`SELECT plans_head,
+        plan_start,
+        plan_end,
+        plan_stat,
+        planer
 FROM plan_header
 WHERE plans_head = ?`;
 
+const insertPlanHeader = 
+`INSERT INTO plan_header (plans_head, plan_start, plan_end, plan_stat, plans_reg, planer)
+VALUES (?, ?, ?, ?, NOW(), ?)`;
 
-
- const planDelete = 
-`DELETE FROM plan_header
+ const updatePlanHeader = 
+`UPDATE plan_header
+ SET ?
  WHERE plans_head = ?`;
+
+ const deletePlanHeader = 
+ `DELETE FROM plan_header
+  WHERE plans_head = ? 
+  AND plan_stat = '대기'`;
+
 module.exports = {
   selectPlanHeaderList,
   selectPlanHeaderOne,
-  planDelete,
-
+  insertPlanHeader,
+  updatePlanHeader,
+  deletePlanHeader,
 }

@@ -24,7 +24,7 @@ const express = require('express');
   });
 
   router.put('/test/:test_no', async(req, res)=>{
-      let testNo = req.params.no;
+      let testNo = req.params.test_no;
       let testInfo = req.body;
       let result = await testService.modifyTestInfo(testNo, testInfo)
                                       .catch(err => console.log(err));
@@ -32,7 +32,7 @@ const express = require('express');
    });
 
 router.delete('/test/:test_no', async (req, res)=>{
-    let testNo = req.params.no;
+    let testNo = req.params.test_no;
 
     let resInfo = await testService.removeTestInfo(testNo)
  .catch(err => console.log(err));

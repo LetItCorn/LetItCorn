@@ -20,7 +20,7 @@ const selectPrLogOne =
        pl.item_name,
        pl.emp_id,
        pl.inst_head,
-       ih.inst_stat   -- 조인된 테이블의 컬럼!
+       ih.inst_stat  
 FROM process_log pl
 JOIN inst_header ih
   ON pl.inst_head = ih.inst_head
@@ -28,7 +28,7 @@ WHERE pl.p_log_no = ?`;
 
  const prLogInsert = 
 `INSERT INTO process_log  (p_log_no, log_dt, process_head, item_name, emp_id, inst_head, item_code, iord_no)
- VALUES (?, ?, ?, ?)`;
+ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
  const prLogUpdate =
  `UPDATE process_log 
  SET ?

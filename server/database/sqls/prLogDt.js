@@ -34,7 +34,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 const detailsUpdate =
 `UPDATE pr_log_dt
 SET ?
-WHERE log_cnt = ?`;
+WHERE lot_cnt = ?`;
 
 const detailsDelete = 
 `DELETE FROM pr_log_dt
