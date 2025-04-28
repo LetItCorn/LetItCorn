@@ -6,9 +6,10 @@ const findAll = async () => {
   let list = await mariadb.query("selectBookList")
                           .catch(err => console.log(err));
   return list;
-};
+}; 
 
 
 module.exports = {
   findAll,
 }
+
