@@ -6,7 +6,7 @@ const findAll = async () => {
   let list = await mariadb.query("selectPlanHeaderList")
                           .catch(err => console.log(err));
   return list;
-};
+}; 
 
 const removePlans = async (plansHead) => {
    
@@ -17,5 +17,4 @@ const removePlans = async (plansHead) => {
 module.exports = {
   findAll,
   removePlans,
-
 }
