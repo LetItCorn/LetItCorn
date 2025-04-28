@@ -1,3 +1,4 @@
+require('dotenv').config({path : './database/configs/dbConfig.env'});
 const express = require('express');
 const app = express();
 
@@ -19,5 +20,5 @@ app.get('/', (req, res)=>{
   res.send('Welcome!! / lisa branch test ');
 })
 
-// 라우터 모듈 등록
+// 라우터 모듈 등록 확인
 app.use('/', productRouter);
