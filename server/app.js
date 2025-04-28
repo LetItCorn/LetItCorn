@@ -20,5 +20,5 @@ app.get('/', (req, res)=>{
   res.send('Welcome!!');
 })
 
-// 라우터 모듈 등록
+// 라우터 모듈 등록 확인
 app.use('/', productRouter);
