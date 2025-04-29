@@ -1,4 +1,4 @@
-<template>
+  <template>
   <nav aria-label="breadcrumb">
     <ol
       class="px-0 pt-1 pb-0 mb-0 bg-transparent breadcrumb"

@@ -5,8 +5,8 @@ const materialService = require('../services/material_service.js');
 
 // 전체 조회
 router.get('/materials', async (req, res) => {
-    const list = await materialService.findAllMaterials();
-    res.send(list);
+    const MaterialList = await materialService.findAllMaterials();
+    res.send(MaterialList);
 });
 
 // 단건 조회
