@@ -1,6 +1,4 @@
-import {
-  defineStore
-} from 'pinia'
+import { defineStore } from 'pinia'
 // pinia 를 통해 관리할 store(저장소)를 정의
 // : defineStore(store_id, option 객체 | setup function)
 export const useUserStore = defineStore('user', {
