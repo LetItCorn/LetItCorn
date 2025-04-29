@@ -50,8 +50,10 @@ const outboundRouter = require('./routers/outbound_router.js');
 //영업
 const poRouter = require('./routers/purchaseorder_router.js');
 //관리
-const itemRouter = require('./routers/item_router.js');
 const userRouter = require('./routers/user_router.js');
+const itemRouter = require('./routers/item_router.js');
+const bomRouter = require('./routers/bom_router.js');
+
 
 
 // 기본 라우팅
@@ -73,6 +75,8 @@ app.use('/', qulityRouter);
 //관리
 app.use('/', userRouter);
 app.use('/', itemRouter);
+app.use('/', bomRouter);
+
 //영업
 app.use('/', poRouter);
 //자재

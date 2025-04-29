@@ -3,15 +3,18 @@
     data-scroll="true" :class="store.isAbsolute ? 'mt-4' : 'mt-0'">
     <div class="px-3 py-1 container-fluid">
       <breadcrumbs :currentPage="currentRouteName" :color="color" />
+
       <div class="mt-2 collapse navbar-collapse mt-sm-0 me-md-0 me-sm-4" id="navbar">
         <div v-for="menu in menus">
           <!-- menuConfig의 키 값 for, click 이벤트 매개변수로 키값 넘김-->
           <button @click="selectedMenu(menu)">{{ menu }}</button>
         </div>
         <div class="pe-md-3 d-flex align-items-center ms-md-auto">
+
           <material-input id="search" label="Search here" />
-        </div>
+        </div> -->
         <ul class="navbar-nav justify-content-end">
+
           <li class="nav-item d-flex align-items-center">
             <router-link :to="{ name: 'SignIn' }" class="px-0 nav-link font-weight-bold lh-1"
               :class="color ? color : 'text-body'">
@@ -22,19 +25,23 @@
           </li>
           <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
             <a href="#" @click="toggleSidebar" class="p-0 nav-link text-body lh-1" id="iconNavbarSidenav">
+
               <div class="sidenav-toggler-inner">
                 <i class="sidenav-toggler-line"></i>
                 <i class="sidenav-toggler-line"></i>
                 <i class="sidenav-toggler-line"></i>
               </div>
             </a>
+
           </li>
           <li class="px-3 nav-item d-flex align-items-center">
             <a class="p-0 nav-link lh-1" @click="store.toggleConfigurator" :class="color ? color : 'text-body'">
+
               <i class="material-icons fixed-plugin-button-nav cursor-pointer">
                 settings
               </i>
             </a>
+
           </li>
           <li class="nav-item dropdown d-flex align-items-center pe-2">
             <a href="#" class="p-0 nav-link lh-1" :class="[color ? color : 'text-body', showMenu ? 'show' : '']"

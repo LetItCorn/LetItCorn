@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import Login from "../views/LoginView.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
@@ -7,12 +8,18 @@ import Notifications from "../views/Notifications.vue";
 import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
+import Leetest from "../views/Leetest.vue";
 
 const routes = [
   {
     path: "/",
     name: "/",
-    redirect: "/dashboard",
+    redirect: "/login",
+  },
+  {
+    path: "/login",
+    name: "Login",
+    component: Login,
   },
   {
     path: "/dashboard",
@@ -53,12 +60,17 @@ const routes = [
     path: "/sign-up",
     name: "SignUp",
     component: SignUp,
-  },
+  }, 
   // {
   //   path: "/home",
   //   name: "home",
   //   component: () => import("../views/Home.vue"),
   // },
+  {
+    pahth: "/leetest",
+    name: "Leetest",
+    component: Leetest,
+  },
 ];
 
 const router = createRouter({

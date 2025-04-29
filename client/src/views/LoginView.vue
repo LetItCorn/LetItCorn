@@ -1,6 +1,6 @@
 <template>
   <div class="main_container">
-        <div class="login_box">
+        <div class="login_box"> 
             <div class="login_left">
                 <div class="login_logo">
                     <img src="/logo.png" alt="">
@@ -11,16 +11,16 @@
             </div>
 
             <div class="login_right">
-                <form name="login_form" action="post" >
+                <form name="login_form">
                     <div class="input-box">
                         <i class="bx bxs-user"></i>
-                        <input type="text" name="user_id" placeholder="아이디" required>
+                        <input type="text" name="user_id" v-model="loginInfo.user_id" placeholder="아이디" required>
                     </div>
                     <div class="input-box">
                         <i class="bx bxs-lock-alt" ></i>
-                        <input type="password" name="user_pw" placeholder="비밀번호" required>
+                        <input type="password" name="user_pw" v-model="loginInfo.user_pw" placeholder="비밀번호" required>
                     </div>
-                    <button type="submit" class="btn">로그인</button>
+                    <button type="button" class="btn" v-on:click="userLogin">로그인</button>
                     <div class="input-box">
                         <span>인사담당자 : 내선번호 0000</span>
                     </div>
@@ -30,35 +30,39 @@
     </div>
 </template>
 <script>
-  import axios from 'axios';
-  // pinia 로 관리하는 store(저장소) 중 필요한 저장소를 가져옴
-  import { useUserStore } from '../../store';
-  // store(저장소) 중 actions 정보를 가져올 함수
-  import { mapActions } from 'pinia';
+import axios from 'axios';
+// pinia 로 관리하는 store(저장소) 중 필요한 저장소를 가져옴
+import { useUserStore } from '@/store/user';
+// store(저장소) 중 actions 정보를 가져올 함수
+import { mapActions } from 'pinia';
 
-  export default {
+export default {
     data(){
-      return {
-        logininfo:{},
-      }
+        return {
+        loginInfo:{
+            user_id: '',
+            user_pw: ''
+        },
+        }
     },
     methods:{
-      async login(){
-        try{
-          const response = await axios.post('/login', this.logininfo);
-
-          if(response.data.result){
-            this.$router.push('/home');
-          } else {
-            alert('로그인에 실패하였습니다. 다시 시도해주세요.');
-          }
-        }catch(error){
-          console.err('로그인 처리중 에러가 발생', error);
-          alert('로그인 처리중 에러가 발생하였습니다. 다시 시도해주세요.');
+        // 저장소가 가지고 있는 actions 중 필요한 함수만 가져옴
+        // => store(저장소) 정보를 가지고 있는 변수를 구조분해할당할 경우 반응성이 끊어짐
+        ...mapActions(useUserStore, ['addLoginId']),
+        async userLogin() {
+            let result = await axios.post(`/api/login`, this.loginInfo)
+                .catch(err => console.log(err));
+        let loginRes = result.data;
+        if (loginRes.result) {
+            // 로그인한 정보를 store(저장소)에 저장하는 addLogindId() 호출
+            this.addLoginId(loginRes.id);
+            this.$router.push("/dashboard");    
+        } else {
+            alert(loginRes.message);
         }
-      }
     }
-  }
+    }
+    }
 </script>
 <style>
   *{
@@ -77,7 +81,7 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    min-height: 85vh;
 }
 
 
@@ -88,6 +92,7 @@ html, body {
     border-radius: 30px;
     display: flex;
     overflow: hidden;
+    background-color: #fff;
 }
 
 .login_left{
@@ -163,20 +168,21 @@ html, body {
 .login_title > span{
     font-size: 100px;
     font-weight: bold;
+    color: #000;
 }
 
 .btn{
-    display: block;
+    display: block !important;
     width: 250px;
     height: 50px;
-    background-color: #000;
-    color: #fff;
+    background-color: #000 !important;
+    color: #fff !important;
     border-radius: 10px;
     cursor: pointer;
     margin: 0 auto;
     margin-top: 50px;
-    margin-bottom: 100px;
-    font-size: 16px;
+    margin-bottom: 70px !important;
+    font-size: 16px !important;
 }
 
 .input-box > span{
@@ -185,5 +191,6 @@ html, body {
     display: block;
     text-align: center;
     width: 100%;
+    color: #000;
 }
 </style>
