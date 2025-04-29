@@ -10,8 +10,8 @@
         aria-hidden="true"
         id="iconSidenav"
       ></i>
-      <a class="m-0 navbar-brand" href="/">
-        <img
+      <a class="navbar-brand" href="/">
+        <!-- <img
           :src="
             configStore.sidebarType === 'bg-white' ||
             (configStore.sidebarType === 'bg-transparent' && !configStore.isDarkMode)
@@ -20,9 +20,9 @@
           "
           class="navbar-brand-img h-100"
           alt="main_logo"
-        />
-        <span class="ms-2 font-weight-bold text-white">
-          Material Dashboard 2
+        /> -->
+        <span class="ms-6"> <!--nav 로고-->
+          <img src="Logo.png" alt="logo" class="nav-logo"/> 
         </span>
       </a>
     </div>
@@ -39,3 +39,14 @@ import logoDark from "@/assets/img/logo-ct-dark.png";
 
 const configStore = useConfigStore();
 </script>
+<style>
+  .sidenav .navbar-brand {
+    padding : 5px !important;
+    margin : 0 auto !important;
+    background-color: #fff !important;
+  }
+  .nav-logo {
+    max-width: 100px !important;
+    width: 100% !important;
+  }
+</style>

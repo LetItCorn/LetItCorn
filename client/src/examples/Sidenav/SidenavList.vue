@@ -10,10 +10,10 @@
           :aria-controls="''"
           :collapse="false"
           collapseRef="dashboard"
-          navText="Dashboard"
+          navText="생산"
         >
           <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">dashboard</i>
+            <!-- <i class="material-icons-round opacity-10 fs-5">dashboard</i> -->
           </template>
         </sidenav-collapse>
       </li>
@@ -23,10 +23,10 @@
           :aria-controls="''"
           :collapse="false"
           collapseRef="tables"
-          navText="Tables"
+          navText="영업"
         >
           <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">table_view</i>
+            <!-- <i class="material-icons-round opacity-10 fs-5">table_view</i> -->
           </template>
         </sidenav-collapse>
       </li>
@@ -36,29 +36,29 @@
           :aria-controls="''"
           :collapse="false"
           collapseRef="billing"
-          navText="Billing"
+          navText="자재"
         >
           <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">receipt_long</i>
+            <!-- <i class="material-icons-round opacity-10 fs-5">receipt_long</i> -->
           </template>
         </sidenav-collapse>
       </li>
+      
       <li class="nav-item">
         <sidenav-collapse
           url="#"
           :aria-controls="''"
           :collapse="false"
           collapseRef="rtl-page"
-          navText="Rtl"
+          navText="관리"
         >
           <template v-slot:icon>
-            <i class="material-icons-round opacity-10 fs-5">
-              format_textdirection_r_to_l
-            </i>
+            <!-- <i class="material-icons-round opacity-10 fs-5">format_textdirection_r_to_l</i> -->
           </template>
         </sidenav-collapse>
       </li>
-      <li class="nav-item">
+      
+      <!-- <li class="nav-item">
         <sidenav-collapse
           url="#"
           :aria-controls="''"
@@ -70,7 +70,8 @@
             <i class="material-icons-round opacity-10 fs-5">notifications</i>
           </template>
         </sidenav-collapse>
-      </li>
+      </li> -->
+
       <li class="mt-3 nav-item">
         <h6
           class="text-xs ps-4 text-uppercase font-weight-bolder text-white"
@@ -120,7 +121,7 @@
       </li>
     </ul>
     <div class="sidenav-footer position-absolute w-100 bottom-0">
-      <div class="mx-3">
+      <!-- <div class="mx-3">
         <a
           class="btn mt-4 w-100"
           :class="`bg-gradient-${store.color}`"
@@ -128,7 +129,7 @@
         >
           Upgrade to pro
         </a>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
