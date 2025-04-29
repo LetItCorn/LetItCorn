@@ -43,6 +43,18 @@ const testQCRouter = require('./routers/testQc_router.js');
 const detailsRouter = require('./routers/prLogDt_router.js');
 const qulityRouter = require('./routers/pQcLog_router.js');
 
+const itemRouter = require('./routers/item_router.js');
+const userRouter = require('./routers/user_router.js');
+
+const materialsRouter = require('./routers/materials_router.js');
+const lotRouter       = require('./routers/lot_router.js');
+const poRouter        = require('./routers/purchaseorder_router.js');
+const ioRouter        = require('./routers/inbound_outbound_router.js');
+const moRouter    = require('./routers/material_order_router.js');
+const outboundRouter = require('./routers/outbound_router.js');
+const materialQCRouter = require('./routers/material_qc_router.js');
+
+
 // 기본 라우팅
 app.get('/', (req, res)=>{
   res.send('Welcome!! / lisa branch test ');
@@ -61,3 +73,21 @@ app.use('/', processRouter);
 app.use('/', testQCRouter);
 app.use('/', detailsRouter);
 app.use('/', qulityRouter);
+
+app.use('/', itemRouter);
+
+
+app.use('/', materialsRouter);
+app.use('/', lotRouter);
+app.use('/', poRouter);
+app.use('/', ioRouter);
+app.use('/', moRouter);
+app.use('/', outboundRouter);
+app.use('/', materialQCRouter);
+
+
+// 라우터 모듈 등록
+app.use('/', productRouter);
+app.use('/', userRouter);
+
+
