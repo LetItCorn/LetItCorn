@@ -5,9 +5,9 @@
 - 250425
   - 개발환경 설정
 
-- 250427
-  - 로그인 화면 html, css
-  - vue로 바꾸기
-
 - 250428
-  -
+  - server폴더 sqls, service, router 작성.
+  - Templates 검색
+
+- 250429
+  - 
