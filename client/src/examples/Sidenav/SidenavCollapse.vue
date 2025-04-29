@@ -10,12 +10,12 @@
     @click="isExpanded = !isExpanded"
   >
     <div
-      class="text-center d-flex align-items-center justify-content-center"
-      :class="store.isRTL ? ' ms-2' : 'me-2'"
+      class="text-center d-flex align-items-center justify-content-center me-2"
+      
     >
       <slot name="icon"></slot>
     </div>
-    <span class="nav-link-text" :class="store.isRTL ? ' me-1' : 'ms-1'">{{
+    <span class="nav-link-text ms-1" >{{
       navText
     }}</span>
   </router-link>

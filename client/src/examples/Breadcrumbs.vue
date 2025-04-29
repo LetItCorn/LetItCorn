@@ -1,14 +1,12 @@
 <template>
   <nav aria-label="breadcrumb">
     <ol
-      class="px-0 pt-1 pb-0 mb-0 bg-transparent breadcrumb"
-      :class="configStore.isRTL ? '' : ' me-sm-6'"
+      class="px-0 pt-1 pb-0 mb-0 bg-transparent breadcrumb me-sm-6"
+      
     >
       <li class="text-sm breadcrumb-item" :class="color">
-        <a v-if="configStore.isRTL" :class="color" class="opacity-5 ps-2" href="#">
-          لوحات القيادة
-        </a>
-        <a v-else :class="color" class="opacity-8" href="#">
+       
+        <a :class="color" class="opacity-8" href="#">
           Pages
         </a>
       </li>
