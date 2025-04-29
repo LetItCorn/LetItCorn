@@ -28,5 +28,5 @@ actions:{
     this.setSelectedOrders = []
     this.isOrderModalOpen = false
   }
-}
+},
 })
