@@ -22,7 +22,7 @@ router.post('/pqulity', async(req, res)=>{
  });
 
  router.put('/pqulity/:pqc_no', async(req, res)=>{
-     let pqcNo = req.params.no;
+     let pqcNo = req.params.pqc_no;
      let pqcInfo = req.body;
      let result = await qulityService.modifyQcLog(pqcNo, pqcInfo)
                                      .catch(err => console.log(err));
@@ -30,9 +30,9 @@ router.post('/pqulity', async(req, res)=>{
   });
 
   router.delete('/pqulity/:pqc_no', async (req, res)=>{
-      let pqcNo = req.params.no;
+      let pqcNo = req.params.pqc_no;
   
-      let resInfo = await detailService.removeQcLog(pqcNo)
+      let resInfo = await qulityService.removeQcLog(pqcNo)
    .catch(err => console.log(err));
    res.send(resInfo);
    })

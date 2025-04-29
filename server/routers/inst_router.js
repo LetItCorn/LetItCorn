@@ -1,0 +1,35 @@
+const express = require('express');
+const router = express.Router();
+const instService = require('../services/inst_service.js');
+
+//단건조회
+router.get('/inst/:inst_head', async (req,res)=>{
+  let instNo = req.params.inst_head;
+  let instInfo = await instService.findByPlan(instNo)
+                                  .catch(err => console.log(err));
+  res.send(instInfo);
+})
+//등록
+router.post('/inst', async(req, res)=>{
+  let instInfo = req.body;
+  let result = await instService.addNewPlan(instInfo)
+                                .catch(err => console.log(err));
+  res.send(result);
+});
+//수정
+router.put('/inst/:inst_no', async(req, res)=>{
+  let instNo = req.params.inst_no;
+  let instInfo = req.body;
+  let result = await instService.modifyPlan(instNo, instInfo)
+                                .catch(err => console.log(err));
+  res.send(result);
+});
+//삭제
+router.delete('/inst/:inst_no', async (req, res)=>{
+  let instNo = req.params.inst_no;
+  let resInfo = await instService.removePlan(instNo)
+                                  .catch(err => console.log(err));
+  res.send(resInfo);
+});
+
+module.exports = router

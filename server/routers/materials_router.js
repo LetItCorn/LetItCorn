@@ -38,4 +38,6 @@ router.delete('/materials/:code', async (req, res) => {
     res.send(result);
 });
 
+
 module.exports = router;
+

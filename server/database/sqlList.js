@@ -8,9 +8,9 @@ const qcLog = require('./sqls/pQcLog.js');
 const prLogDt = require('./sqls/prLogDt.js');
 const prLog = require('./sqls/processLog.js');
 const testQc = require('./sqls/testQc.js');
-const products = require('./sqls/products.js');
+//const products = require('./sqls/products.js');
 const items = require('./sqls/items.js');
-const users = require('./sqls/users.js');
+const users = require('./sqls/user.js');
 const materials = require('./sqls/materials.js'); 
 const lotInventory  = require('./sqls/lot_inventory.js');
 const purchaseorders = require('./sqls/purchaseorders.js');
@@ -31,7 +31,7 @@ module.exports = {
   ...prLogDt,
   ...prLog,
   ...testQc,
-  ...products,
+  //...products,
   ...items,
   ...users,
     ...materials,

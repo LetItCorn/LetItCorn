@@ -1,6 +1,7 @@
 require('dotenv').config({path : './database/configs/dbConfig.env'});
 const express = require('express');
 const app = express();
+const session = require('express-session');
 
 // Session 설정 객체
 let sessionSetting = session({
@@ -29,18 +30,22 @@ app.listen(3000, ()=>{
 })
 
 // 라우팅 등록 영역 예시
+const planRouter = require('./routers/plan_router.js');
 const plansRouter = require('./routers/plans_router.js');
-
-
+const instRouter = require('./routers/inst_router.js');
+const instsRouter = require('./routers/instHead_router.js');
+const itemRouter = require('./routers/item_router.js');
+const userRouter = require('./routers/user_router.js');
+//const materialRouter = require('./routers/materials_router.js');
 //쪼의 영역
 const processRouter = require('./routers/processLog_router.js');
 const testQCRouter = require('./routers/testQc_router.js');
 const detailsRouter = require('./routers/prLogDt_router.js');
 const qulityRouter = require('./routers/pQcLog_router.js');
+
 const itemRouter = require('./routers/item_router.js');
 const userRouter = require('./routers/user_router.js');
 
-//이용진
 const materialsRouter = require('./routers/materials_router.js');
 const lotRouter       = require('./routers/lot_router.js');
 const poRouter        = require('./routers/purchaseorder_router.js');
@@ -49,22 +54,29 @@ const moRouter    = require('./routers/material_order_router.js');
 const outboundRouter = require('./routers/outbound_router.js');
 const materialQCRouter = require('./routers/material_qc_router.js');
 
+
 // 기본 라우팅
 app.get('/', (req, res)=>{
   res.send('Welcome!! / lisa branch test ');
 })
 
 // 라우터 모듈 등록 확인
+app.use('/', userRouter);
+app.use('/', itemRouter);
+//app.use('/', materialRouter);
+app.use('/', planRouter);
 app.use('/', plansRouter);
-
+app.use('/', instRouter);
+app.use('/', instsRouter);
 //쪼의 영역
 app.use('/', processRouter);
 app.use('/', testQCRouter);
 app.use('/', detailsRouter);
 app.use('/', qulityRouter);
+
 app.use('/', itemRouter);
 
-//이용진
+
 app.use('/', materialsRouter);
 app.use('/', lotRouter);
 app.use('/', poRouter);
@@ -77,4 +89,5 @@ app.use('/', materialQCRouter);
 // 라우터 모듈 등록
 app.use('/', productRouter);
 app.use('/', userRouter);
+
 
