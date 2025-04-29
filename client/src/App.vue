@@ -1,7 +1,7 @@
 <template>
   <sidenav
     :custom_class="store.color"
-    :class="[store.isRTL ? 'fixed-end' : 'fixed-start']"
+    :class="['fixed-start']"
     v-if="store.showSidenav"
   />
   <main
@@ -30,6 +30,7 @@ import Navbar from "@/examples/Navbars/Navbar.vue";
 import AppFooter from "@/examples/Footer.vue";
 import { useConfigStore } from "@/store/index"; // Pinia store import
 
+
 export default {
   name: "App",
   components: {
@@ -41,15 +42,16 @@ export default {
   data() {
     return {
       store: useConfigStore(), // Pinia store 인스턴스
+    
     };
   },
   beforeMount() {
     this.store.isTransparent = "bg-transparent"; // 필요하면 store에 isTransparent 정의해둬야 해
 
-    const sidenav = document.getElementsByClassName("g-sidenav-show")[0];
-
+    const sidenav = document.getElementsByClassName("g-sidenav-show");
+ 
     if (window.innerWidth > 1200) {
-      sidenav.classList.add("g-sidenav-pinned");
+      sidenav[0].classList.add("g-sidenav-pinned");
     }
   },
 };

@@ -25,7 +25,7 @@
           <h6 class="mb-0">Sidebar Colors</h6>
         </div>
         <a href="#" class="switch-trigger background-color">
-          <div class="my-2 badge-colors" :class="store.isRTL ? 'text-end' : 'text-start'">
+          <div class="my-2 badge-colors text-start" >
             <span class="badge filter bg-gradient-primary" @click="sidebarColor('primary')"></span>
             <span class="badge filter bg-gradient-dark" @click="sidebarColor('dark')"></span>
             <span class="badge filter bg-gradient-info" @click="sidebarColor('info')"></span>

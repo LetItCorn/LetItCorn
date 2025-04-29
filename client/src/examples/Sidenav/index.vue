@@ -2,7 +2,7 @@
   <aside
     id="sidenav-main"
     class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 ms-3"
-    :class="`${configStore.isRTL ? 'me-3 rotate-caret fixed-end' : 'fixed-start ms-3'} ${configStore.sidebarType}`"
+    :class="`fixed-start ms-3 ${configStore.sidebarType}`"
   >
     <div class="sidenav-header">
       <i
