@@ -1,14 +1,23 @@
 // 각 자재 관련 SQL 쿼리를 정의
-const selectMaterialList = 
-`SELECT
-  FALSE              AS 선택
-  ,m.mater_code       AS 자재코드
-  ,m.mater_name       AS 자재명
-  ,m.mater_storage    AS 자재구분
-  ,m.safe_stock       AS 안전재고
-  ,COALESCE(si.total_in,0) - COALESCE(so.total_out,0) AS 전체재고
+const selectMaterialList = `
+SELECT
+  FALSE                             AS selected,
+  m.mater_code                      AS mater_code,
+  m.mater_name                      AS mater_name,
+  m.mater_storage                   AS category_name,
+  m.safe_stock                      AS safe_stock,
+  COALESCE(
+    (SELECT SUM(min_qty)     FROM m_inbound  WHERE mater_code = m.mater_code),
+    0
+  )
+  -
+  COALESCE(
+    (SELECT SUM(mout_qty)    FROM m_outbound WHERE mater_code = m.mater_code),
+    0
+  )                                  AS total_stock
 FROM material m
-ORDER BY m.mater_code`;
+ORDER BY m.mater_code
+`; 
 
 const selectMaterialOne = 
 `SELECT *

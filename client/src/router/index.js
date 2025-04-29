@@ -8,6 +8,7 @@ import Notifications from "../views/Notifications.vue";
 import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
+import Leetest from "../views/Leetest.vue";
 
 const routes = [
   {
@@ -59,12 +60,17 @@ const routes = [
     path: "/sign-up",
     name: "SignUp",
     component: SignUp,
-  },
+  }, 
   // {
   //   path: "/home",
   //   name: "home",
   //   component: () => import("../views/Home.vue"),
   // },
+  {
+    pahth: "/leetest",
+    name: "Leetest",
+    component: Leetest,
+  },
 ];
 
 const router = createRouter({

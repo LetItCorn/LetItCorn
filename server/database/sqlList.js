@@ -11,6 +11,7 @@ const testQc = require('./sqls/testQc.js');
 //const products = require('./sqls/products.js');
 const items = require('./sqls/items.js');
 const users = require('./sqls/user.js');
+const boms = require('./sqls/boms.js');
 const materials = require('./sqls/materials.js'); 
 const lotInventory  = require('./sqls/lot_inventory.js');
 const purchaseorders = require('./sqls/purchaseorders.js');
@@ -34,6 +35,7 @@ module.exports = {
   //...products,
   ...items,
   ...users,
+  ...boms,
     ...materials,
     ...lotInventory,
     ...purchaseorders,
