@@ -1,32 +1,47 @@
 {
-  "name": "client",
-  "version": "0.1.0",
+  "name": "vue-material-dashboard-2",
+  "version": "3.1.0",
   "private": true,
+  "author": "Creative Tim",
+  "license": "SEE LICENSE IN <https://www.creative-tim.com/license>",
+  "description": "VueJS version of Material Dashboard 2 by Creative Tim",
+  "homepage": "https://demos.creative-tim.com/vue-material-dashboard-2/",
+  "bugs": {
+    "url": "https://github.com/creativetimofficial/vue-material-dashboard-2/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/creativetimofficial/ct-vue-material-dashboard-2.git"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "cross-env CI=false cross-env PUBLIC_URL=/ vue-cli-service build",
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "ag-grid-community": "^33.2.4",
-    "ag-grid-enterprise": "^33.2.4",
-    "ag-grid-vue3": "^33.2.4",
-    "axios": "^1.8.4",
-    "core-js": "^3.8.3",
-    "pinia": "^2.1.4",
+    "@popperjs/core": "2.11.8",
+    "bootstrap": "5.3.2",
+    "chart.js": "4.4.0",
+    "core-js": "3.33.0",
+    "pinia": "^3.0.2",
     "pinia-plugin-persistedstate": "^4.2.0",
-    "vue": "^3.2.13",
-    "vue-router": "^4.0.3"
+    "vue": "3.3.4",
+    "vue-router": "4.2.5"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~5.0.0",
-    "@vue/cli-plugin-router": "~5.0.0",
-    "@vue/cli-service": "~5.0.0",
-    "vue-cli-plugin-pinia": "~0.2.4"
+  
+    "@vue/cli-plugin-babel": "~5.0.8",
+   
+    "@vue/cli-plugin-router": "~5.0.8",
+    "@vue/cli-service": "~5.0.8",
+    "@vue/compiler-sfc": "3.3.4",
+   
+    "cross-env": "^7.0.3",
+    
+    "sass": "1.69.3",
+    "sass-loader": "13.3.2"
   },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead",
-    "not ie 11"
-  ]
+  "overrides": {
+    "consolidate": "1.0.1"
+  }
 }
