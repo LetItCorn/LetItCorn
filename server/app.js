@@ -29,63 +29,56 @@ app.listen(3000, ()=>{
   console.log('http://localhost:3000');
 })
 
-// 라우팅 등록 영역 예시
+// 라우팅 등록 영역
+//생산
 const planRouter = require('./routers/plan_router.js');
 const plansRouter = require('./routers/plans_router.js');
 const instRouter = require('./routers/inst_router.js');
 const instsRouter = require('./routers/instHead_router.js');
-const itemRouter = require('./routers/item_router.js');
-const userRouter = require('./routers/user_router.js');
-//const materialRouter = require('./routers/materials_router.js');
-//쪼의 영역
+//쪼의 영역(공정)
 const processRouter = require('./routers/processLog_router.js');
 const testQCRouter = require('./routers/testQc_router.js');
 const detailsRouter = require('./routers/prLogDt_router.js');
 const qulityRouter = require('./routers/pQcLog_router.js');
-
+//자재
+const materialsRouter = require('./routers/materials_router.js');
+const moRouter = require('./routers/material_order_router.js');
+const materialQCRouter = require('./routers/material_qc_router.js');
+const lotRouter = require('./routers/lot_router.js');
+const ioRouter = require('./routers/inbound_outbound_router.js');
+const outboundRouter = require('./routers/outbound_router.js');
+//영업
+const poRouter = require('./routers/purchaseorder_router.js');
+//관리
 const itemRouter = require('./routers/item_router.js');
 const userRouter = require('./routers/user_router.js');
-
-const materialsRouter = require('./routers/materials_router.js');
-const lotRouter       = require('./routers/lot_router.js');
-const poRouter        = require('./routers/purchaseorder_router.js');
-const ioRouter        = require('./routers/inbound_outbound_router.js');
-const moRouter    = require('./routers/material_order_router.js');
-const outboundRouter = require('./routers/outbound_router.js');
-const materialQCRouter = require('./routers/material_qc_router.js');
 
 
 // 기본 라우팅
 app.get('/', (req, res)=>{
-  res.send('Welcome!! / lisa branch test ');
+  res.send('Welcome!!');
 })
 
-// 라우터 모듈 등록 확인
-app.use('/', userRouter);
-app.use('/', itemRouter);
-//app.use('/', materialRouter);
+// 라우터 모듈 등록
+//생산
 app.use('/', planRouter);
 app.use('/', plansRouter);
 app.use('/', instRouter);
 app.use('/', instsRouter);
-//쪼의 영역
+//공정
 app.use('/', processRouter);
 app.use('/', testQCRouter);
 app.use('/', detailsRouter);
 app.use('/', qulityRouter);
-
+//관리
+app.use('/', userRouter);
 app.use('/', itemRouter);
-
-
+//영업
+app.use('/', poRouter);
+//자재
 app.use('/', materialsRouter);
 app.use('/', lotRouter);
-app.use('/', poRouter);
 app.use('/', ioRouter);
 app.use('/', moRouter);
 app.use('/', outboundRouter);
 app.use('/', materialQCRouter);
-
-
-// 라우터 모듈 등록
-app.use('/', productRouter);
-app.use('/', userRouter);
