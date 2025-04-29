@@ -12,7 +12,7 @@
         <div class="pe-md-3 d-flex align-items-center ms-md-auto">
 
           <material-input id="search" label="Search here" />
-        </div> -->
+        </div> 
         <ul class="navbar-nav justify-content-end">
 
           <li class="nav-item d-flex align-items-center">

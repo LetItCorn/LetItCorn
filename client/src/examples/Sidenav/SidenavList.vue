@@ -104,7 +104,7 @@
             <i class="material-icons-round opacity-10 fs-5">assignment</i>
           </template>
         </sidenav-collapse>
-      </li> -->
+      </li> 
     </ul>
 
     <div class="sidenav-footer position-absolute w-100 bottom-0">
@@ -142,21 +142,27 @@
         title: "Soft UI Dashboard PRO",
         controls: "dashboardsExamples",
         isActive: "active",
-        store: useConfigStore().subMenu, // Pinia store 등록
-        list : []
+        store: useConfigStore(), // Pinia store 등록
+        list : [],
+        deepList : []
       };
     },
     methods : {
-      test(){
-        console.log(this.store);
-      }
+     mkDeepMenu(obj){
+      this.deepList = Object.keys(obj)
+     }
     },
-    computed :{
-      store(){
-        this.list = Object.keys(this.store)
-        this.test()
-        return 
-      }
+    watch: {
+    "store.subMenu": {
+      handler(newVal) {
+        if (newVal) {
+          this.list = Object.keys(newVal); // menuData의 키만 가져오기
+          console.log(this.list);
+
+        }
+      },
+
     }
+  },
   };
 </script>
