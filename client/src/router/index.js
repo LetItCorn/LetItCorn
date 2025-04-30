@@ -9,6 +9,8 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
+import ItemList  from '@/views/ItemList.vue';
+import ItemInfo   from '@/views/ItemInfo.vue';
 
 const routes = [
   {
@@ -67,9 +69,22 @@ const routes = [
   //   component: () => import("../views/Home.vue"),
   // },
   {
-    pahth: "/leetest",
+    path: "/leetest",
     name: "Leetest",
     component: Leetest,
+  },
+  {
+    // 품목관리 페이지
+    path: '/items',
+    name: 'ItemList',
+    component: ItemList,
+    meta: { title: '품목 관리' }
+  },
+  {
+    path: '/item',
+    name: 'ItemInfo',
+    component: ItemInfo,
+    meta: { title: '품목 상세' }
   },
 ];
 
