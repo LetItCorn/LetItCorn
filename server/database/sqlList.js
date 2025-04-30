@@ -12,11 +12,14 @@ const testQc = require('./sqls/testQc.js');
 const items = require('./sqls/items.js');
 const users = require('./sqls/user.js');
 const boms = require('./sqls/boms.js');
+const equipment = require('./sqls/equipment.js');
+const processes = require('./sqls/processes.js');
+const defectCodes = require('./sqls/defect_codes.js');
+const commonCodes = require('./sqls/common_codes.js');
+const employees = require('./sqls/employees.js');
 const materials = require('./sqls/materials.js'); 
 const lotInventory  = require('./sqls/lot_inventory.js');
 const purchaseorders = require('./sqls/purchaseorders.js');
-const inboundOut  = require('./sqls/inbound_outbound.js');
-const materialOrders = require('./sqls/material_orders.js');
 const materialOrderDetail= require('./sqls/material_order_details.js');
 const outboundCandidates = require('./sqls/outbound_candidates.js');
 const materialQCList  = require('./sqls/material_qc.js');
@@ -36,11 +39,14 @@ module.exports = {
   ...items,
   ...users,
   ...boms,
+  ...equipment,
+  ...processes,
+  ...defectCodes,
+  ...commonCodes,
+  ...employees,
     ...materials,
     ...lotInventory,
     ...purchaseorders,
-    ...inboundOut,
-    ...materialOrders,
     ...materialOrderDetail,
     ...outboundCandidates,
     ...materialQCList,

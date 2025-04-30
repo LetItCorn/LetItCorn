@@ -10,6 +10,12 @@ import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
 import Process from "@/views/process.vue";
+import ItemList  from '@/views/ItemList.vue';
+import ItemInfo   from '@/views/ItemInfo.vue';
+import { compile } from "vue";
+
+
+
 
 const routes = [
   {
@@ -73,9 +79,23 @@ const routes = [
     component: Leetest,
   },
   {
+
     path: "/process",
     name: "Process",
     component: Process,
+
+    // 품목관리 페이지
+    path: '/items',
+    name: 'ItemList',
+    component: ItemList,
+    meta: { title: '품목 관리' }
+  },
+  {
+    path: '/item',
+    name: 'ItemInfo',
+    component: ItemInfo,
+    meta: { title: '품목 상세' }
+
   },
 ];
 

@@ -42,10 +42,9 @@ const detailsRouter = require('./routers/prLogDt_router.js');
 const qulityRouter = require('./routers/pQcLog_router.js');
 //자재
 const materialsRouter = require('./routers/materials_router.js');
-const moRouter = require('./routers/material_order_router.js');
+//const moRouter = require('./routers/material_order_router.js');
 const materialQCRouter = require('./routers/material_qc_router.js');
 const lotRouter = require('./routers/lot_router.js');
-const ioRouter = require('./routers/inbound_outbound_router.js');
 const outboundRouter = require('./routers/outbound_router.js');
 //영업
 const poRouter = require('./routers/purchaseorder_router.js');
@@ -53,8 +52,11 @@ const poRouter = require('./routers/purchaseorder_router.js');
 const userRouter = require('./routers/user_router.js');
 const itemRouter = require('./routers/item_router.js');
 const bomRouter = require('./routers/bom_router.js');
-
-
+const equipmentRouter = require('./routers/equipment_router.js');
+const processDefRouter = require('./routers/process_router.js');
+const defectCodesRouter = require('./routers/defect_codes_router.js');
+const commonCodesRouter = require('./routers/common_codes_router.js');
+const employeeRouter = require('./routers/employee_router.js');
 
 // 기본 라우팅
 app.get('/', (req, res)=>{
@@ -76,13 +78,16 @@ app.use('/', qulityRouter);
 app.use('/', userRouter);
 app.use('/', itemRouter);
 app.use('/', bomRouter);
-
+app.use('/', equipmentRouter);
+app.use('/', processDefRouter);
+app.use('/', defectCodesRouter);
+app.use('/', commonCodesRouter);
+app.use('/', employeeRouter);   
 //영업
 app.use('/', poRouter);
 //자재
 app.use('/', materialsRouter);
 app.use('/', lotRouter);
-app.use('/', ioRouter);
-app.use('/', moRouter);
+//app.use('/', moRouter);
 app.use('/', outboundRouter);
 app.use('/', materialQCRouter);

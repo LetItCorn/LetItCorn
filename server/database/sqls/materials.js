@@ -7,17 +7,37 @@ SELECT
   m.mater_storage                   AS category_name,
   m.safe_stock                      AS safe_stock,
   COALESCE(
-    (SELECT SUM(min_qty)     FROM m_inbound  WHERE mater_code = m.mater_code),
-    0
-  )
-  -
-  COALESCE(
-    (SELECT SUM(mout_qty)    FROM m_outbound WHERE mater_code = m.mater_code),
-    0
-  )                                  AS total_stock
+      (SELECT SUM(min_qty)
+         FROM m_inbound
+        WHERE mater_code = m.mater_code
+      ), 0
+    )
+   -
+   COALESCE(
+      (SELECT SUM(min_oqty)
+         FROM m_inbound
+        WHERE mater_code = m.mater_code
+      ), 0
+    )                                 AS total_stock
 FROM material m
 ORDER BY m.mater_code
 `; 
+
+const selectMatLotList = 
+`SELECT
+  i.mater_lot    AS 'LOT 코드',
+  i.mater_code   AS '자재 코드',
+  m.mater_name   AS '자재명',
+  i.min_stock    AS '재고',
+  i.min_date     AS '입고일자',
+  i.min_edate    AS '유통기한',
+  m.safe_stock   AS '안전재고'
+FROM m_inbound AS i
+JOIN material  AS m
+  ON i.mater_code = m.mater_code
+ORDER BY i.min_date;`
+
+
 
 const selectMaterialOne = 
 `SELECT *
@@ -42,5 +62,6 @@ module.exports = {
   selectMaterialOne,
   insertMaterial,
   updateMaterial,
-  deleteMaterial
+  deleteMaterial,
+  selectMatLotList
 };

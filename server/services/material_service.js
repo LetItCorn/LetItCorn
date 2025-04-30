@@ -9,6 +9,14 @@ const findAllMaterials = async () => {
     return list;
 };
 
+// 자재 LOT 목록 조회 
+const findAllMAtLOTlist = async () => {
+    let list = await mariadb.query('selectMatLotList')
+    .catch(err => console.error(err));
+    return list;
+}
+
+
 // 단건 조회
 const findMaterialByCode = async (code) => {
     let list = await mariadb.query('selectMaterialOne', code)
@@ -44,5 +52,6 @@ module.exports = {
     findMaterialByCode,
     addMaterial,
     updateMaterialInfo,
-    removeMaterial
+    removeMaterial,
+    findAllMAtLOTlist
 };
