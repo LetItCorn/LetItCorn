@@ -1,4 +1,4 @@
-// id 기준 조회 => emp_id 조회
+// 로그인
 const findUserByUserId = 
 `SELECT user_id, 
         user_passd
