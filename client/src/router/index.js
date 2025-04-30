@@ -9,6 +9,8 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
+import { compile } from "vue";
+import MaLotList from "@/views/MaLotList.vue";
 
 const routes = [
   {
@@ -67,9 +69,14 @@ const routes = [
   //   component: () => import("../views/Home.vue"),
   // },
   {
-    pahth: "/leetest",
+    path: "/leetest",
     name: "Leetest",
     component: Leetest,
+  },
+  {
+    path: "/malotlist",
+    name: "MaLotList",
+    componenet: MaLotList,
   },
 ];
 

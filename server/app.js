@@ -42,10 +42,9 @@ const detailsRouter = require('./routers/prLogDt_router.js');
 const qulityRouter = require('./routers/pQcLog_router.js');
 //자재
 const materialsRouter = require('./routers/materials_router.js');
-const moRouter = require('./routers/material_order_router.js');
+//const moRouter = require('./routers/material_order_router.js');
 const materialQCRouter = require('./routers/material_qc_router.js');
 const lotRouter = require('./routers/lot_router.js');
-const ioRouter = require('./routers/inbound_outbound_router.js');
 const outboundRouter = require('./routers/outbound_router.js');
 //영업
 const poRouter = require('./routers/purchaseorder_router.js');
@@ -82,7 +81,6 @@ app.use('/', poRouter);
 //자재
 app.use('/', materialsRouter);
 app.use('/', lotRouter);
-app.use('/', ioRouter);
-app.use('/', moRouter);
+//app.use('/', moRouter);
 app.use('/', outboundRouter);
 app.use('/', materialQCRouter);
