@@ -9,10 +9,12 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
+import Process from "@/views/process.vue";
 import ItemList  from '@/views/ItemList.vue';
 import ItemInfo   from '@/views/ItemInfo.vue';
 import { compile } from "vue";
-import MaLotList from "@/views/MaLotList.vue";
+
+
 
 
 const routes = [
@@ -77,6 +79,11 @@ const routes = [
     component: Leetest,
   },
   {
+
+    path: "/process",
+    name: "Process",
+    component: Process,
+
     // 품목관리 페이지
     path: '/items',
     name: 'ItemList',
@@ -88,10 +95,6 @@ const routes = [
     name: 'ItemInfo',
     component: ItemInfo,
     meta: { title: '품목 상세' }
-
-    path: "/malotlist",
-    name: "MaLotList",
-    componenet: MaLotList,
 
   },
 ];

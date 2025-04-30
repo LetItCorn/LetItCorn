@@ -59,6 +59,12 @@ const removePrLogInfo = async (pLogNo) => {
   let result = await mariadb.query("prLogDelete", pLogNo);
   return result;
  };
+// 진행하지 않은 생산지시 가져오기
+ const getinst = async()=>{
+  console.log("service");
+  let result = await mariadb.query("selectInst")
+  return result;
+ }
 
  module.exports = {
   findProcess,
@@ -66,4 +72,5 @@ const removePrLogInfo = async (pLogNo) => {
   addNewPrLog,
   modifyPrLogInfo,
   removePrLogInfo,
+  getinst
  };
