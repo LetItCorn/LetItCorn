@@ -11,6 +11,9 @@ import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
 import ItemList  from '@/views/ItemList.vue';
 import ItemInfo   from '@/views/ItemInfo.vue';
+import { compile } from "vue";
+import MaLotList from "@/views/MaLotList.vue";
+
 
 const routes = [
   {
@@ -85,6 +88,11 @@ const routes = [
     name: 'ItemInfo',
     component: ItemInfo,
     meta: { title: '품목 상세' }
+
+    path: "/malotlist",
+    name: "MaLotList",
+    componenet: MaLotList,
+
   },
 ];
 

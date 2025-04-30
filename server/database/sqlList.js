@@ -20,8 +20,6 @@ const employees = require('./sqls/employees.js');
 const materials = require('./sqls/materials.js'); 
 const lotInventory  = require('./sqls/lot_inventory.js');
 const purchaseorders = require('./sqls/purchaseorders.js');
-const inboundOut  = require('./sqls/inbound_outbound.js');
-const materialOrders = require('./sqls/material_orders.js');
 const materialOrderDetail= require('./sqls/material_order_details.js');
 const outboundCandidates = require('./sqls/outbound_candidates.js');
 const materialQCList  = require('./sqls/material_qc.js');
@@ -49,8 +47,6 @@ module.exports = {
     ...materials,
     ...lotInventory,
     ...purchaseorders,
-    ...inboundOut,
-    ...materialOrders,
     ...materialOrderDetail,
     ...outboundCandidates,
     ...materialQCList,
