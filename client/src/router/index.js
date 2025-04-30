@@ -13,6 +13,7 @@ import Process from "@/views/process.vue";
 import ItemList  from '@/views/ItemList.vue';
 import ItemInfo   from '@/views/ItemInfo.vue';
 import { compile } from "vue";
+import Productionplan from "@/views/Productionplan.vue";
 
 
 
@@ -96,6 +97,11 @@ const routes = [
     component: ItemInfo,
     meta: { title: '품목 상세' }
 
+  },
+  {
+    path: '/plan',
+    name: 'ProductionPlan',
+    component: Productionplan,
   },
 ];
 
