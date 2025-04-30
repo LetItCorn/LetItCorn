@@ -54,6 +54,12 @@ export default {
       const routeArr = this.$route.path.split("/");
       return routeArr[1];
     }
+  },
+  watch : {
+    navText(){
+      // console.log("nav");
+    }
   }
+
 };
 </script>
