@@ -9,6 +9,12 @@ router.get('/materials', async (req, res) => {
     res.send(MaterialList);
 });
 
+// 자재 LOT 조회
+router.get('/materials', async (req, res) => {
+    const MaterialLotList = await materialService.findAllMAtLOTlist();
+    res.send(MaterialLotList);
+});
+
 // 단건 조회
 router.get('/materials/:code', async (req, res) => {
     const code = req.params.code;
