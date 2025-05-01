@@ -145,6 +145,5 @@
 <style>
   .navbar-nav span {
     padding-left: 20px;
-    color: #fff;
   }
 </style>

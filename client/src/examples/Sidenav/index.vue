@@ -57,4 +57,7 @@ const isLoggedIn = computed(() => {
     max-width: 100px !important;
     width: 100% !important;
   }
+  .navbar-brand {
+    color: #000 !important;
+  }
 </style>
