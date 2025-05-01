@@ -10,12 +10,18 @@ export const useUserStore = defineStore('user', {
   // getters : state 의 값을 필터링하거나 readonly 로 조회하기 위한 함수 정의 => computed 로 작성 getters: {
   getters: { //getters는 함수형태, readonly 라서 화살표함수로 편하게 사용
     userId: state => state.user.id,
+    empName: state => state.user.emp_name,
   },
 
   // actions : state 를 변경하기 위한 함수
   actions: {
-    addLoginId(loginId) {
-      this.user.id = loginId;
+    addLoginId(userData) {
+      if(typeof userData === 'object'){
+        this.user.id = userData.id;
+        this.user.emp_name = userData.emp_name;
+      }else{
+        this.user.id = userData;
+      }
     },
     removeLoginId() {
       this.user = {};

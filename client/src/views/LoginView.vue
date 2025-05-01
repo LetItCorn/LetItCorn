@@ -55,7 +55,10 @@ export default {
         let loginRes = result.data;
         if (loginRes.result) {
             // 로그인한 정보를 store(저장소)에 저장하는 addLogindId() 호출
-            this.addLoginId(loginRes.id);
+            this.addLoginId({
+                id:loginRes.id,
+                emp_name:loginRes.emp_name,
+            });
             this.$router.push("/dashboard");    
         } else {
             alert(loginRes.message);

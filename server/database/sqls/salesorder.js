@@ -1,14 +1,14 @@
 // 주문서 전체 조회
 const selectSalesOrderList = 
 `SELECT
-  so.sorder_code    AS 주문번호,
-  c.client_name     AS 거래처명,
-  c.client_mgr      AS 담당자,
-  i.item_name       AS 품목명,
-  so.delivery_date  AS 납기일자,
-  so.sorder_count   AS 주문수량,
-  so.status         AS 상태,
-  e.emp_id          AS 작성자
+  so.sorder_code,
+  c.client_name,
+  c.client_mgr,
+  i.item_name,
+  so.delivery_date,
+  so.sorder_count,
+  so.status,
+  e.emp_id
 FROM salesorder AS so
 JOIN client     AS c
   ON so.client_code = c.client_code
@@ -21,14 +21,14 @@ ORDER BY so.sorder_code DESC`;
 // 주문서 조건별 단건 조회
 const selectSalesOrderOne =
 `SELECT
-  so.sorder_code    AS 주문번호,
-  c.client_name     AS 거래처명,
-  c.client_mgr      AS 담당자,
-  i.item_name       AS 품목명,
-  so.delivery_date  AS 납기일자,
-  so.sorder_count   AS 주문수량,
-  so.status         AS 상태,
-  e.emp_id          AS 작성자
+  so.sorder_code,
+  c.client_name,
+  c.client_mgr,
+  i.item_name,
+  so.delivery_date,
+  so.sorder_count,
+  so.status,
+  e.emp_id
 FROM salesorder AS so
 JOIN client     AS c
   ON so.client_code = c.client_code
@@ -62,5 +62,8 @@ WHERE sorder_code = ?`;
 
 // 주문서 등록
 const insertSalesOrder =
-`INSERT INTO salesorder (client_name, client_mgr, delivery_date)
+`INSERT INTO salesorder (c.client_name, c.client_mgr, delivery_date)
+SELECT c.client_name, c.client_mgr
+FROM client AS c
+WHERE c.client_code = ?
 VALUES (?)`;

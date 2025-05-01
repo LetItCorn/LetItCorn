@@ -1,58 +1,51 @@
 <template>
-  <nav class="shadow-none navbar navbar-main navbar-expand-lg border-radius-xl" v-bind="$attrs" id="navbarBlur"
-    data-scroll="true" :class="store.isAbsolute ? 'mt-4' : 'mt-0'">
+  <nav class="shadow-none navbar navbar-main navbar-expand-lg border-radius-xl" v-bind="$attrs" id="navbarBlur" data-scroll="true" :class="store.isAbsolute ? 'mt-4' : 'mt-0'">
     <div class="px-3 py-1 container-fluid">
-      <breadcrumbs :currentPage="currentRouteName" :color="color" />
-
+      <!-- <breadcrumbs :currentPage="currentRouteName" :color="color" /> -->
       <div class="mt-2 collapse navbar-collapse mt-sm-0 me-md-0 me-sm-4" id="navbar">
-        <div v-for="menu in menus">
-          <!-- menuConfig의 키 값 for, click 이벤트 매개변수로 키값 넘김-->
-          <button @click="selectedMenu(menu)">{{ menu }}</button>
+        <div class="nav-menu-container">
+          <div v-for="menu in menus" class="nav-group">
+            <!-- menuConfig의 키 값 for, click 이벤트 매개변수로 키값 넘김-->
+            <button @click="selectedMenu(menu)">{{ menu }}</button>
+          </div>
         </div>
-        <div class="pe-md-3 d-flex align-items-center ms-md-auto">
-
+        <!-- <div class="pe-md-3 d-flex align-items-center ms-md-auto">
           <material-input id="search" label="Search here" />
-        </div> 
-        <ul class="navbar-nav justify-content-end">
-          
-          <div class="btn-group" v-if="userStore.userId !== null">
-            <span>{{userStore.userId}}님</span>
+        </div>  -->
+        <ul class="navbar-nav login-container">
+          <div class="login-group" v-if="userStore.userId !== null"> <!--로그인 사용자 정보-->
+            <span class="login-name">{{userStore.empName}}님</span>
             <button @click="logout">로그아웃</button>
           </div>
-
-          <li class="nav-item d-flex align-items-center">
+          <!-- <li class="nav-item d-flex align-items-center">
             <router-link :to="{ name: 'SignIn' }" class="px-0 nav-link font-weight-bold lh-1"
               :class="color ? color : 'text-body'">
               <i class="material-icons me-sm-1">
                 account_circle
               </i>
             </router-link>
-          </li>
-          <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+          </li> -->
+          <!-- <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
             <a href="#" @click="toggleSidebar" class="p-0 nav-link text-body lh-1" id="iconNavbarSidenav">
-
               <div class="sidenav-toggler-inner">
                 <i class="sidenav-toggler-line"></i>
                 <i class="sidenav-toggler-line"></i>
                 <i class="sidenav-toggler-line"></i>
               </div>
             </a>
-
-          </li>
-          <li class="px-3 nav-item d-flex align-items-center">
+          </li> -->
+          <!-- <li class="px-3 nav-item d-flex align-items-center">
             <a class="p-0 nav-link lh-1" @click="store.toggleConfigurator" :class="color ? color : 'text-body'">
-
               <i class="material-icons fixed-plugin-button-nav cursor-pointer">
                 settings
               </i>
             </a>
-
-          </li>
+          </li> -->
           <li class="nav-item dropdown d-flex align-items-center pe-2">
-            <a href="#" class="p-0 nav-link lh-1" :class="[color ? color : 'text-body', showMenu ? 'show' : '']"
+            <!-- <a href="#" class="p-0 nav-link lh-1" :class="[color ? color : 'text-body', showMenu ? 'show' : '']"
               id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" @click="showMenu = !showMenu">
               <i class="material-icons cursor-pointer"> notifications </i>
-            </a>
+            </a> -->
             <ul class="px-2 py-3 dropdown-menu dropdown-menu-end me-sm-n4" :class="showMenu ? 'show' : ''"
               aria-labelledby="dropdownMenuButton">
               <!-- 알림 항목들 -->
@@ -78,6 +71,7 @@
         showMenu: false,
         store: useUserStore(), // Pinia store 인스턴스 -> 로그아웃 useConfigStroe에서 useUserStore로 변경
         // store/menuConfig
+        menuStore : useConfigStore(),
         menuConfig,
       };
     },
@@ -92,7 +86,7 @@
       selectedMenu(menuName) {
         // 받아온 키값을 대응시켜 키에 일치하는 값을 store의 choiceSubMenu에 매개변수로 보낸다.
         let subMenuConfig = this.menuConfig[menuName];
-        this.store.choiceSubMenu(subMenuConfig);
+        this.menuStore.choiceSubMenu(subMenuConfig);
       },
       logout(){
         //this.userId = '';
@@ -122,3 +116,41 @@
     },
   };
 </script>
+<style>
+  .collapse navbar-collapse{
+    font-size: 20px;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100%;
+  }
+  .nav-menu-container{
+    display: flex;
+    justify-content: center;
+    flex: 1;
+  }
+  .nav-group{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .nav-group button {
+    background: none;
+    border: none;
+    color: #000 !important;
+    text-decoration: none;
+    font-size: 45px;
+    margin-right: 100px;
+  }
+  .login-group {
+    font-size: 20px;
+  }
+  .login-name {
+    color: #000 !important;
+    margin-right: 20px;
+  }
+  .login-group button {
+    border: none;
+    text-decoration: none;
+  }
+</style>
