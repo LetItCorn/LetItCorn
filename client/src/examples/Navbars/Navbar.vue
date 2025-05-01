@@ -14,6 +14,11 @@
           <material-input id="search" label="Search here" />
         </div> 
         <ul class="navbar-nav justify-content-end">
+          
+          <div class="btn-group" v-if="userStore.userId !== null">
+            <span>{{userStore.userId}}님</span>
+            <button @click="logout">로그아웃</button>
+          </div>
 
           <li class="nav-item d-flex align-items-center">
             <router-link :to="{ name: 'SignIn' }" class="px-0 nav-link font-weight-bold lh-1"
@@ -62,19 +67,16 @@
 <script>
   import MaterialInput from "@/components/MaterialInput.vue";
   import Breadcrumbs from "../Breadcrumbs.vue";
-  import {
-    useConfigStore
-  } from "@/store/index"; // Pinia store import
-  import {
-    menuConfig
-  } from '@/utils/menuList.js'
+  import { useConfigStore } from "@/store/index"; // Pinia store import
+  import { useUserStore } from "@/store/user"; // Pinia store import
+  import { menuConfig } from '@/utils/menuList';
 
   export default {
     name: "navbar",
     data() {
       return {
         showMenu: false,
-        store: useConfigStore(), // Pinia store 인스턴스
+        store: useUserStore(), // Pinia store 인스턴스 -> 로그아웃 useConfigStroe에서 useUserStore로 변경
         // store/menuConfig
         menuConfig,
       };
@@ -91,6 +93,12 @@
         // 받아온 키값을 대응시켜 키에 일치하는 값을 store의 choiceSubMenu에 매개변수로 보낸다.
         let subMenuConfig = this.menuConfig[menuName];
         this.store.choiceSubMenu(subMenuConfig);
+      },
+      logout(){
+        //this.userId = '';
+        //localStorage.removeItem('userId');
+        this.store.removeLoginId();
+        this.$router.push("/login");
       }
     },
     components: {
@@ -98,8 +106,14 @@
       MaterialInput,
     },
     computed: {
+      userId(){
+      return this.store.userId; // Pinia store에서 userId 가져오기  
+      },
       currentRouteName() {
         return this.$route.name;
+      },
+      userStore() {
+      return useUserStore(); 
       },
       menus() {
         //menus에 munuConfig의 키들을 리턴한다.

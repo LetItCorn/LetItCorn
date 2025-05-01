@@ -11,6 +11,9 @@ import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
 import ItemList  from '@/views/Item.vue';
 import Bom from '@/views/Bom.vue';
+import Process from "@/views/process.vue";
+import { compile } from "vue";
+
 
 
 
@@ -77,6 +80,11 @@ const routes = [
     component: Leetest,
   },
   {
+
+    path: "/process",
+    name: "Process",
+    component: Process,
+
     // 품목관리 페이지
     path: '/items',
     name: 'ItemList',
@@ -88,6 +96,7 @@ const routes = [
     name: 'Bom',
     component: Bom,
     meta: { title: 'BOM 관리' }
+
   },
 ];
 

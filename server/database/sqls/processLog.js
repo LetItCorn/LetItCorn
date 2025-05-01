@@ -1,5 +1,17 @@
 //table = process_log 
 // join은 self입니다 쪼
+//생산지시 자동선택
+const selectInst =
+`SELECT h.inst_head, 
+        lot_cnt, 
+        item_code, 
+        iord_no, 
+        ins_stat
+  FROM inst_header h JOIN inst i
+                      ON  h.inst_head = i.inst_head
+  WHERE ins_stat = 'J02'`
+;
+
 const selectProcessLog =
  `SELECT pl.p_log_no,
        pl.log_dt,
@@ -42,4 +54,5 @@ WHERE pl.p_log_no = ?`;
     prLogInsert,
     prLogUpdate,
     prLogDelete,
+    selectInst
  };

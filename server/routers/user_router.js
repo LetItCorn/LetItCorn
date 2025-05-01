@@ -22,9 +22,9 @@ router.post('/login', async (req, res)=>{
 });
 
 // 로그아웃
-router.get('/logout', (req, res)=>{
-  req.session.destroy();
-  res.send({ result : true });
-});
+// router.get('/logout', (req, res)=>{
+//   req.session.destroy();
+//   res.send({ result : true });
+// });
 
 module.exports = router
