@@ -61,7 +61,7 @@ const menuConfig = {
   생산: {
     "공정관리": [{
         name: "공정진행",
-        path: 'Process'
+        path: 'proc'
       }, {
         name: "공정이력조회",
         path: '#'
