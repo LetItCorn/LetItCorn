@@ -11,6 +11,8 @@ import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
 import { compile } from "vue";
 import MaLotList from "@/views/MaLotList.vue";
+import MOrderForm from '@/views/MOrderForm.vue';
+import MOrdersList from '@/views/MOrdersList.vue';
 
 const routes = [
   {
@@ -77,6 +79,16 @@ const routes = [
     path: "/malotlist",
     name: "MaLotList",
     componenet: MaLotList,
+  },
+  { 
+    path: '/m_orders',
+    name: 'MOrderForm',
+    component: MOrderForm, 
+  },
+  {
+    path: '/m_orderslist',
+    name: 'MOrdersList',
+    component: MOrdersList,
   },
 ];
 
