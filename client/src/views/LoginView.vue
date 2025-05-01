@@ -59,7 +59,7 @@ export default {
                 id:loginRes.id,
                 emp_name:loginRes.emp_name,
             });
-            this.$router.push("/dashboard");    
+            this.$router.replace("/dashboard");    
         } else {
             alert(loginRes.message);
         }

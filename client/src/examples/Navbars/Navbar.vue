@@ -4,16 +4,16 @@
       <!-- <breadcrumbs :currentPage="currentRouteName" :color="color" /> -->
       <div class="mt-2 collapse navbar-collapse mt-sm-0 me-md-0 me-sm-4" id="navbar">
         <div class="nav-menu-container">
-          <div v-for="menu in menus" class="nav-group">
+          <div v-for="menu in menus" class="nav-group" v-if="isLoggedIn">
             <!-- menuConfig의 키 값 for, click 이벤트 매개변수로 키값 넘김-->
-            <button @click="selectedMenu(menu)">{{ menu }}</button>
+            <button @click="selectedMenu(menu)" :class="{'active-menu':acvtiveMenu === menu}">{{ menu }}</button>
           </div>
         </div>
         <!-- <div class="pe-md-3 d-flex align-items-center ms-md-auto">
           <material-input id="search" label="Search here" />
         </div>  -->
         <ul class="navbar-nav login-container">
-          <div class="login-group" v-if="userStore.userId !== null"> <!--로그인 사용자 정보-->
+          <div class="login-group" v-if="isLoggedIn"> <!--로그인 사용자 정보-->
             <span class="login-name">{{userStore.empName}}님</span>
             <button @click="logout">로그아웃</button>
           </div>
@@ -68,6 +68,7 @@
     name: "navbar",
     data() {
       return {
+        acvtiveMenu: null,
         showMenu: false,
         store: useUserStore(), // Pinia store 인스턴스 -> 로그아웃 useConfigStroe에서 useUserStore로 변경
         // store/menuConfig
@@ -87,13 +88,14 @@
         // 받아온 키값을 대응시켜 키에 일치하는 값을 store의 choiceSubMenu에 매개변수로 보낸다.
         let subMenuConfig = this.menuConfig[menuName];
         this.menuStore.choiceSubMenu(subMenuConfig);
+        this.acvtiveMenu = menuName;
       },
       logout(){
         //this.userId = '';
         //localStorage.removeItem('userId');
         this.store.removeLoginId();
         this.$router.push("/login");
-      }
+      },
     },
     components: {
       Breadcrumbs,
@@ -113,6 +115,10 @@
         //menus에 munuConfig의 키들을 리턴한다.
         return Object.keys(this.menuConfig);
       },
+      isLoggedIn() {
+        // 로그인 여부를 확인하는 computed property
+        return this.userId != undefined;
+      }
     },
   };
 </script>
@@ -141,6 +147,15 @@
     text-decoration: none;
     font-size: 45px;
     margin-right: 100px;
+  }
+  .nav-group button:hover {
+    color: #1900ff !important;
+    font-weight: bold;
+  }
+  /* active 효과 활성화 */
+  .nav-group button.active-menu {
+    color: #1900ff !important;
+    font-weight: bold;
   }
   .login-group {
     font-size: 20px;
