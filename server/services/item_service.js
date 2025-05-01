@@ -2,40 +2,123 @@
 
 const mariaDB = require('../database/mapper.js');
 
-// 품목 조회
-const findItems = async () => {
-    let list = await mariaDB.query('itemList')
-                         .catch(err => console.log(err));
-    return list;
-  };
+// 1) 전체조회 + 조건검색
+//    filters: { code: string, name: string, type: string }
+const findItems = async (filters = {}) => {
+  // 기본 빈 문자열로 초기화해야 SQL에서 (? = '' OR ...) 구문이 동작합니다
+  const code = filters.code || '';
+  const name = filters.name || '';
+  const type = filters.type || '';
 
-// 품목 단건조회
-const findByItem = async (selectedItem)=>{
-  let list = await mariaDB.query('itemInfo', selectedItem)
-                     .catch(err => console.log(err));
-  let info = list[0];
-  return info;
+  // itemList 쿼리에 파라미터 순서대로 전달
+  const params = [code, code, name, name, type, type];
+  const list = await mariaDB
+    .query('itemList', params)
+    .catch(err => {
+      console.error('findItems error', err);
+      return [];
+    });
+  return list;
 };
 
-// 등록
-const createItem = async (itemInfo)=>{
-  let addItem = convertAary(itemInfo);
-  let result = await mariadb.query('itemInsert', addItem);
+// 1-a) 코드 단독 조회
+const findItemsByCode = async (code) => {
+  const list = await mariaDB
+    .query('itemListByCode', [code])
+    .catch(err => {
+      console.error('findItemsByCode error', err);
+      return [];
+    });
+  return list;
+};
+
+// 1-b) 명칭 단독 조회
+const findItemsByName = async (name) => {
+  const list = await mariaDB
+    .query('itemListByName', [name])
+    .catch(err => {
+      console.error('findItemsByName error', err);
+      return [];
+    });
+  return list;
+};
+
+// 1-c) 타입 단독 조회
+const findItemsByType = async (type) => {
+  const list = await mariaDB
+    .query('itemListByType', [type])
+    .catch(err => {
+      console.error('findItemsByType error', err);
+      return [];
+    });
+  return list;
+};
+
+// 2) 단건조회
+const findByItem = async (itemCode) => {
+  const rows = await mariaDB
+    .query('itemInfo', [itemCode])
+    .catch(err => {
+      console.error('findByItem error', err);
+      return [];
+    });
+  return rows[0] || null;
+};
+
+// 3) 등록
+const createItem = async (item) => {
+  const params = [
+    item.item_code,
+    item.item_name,
+    item.item_type,
+    item.unit_code,
+    item.spec
+  ];
+  const result = await mariaDB
+    .query('itemInsert', params)
+    .catch(err => {
+      console.error('createItem error', err);
+      throw err;
+    });
   return result;
 };
 
-function convertAary(target){
-  return [
-    target.item_code,
-    target.item_name,
-    target.item_type,
-    target.unit_code,
-    target.spec
+// 4) 수정
+const updateItem = async (item) => {
+  const params = [
+    item.item_name,
+    item.item_type,
+    item.unit_code,
+    item.spec,
+    item.item_code
   ];
-}
+  const result = await mariaDB
+    .query('itemUpdate', params)
+    .catch(err => {
+      console.error('updateItem error', err);
+      throw err;
+    });
+  return result;
+};
+
+// 5) 삭제
+const deleteItem = async (itemCode) => {
+  const result = await mariaDB
+    .query('itemDelete', [itemCode])
+    .catch(err => {
+      console.error('deleteItem error', err);
+      throw err;
+    });
+  return result;
+};
 
 module.exports = {
   findItems,
+  findItemsByCode,
+  findItemsByName,
+  findItemsByType,
   findByItem,
   createItem,
+  updateItem,
+  deleteItem,
 };

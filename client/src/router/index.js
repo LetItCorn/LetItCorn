@@ -9,10 +9,10 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
-import ItemList  from '@/views/ItemList.vue';
-import ItemInfo   from '@/views/ItemInfo.vue';
-import { compile } from "vue";
-import MaLotList from "@/views/MaLotList.vue";
+import ItemList  from '@/views/Item.vue';
+import Bom from '@/views/Bom.vue';
+
+
 
 
 const routes = [
@@ -84,15 +84,10 @@ const routes = [
     meta: { title: '품목 관리' }
   },
   {
-    path: '/item',
-    name: 'ItemInfo',
-    component: ItemInfo,
-    meta: { title: '품목 상세' }
-
-    path: "/malotlist",
-    name: "MaLotList",
-    componenet: MaLotList,
-
+    path: '/boms',
+    name: 'Bom',
+    component: Bom,
+    meta: { title: 'BOM 관리' }
   },
 ];
 
