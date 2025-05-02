@@ -1,5 +1,5 @@
 <template>
-  <footer class="py-3 footer">
+  <footer class="py-3 footer" v-if="isLoggedIn">
     <div class="container-fluid">
       <div class="row align-items-center justify-content-lg-between">
         <div class="mb-4 col-lg-6 mb-lg-0">
@@ -51,13 +51,22 @@
 
 <script>
 import { useConfigStore } from "@/store/index"; // Pinia store import
+import { useUserStore } from "@/store/user"; // Pinia store import
 
 export default {
   name: "app-footer",
   data() {
     return {
-      store: useConfigStore(), // store를 등록
+      store: useUserStore(), // Pinia store 인스턴스 -> 로그아웃 useConfigStroe에서 useUserStore로 변경
+        // store/menuConfig
+        menuStore : useConfigStore(),
     };
   },
+  computed: {
+      isLoggedIn() {
+        // 로그인 여부를 확인하는 computed property
+        return this.userId != undefined;
+      }
+    },
 };
 </script>

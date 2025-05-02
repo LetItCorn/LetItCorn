@@ -16,10 +16,7 @@
   import Configurator from "@/examples/Configurator.vue";
   import Navbar from "@/examples/Navbars/Navbar.vue";
   import AppFooter from "@/examples/Footer.vue";
-  import {
-    useConfigStore
-  } from "@/store/index"; // Pinia store import
-
+  import { useConfigStore } from "@/store/index"; // Pinia store import
 
   export default {
     name: "App",
