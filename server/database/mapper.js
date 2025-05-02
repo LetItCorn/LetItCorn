@@ -1,8 +1,9 @@
   // MariaDB에 접속할 모듈
-  const mariadb = require('mariadb/callback');
+  // const mariadb = require('mariadb/callback');
+
+  const mariadb = require('mariadb');
   // DB에서 실행할 SQL문을 별도 파일로 작성
   const sqlList = require('./sqlList.js');
-
   const { queryFormat  } = require('../utils/converts.js');
 
   //DB에 접속하는 정보를 하드코딩하지 않고 
@@ -33,7 +34,7 @@
   });
 
   // MariaDB에 SQL문을 보내고 결과를 받아올 함수 설정
-  const query = (alias, values)=>{
+  let query = (alias, values)=>{
     return new Promise((resolve, reject)=>{
       let executeSql = queryFormat(sqlList[alias], values);
       connectionPool.query(executeSql, values, (err, results)=>{
@@ -43,9 +44,39 @@
           resolve(results);
         }
       });
-    });
+    })
+     // 프로미스 안에서 에러가 나면 이걸 .catch로 보내서 에러처리함.
+  .catch(err => {
+    console.log(err);
+    return err;
+  })
   };
 
+  //일반 쿼리 
+  query = async (alias, values) => {
+    try{
+      let executeSql = queryFormat(sqlList[alias], values);
+      let result = await connectionPool.query(executeSql, values);
+      return result;
+    }catch(err){
+      console.log(err);
+      return err;
+    }
+  };
+  
+  // 트랜젝션 열고 닫기를 편리하게 하기위해서 작성.
+  const getConnection = async () => await connectionPool.getConnection() ;
+  const selectedQuery = (alias, values) => queryFormat(sqlList[alias], values) ;
+  
   module.exports = {
     query,
+    getConnection,
+    selectedQuery,
   }
+  
+  
+  
+  
+  
+  
+  

@@ -84,10 +84,12 @@
       };
 
     },
+
   components: {
     Breadcrumbs,
     MaterialInput,
   },
+
 
     methods: {
       toggleSidebar() {
@@ -127,8 +129,8 @@
 
     },
 
-  };
-
+  
+};
 
 </script>
 <style>

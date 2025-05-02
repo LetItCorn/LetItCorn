@@ -10,8 +10,10 @@ import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
 import Process from "@/views/Process.vue";
+
 import Productionplan from "@/views/Productionplan_v2.vue";
 import Item from "@/views/Item.vue";
+
 import Bom from '@/views/Bom.vue';
 import MOrderForm from '@/views/MOrderForm.vue';
 import MOrdersList from '@/views/MOrdersList.vue';
@@ -79,6 +81,7 @@ const routes = [
     component: Process,
   },
 
+
    {
      // 품목관리 페이지
      path: '/items',
@@ -87,6 +90,7 @@ const routes = [
    },
   {
     // BOM관리 페이지
+
     path: '/boms',
     name: 'Bom',
     component: Bom,
@@ -95,8 +99,10 @@ const routes = [
     path: '/plan',
     name: 'ProductionPlan',
     component: Productionplan,
+
   }
   ,{ 
+
     path: '/m_orders',
     name: 'MOrderForm',
     component: MOrderForm, 
