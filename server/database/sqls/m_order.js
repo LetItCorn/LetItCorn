@@ -1,3 +1,4 @@
+// 조회
 const selectMOrderList = `
 SELECT
   m.moder_id,
@@ -24,6 +25,7 @@ SELECT *
   WHERE moder_id = ?
 `;
 
+//등록
 const insertMOrder = `
 INSERT INTO m_order (
   moder_id,
@@ -43,16 +45,21 @@ INSERT INTO m_order (
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
+
+//수정
 const updateMOrder = `
 UPDATE m_order
   SET ?
   WHERE moder_id = ? AND mater_code = ?
 `;
 
+//삭제
 const deleteMOrder = `
 DELETE FROM m_order
   WHERE moder_id = ? AND mater_code = ?
 `;
+
+
 
 module.exports = {
   selectMOrderList,
