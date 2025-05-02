@@ -10,10 +10,10 @@ router.post('/login', async (req, res)=>{
 
   if(resInfo.result){
   // 성공한 경우 정보를 세션에 저장
-    req.session.user = resInfo.userInfo.user_id;
+    req.session.user = resInfo.userInfo.emp_name;
     req.session.save(function(err){
       if(err) throw err;
-        res.send({ result : true, id : resInfo.userInfo.user_id });
+        res.send({ result : true, id : resInfo.userInfo.user_id, emp_name : resInfo.userInfo.emp_name });
     })
   }else{
     // 실패한 경우
