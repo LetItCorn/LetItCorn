@@ -142,7 +142,7 @@ const menuConfig = {
     }, ],
     "품목": [{
       name: "품목 목록",
-      path: '#'
+      path: 'items'
     }, ],
     "설비": [{
       name: "설비 목록",
@@ -158,7 +158,7 @@ const menuConfig = {
     }, ],
     "BOM": [{
       name: "BOM 목록",
-      path: '#'
+      path: 'boms'
     }, ],
 
   }
