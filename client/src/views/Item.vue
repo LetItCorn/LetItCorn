@@ -160,8 +160,8 @@
 <script>
 import axios from 'axios';
 
-export default {
-  name: 'ItemList',
+export default { // 외부에서 사용할 수 있도록 내보냄.
+  name: 'Item',
   data() {
     return {
       searchType: '',
@@ -176,7 +176,7 @@ export default {
       }
     };
   },
-  computed: {
+  computed: { // 정의된 데이터 값 변경 감시,  변경될 떄마다 정의된 함수 실행
     filterPlaceholder() {
       switch (this.searchType) {
         case 'code': return '품목코드';
@@ -186,7 +186,7 @@ export default {
       }
     }
   },
-  created() {
+  created() { // 컴포넌트가 처음 화면에 등장할 때 함수를 자동으로 호출하겠단 의미
     this.loadItems();
   },
   methods: {
@@ -198,6 +198,8 @@ export default {
       };
       try {
         const res = await axios.get('/api/items', { params });
+        console.log(res);
+        console.log(res.data);
         this.itemList = res.data;
       } catch {
         this.itemList = [];

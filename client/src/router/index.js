@@ -9,14 +9,10 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
-
 import Process from "@/views/Process.vue";
-// import ItemList  from '@/views/ItemList.vue';
-// import ItemInfo   from '@/views/ItemInfo.vue';
+import Item from "@/views/Item.vue";
 import Bom from '@/views/Bom.vue';
-import { compile } from "vue";
 import Productionplan from "@/views/Productionplan.vue";
-import MaLotList from "@/views/MaLotList.vue";
 import MOrderForm from '@/views/MOrderForm.vue';
 import MOrdersList from '@/views/MOrdersList.vue';
 import MInboundForm from '@/views/MInboundForm.vue';
@@ -84,26 +80,25 @@ const routes = [
     name: "Process",
     component: Process,
   },
-  // {
-  //   // 품목관리 페이지
-  //   path: '/items',
-  //   name: 'ItemList',
-  //   component: ItemList,
-  //   meta: { title: '품목 관리' }
-  // },
+
+   {
+     // 품목관리 페이지
+     path: '/items',
+     name: 'Item', 
+     component: Item,
+   },
   {
+    // BOM관리 페이지
     path: '/boms',
     name: 'Bom',
     component: Bom,
-    meta: { title: 'BOM 관리' }
-
   },
   {
     path: '/plan',
     name: 'ProductionPlan',
     component: Productionplan,
-  },
-  { 
+  }
+  ,{ 
     path: '/m_orders',
     name: 'MOrderForm',
     component: MOrderForm, 

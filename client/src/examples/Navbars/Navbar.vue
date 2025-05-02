@@ -84,11 +84,12 @@
       };
 
     },
- 
+
   components: {
     Breadcrumbs,
     MaterialInput,
   },
+
 
     methods: {
       toggleSidebar() {
@@ -127,7 +128,10 @@
       }
 
     },
-};
+
+  };
+
+
 </script>
 <style>
   .collapse navbar-collapse{
