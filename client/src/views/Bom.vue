@@ -46,7 +46,7 @@
           <div class="card-body d-flex flex-column p-2">
             <!-- BOM 테이블 -->
             <div class="table-responsive flex-fill overflow-auto">
-              <table class="table table-hover table-sm mb-0">
+              <table class="table table-hover table-sm mb-0" >
                 <thead class="thead-light sticky-top">
                   <tr>
                     <th>BOM ID</th>
