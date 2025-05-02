@@ -45,4 +45,14 @@ router.delete('/process/:p_log_no', async (req, res)=>{
  res.send(resInfo);
  })
  
+ router.get('/proce', async(req,res)=>{
+    console.log("route");
+    let result = await processService.getinst()
+                                    .catch(err=>{
+                                        console.log(err);
+                                    })
+                                    res.send(result)
+ })
+
+ 
  module.exports = router

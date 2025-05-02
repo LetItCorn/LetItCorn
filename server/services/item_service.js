@@ -1,69 +1,124 @@
 // server/services/item_service.js
 
-const maria = require('../database/mapper.js');
+const mariaDB = require('../database/mapper.js');
 
-// 품목 조회: searchType, searchValue 따라 분기
-const findItems = async (searchType, searchValue) => {
-  let list;
+// 1) 전체조회 + 조건검색
+//    filters: { code: string, name: string, type: string }
+const findItems = async (filters = {}) => {
+  // 기본 빈 문자열로 초기화해야 SQL에서 (? = '' OR ...) 구문이 동작합니다
+  const code = filters.code || '';
+  const name = filters.name || '';
+  const type = filters.type || '';
 
-  // 1) 검색조건 없으면 전체 조회
-  if (!searchType || !searchValue) {
-    list = await maria.query('selectItemList')
-      .catch(err => { console.error(err); return []; });
-  } else {
-    // 2) 검색조건 있을 때
-    if (searchType === 'code') {
-      list = await maria.query('selectItemOne', [searchValue])
-        .catch(err => { console.error(err); return []; });
-    }
-    else if (searchType === 'name') {
-      list = await maria.query('selectItemByName', [searchValue])
-        .catch(err => { console.error(err); return []; });
-    }
-    else if (searchType === 'type') {
-      list = await maria.query('selectItemByType', [searchValue])
-        .catch(err => { console.error(err); return []; });
-    }
-    else {
-      // 잘못된 searchType
-      list = [];
-    }
-  }
-
+  // itemList 쿼리에 파라미터 순서대로 전달
+  const params = [code, code, name, name, type, type];
+  const list = await mariaDB
+    .query('itemList', params)
+    .catch(err => {
+      console.error('findItems error', err);
+      return [];
+    });
   return list;
 };
 
-// 품목 등록
+// 1-a) 코드 단독 조회
+const findItemsByCode = async (code) => {
+  const list = await mariaDB
+    .query('itemListByCode', [code])
+    .catch(err => {
+      console.error('findItemsByCode error', err);
+      return [];
+    });
+  return list;
+};
+
+// 1-b) 명칭 단독 조회
+const findItemsByName = async (name) => {
+  const list = await mariaDB
+    .query('itemListByName', [name])
+    .catch(err => {
+      console.error('findItemsByName error', err);
+      return [];
+    });
+  return list;
+};
+
+// 1-c) 타입 단독 조회
+const findItemsByType = async (type) => {
+  const list = await mariaDB
+    .query('itemListByType', [type])
+    .catch(err => {
+      console.error('findItemsByType error', err);
+      return [];
+    });
+  return list;
+};
+
+// 2) 단건조회
+const findByItem = async (itemCode) => {
+  const rows = await mariaDB
+    .query('itemInfo', [itemCode])
+    .catch(err => {
+      console.error('findByItem error', err);
+      return [];
+    });
+  return rows[0] || null;
+};
+
+// 3) 등록
 const createItem = async (item) => {
-  const { item_code, item_name, item_type, unit_code, spec } = item;
-
-  // item_type, unit_code는 반드시 공통코드(C01/C02/C03, U01/U02/U03)
-  return await maria.query(
-    'insertItem',
-    [item_code, item_name, item_type, unit_code, spec]
-  )
-  .catch(err => { console.error(err); throw err; });
+  const params = [
+    item.item_code,
+    item.item_name,
+    item.item_type,
+    item.unit_code,
+    item.spec
+  ];
+  const result = await mariaDB
+    .query('itemInsert', params)
+    .catch(err => {
+      console.error('createItem error', err);
+      throw err;
+    });
+  return result;
 };
 
-// 품목 수정
+// 4) 수정
 const updateItem = async (item) => {
-  const { item_code, item_name, item_type, unit_code, spec } = item;
-  return await maria.query(
-    'updateItem',
-    [item_name, item_type, unit_code, spec, item_code]
-  )
-  .catch(err => { console.error(err); throw err; });
+  const params = [
+    item.item_name,
+    item.item_type,
+    item.unit_code,
+    item.spec,
+    item.item_code
+  ];
+  const result = await mariaDB
+    .query('itemUpdate', params)
+    .catch(err => {
+      console.error('updateItem error', err);
+      throw err;
+    });
+  return result;
 };
 
-// 품목 삭제
-const deleteItem = async (item_code) => {
-  return await maria.query('deleteItem', [item_code])
-    .catch(err => { console.error(err); throw err; });
+// 5) 삭제
+const deleteItem = async (itemCode) => {
+  const result = await mariaDB
+    .query('itemDelete', [itemCode])
+    .catch(err => {
+      console.error('deleteItem error', err);
+      throw err;
+    });
+  return result;
 };
 
 module.exports = {
   findItems,
+  findItemsByCode,
+  findItemsByName,
+  findItemsByType,
+  findByItem,
   createItem,
   updateItem,
-  deleteItem
+  deleteItem,
 };

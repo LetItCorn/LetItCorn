@@ -52,8 +52,11 @@ const poRouter = require('./routers/purchaseorder_router.js');
 const userRouter = require('./routers/user_router.js');
 const itemRouter = require('./routers/item_router.js');
 const bomRouter = require('./routers/bom_router.js');
-
-
+const equipmentRouter = require('./routers/equipment_router.js');
+const processDefRouter = require('./routers/process_router.js');
+const defectCodesRouter = require('./routers/defect_codes_router.js');
+const commonCodesRouter = require('./routers/common_codes_router.js');
+const employeeRouter = require('./routers/employee_router.js');
 
 // 기본 라우팅
 app.get('/', (req, res)=>{
@@ -75,7 +78,11 @@ app.use('/', qulityRouter);
 app.use('/', userRouter);
 app.use('/', itemRouter);
 app.use('/', bomRouter);
-
+app.use('/', equipmentRouter);
+app.use('/', processDefRouter);
+app.use('/', defectCodesRouter);
+app.use('/', commonCodesRouter);
+app.use('/', employeeRouter);   
 //영업
 app.use('/', poRouter);
 //자재
@@ -83,4 +90,6 @@ app.use('/', materialsRouter);
 app.use('/', lotRouter);
 app.use('/', outboundRouter);
 app.use('/', materialQCRouter);
-+ app.use('/', mOrderRouter);
+
+app.use('/', mOrderRouter);
+
