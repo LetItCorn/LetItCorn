@@ -13,9 +13,11 @@ import ItemList  from '@/views/Item.vue';
 import Bom from '@/views/Bom.vue';
 import Process from "@/views/process.vue";
 import { compile } from "vue";
+import Productionplan from "@/views/Productionplan.vue";
 import MaLotList from "@/views/MaLotList.vue";
 import MOrderForm from '@/views/MOrderForm.vue';
 import MOrdersList from '@/views/MOrdersList.vue';
+
 
 
 const routes = [
@@ -98,6 +100,10 @@ const routes = [
     meta: { title: 'BOM 관리' }
 
   },
+  {
+    path: '/plan',
+    name: 'ProductionPlan',
+    component: Productionplan,
   { 
     path: '/m_orders',
     name: 'MOrderForm',
