@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 export const useProductionPlanStore = defineStore('productionPlan',{
 state: () => ({
-  searchDate : null,
+  searchDate : new Date(),
   orderList: [],
   selectedOrder: [],
   isOrderModalOpen: false,
@@ -23,7 +23,7 @@ actions:{
     this.selectedOrder = orders
   },
   resetAll() {
-    this.searchDate = null
+    this.searchDate = new Date()
     this.orderList = []
     this.selectedOrder = []
     this.isOrderModalOpen = false
