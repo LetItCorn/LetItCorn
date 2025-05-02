@@ -15,6 +15,7 @@ import Bom from '@/views/Bom.vue';
 import Productionplan from "@/views/Productionplan.vue";
 import MOrderForm from '@/views/MOrderForm.vue';
 import MOrdersList from '@/views/MOrdersList.vue';
+import MInboundForm from '@/views/MInboundForm.vue';
 
 
 
@@ -79,6 +80,7 @@ const routes = [
     name: "Process",
     component: Process,
   },
+
    {
      // 품목관리 페이지
      path: '/items',
@@ -105,6 +107,11 @@ const routes = [
     path: '/m_orderslist',
     name: 'MOrdersList',
     component: MOrdersList,
+  },
+  {
+    path: '/m_inbound',
+    name: 'MInboundForm',
+    component: MInboundForm
   },
 ];
 
