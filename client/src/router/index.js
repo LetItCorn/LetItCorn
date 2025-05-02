@@ -9,9 +9,11 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
-import ItemList  from '@/views/Item.vue';
+
+import Process from "@/views/Process.vue";
+import ItemList  from '@/views/ItemList.vue';
+import ItemInfo   from '@/views/ItemInfo.vue';
 import Bom from '@/views/Bom.vue';
-import Process from "@/views/process.vue";
 import { compile } from "vue";
 import Productionplan from "@/views/Productionplan.vue";
 import MaLotList from "@/views/MaLotList.vue";
@@ -71,22 +73,17 @@ const routes = [
     name: "SignUp",
     component: SignUp,
   }, 
-  // {
-  //   path: "/home",
-  //   name: "home",
-  //   component: () => import("../views/Home.vue"),
-  // },
   {
     path: "/leetest",
     name: "Leetest",
     component: Leetest,
   },
   {
-
     path: "/process",
     name: "Process",
     component: Process,
-
+  },
+  {
     // 품목관리 페이지
     path: '/items',
     name: 'ItemList',
