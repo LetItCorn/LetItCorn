@@ -110,12 +110,16 @@ const menuConfig = {
       },
       {
         name: "자재발주",
-        path: '#'
+        path: 'm_orders'
+      },
+      {
+        name: "발주서 조회",
+        path: 'm_orderslist'
       },
     ],
     "자재 입∙출고": [{
       name: "입고",
-      path: '#'
+      path: 'm_inbound'
     },{
       name: "출고",
       path: '#'

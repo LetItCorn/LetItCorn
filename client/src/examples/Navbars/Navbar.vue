@@ -84,16 +84,11 @@
       };
 
     },
-  },
+ 
   components: {
     Breadcrumbs,
     MaterialInput,
   },
-  computed: {
-    ...mapState(useConfigStore, { userId: "userId", isAbsolute: "isAbsolute" }),
-    userId() {
-      return this.userId; // Pinia store에서 userId 가져오기
-    },
 
     methods: {
       toggleSidebar() {
@@ -111,12 +106,7 @@
         this.store.removeLoginId();
         this.$router.push("/login");
       },
-
     },
-    userStore() {
-      return useUserStore();
-    },
-
     computed: {
       userId(){
       return this.store.userId; // Pinia store에서 userId 가져오기  
@@ -137,7 +127,6 @@
       }
 
     },
-  },
 };
 </script>
 <style>
