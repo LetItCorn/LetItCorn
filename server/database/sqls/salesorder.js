@@ -119,6 +119,8 @@ JOIN employees AS e
   ON so.emp_id = e.emp_id
 ORDER BY i.item_name DESC`;
 
+// 
+
 // 주문서 수정
 const updateSalesOrder =
 `UPDATE salesorder AS so
