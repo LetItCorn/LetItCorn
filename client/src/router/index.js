@@ -17,8 +17,6 @@ import MOrderForm from '@/views/MOrderForm.vue';
 import MOrdersList from '@/views/MOrdersList.vue';
 import MInboundForm from '@/views/MInboundForm.vue';
 
-
-
 const routes = [
   {
     path: "/",

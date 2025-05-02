@@ -84,12 +84,10 @@
       };
 
     },
-
   components: {
     Breadcrumbs,
     MaterialInput,
   },
-
 
     methods: {
       toggleSidebar() {
