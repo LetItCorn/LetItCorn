@@ -1,29 +1,34 @@
 const mariadb = require("../database/mapper.js");
 const { convertObjToAry } = require('../utils/converts.js');
+const dayjs = require('dayjs');
 
 const findByPlan = async (planNo) => {
      let list = await mariadb.query("selectPlansOne", planNo);
-     let info = list[0];
-     return info;
+     return list;
     };
+
 const addNewPlan = async (planInfo) => {
-      let insertColumns = ['plans_head', 'plan_start', 'plan_end', 'plan_stat', 'plans_reg', 'planer'];
-      let data = convertObjToAry(planInfo, insertColumns);
-      let resInfo = await mariadb.query("plansInsert", data);
-      let result = null;
-      if (resInfo.insertId > 0) {
-        result = {
-          isSuccessed: true,
-          planNo: resInfo.insertId,
-        };
-      } else {
-        result = {
-          isSuccessed: false,
-        };
-      }
-      return result;
-     };
-  
+  const today = dayjs().format('YYMMDD')
+  const planNo = `PPN${today}01`   
+  planInfo.plan_no = planNo        
+  planInfo.plans_head = `PPHN${today}01` 
+
+  let insertColumns = ['plan_no', 'plans_head', 'porder_seq', 'item_no', 'plans_vol', 'delivery_date', 'item_name']
+  let data = convertObjToAry(planInfo, insertColumns)
+
+  let resInfo = await mariadb.query("plansInsert", data)
+
+  await mariadb.query(`
+    UPDATE salesorder SET status = '계획됨' WHERE sorder_code = ?
+  `, [planInfo.porder_seq])
+
+  return {
+    isSuccessed: resInfo.affectedRows > 0,
+    planNo: planInfo.plan_no,
+    rawResult: resInfo
+  }
+}
+
 const modifyPlan = async (planNo, planInfo) => {
   let data = [planInfo, planNo];
   let resInfo = await mariadb.query("plansUpdate", data);

@@ -1,4 +1,5 @@
 <template>
+
   <nav class="shadow-none navbar navbar-main navbar-expand-lg border-radius-xl" v-bind="$attrs" id="navbarBlur" data-scroll="true" :class="store.isAbsolute ? 'mt-4' : 'mt-0'">
     <div class="px-3 py-1 container-fluid">
       <!-- <breadcrumbs :currentPage="currentRouteName" :color="color" /> -->
@@ -27,19 +28,23 @@
           </li> -->
           <!-- <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
             <a href="#" @click="toggleSidebar" class="p-0 nav-link text-body lh-1" id="iconNavbarSidenav">
+
               <div class="sidenav-toggler-inner">
                 <i class="sidenav-toggler-line"></i>
                 <i class="sidenav-toggler-line"></i>
                 <i class="sidenav-toggler-line"></i>
               </div>
             </a>
+
           </li> -->
           <!-- <li class="px-3 nav-item d-flex align-items-center">
             <a class="p-0 nav-link lh-1" @click="store.toggleConfigurator" :class="color ? color : 'text-body'">
+
               <i class="material-icons fixed-plugin-button-nav cursor-pointer">
                 settings
               </i>
             </a>
+
           </li> -->
           <li class="nav-item dropdown d-flex align-items-center pe-2">
             <!-- <a href="#" class="p-0 nav-link lh-1" :class="[color ? color : 'text-body', showMenu ? 'show' : '']"
@@ -48,6 +53,7 @@
             </a> -->
             <ul class="px-2 py-3 dropdown-menu dropdown-menu-end me-sm-n4" :class="showMenu ? 'show' : ''"
               aria-labelledby="dropdownMenuButton">
+
               <!-- 알림 항목들 -->
             </ul>
           </li>
@@ -58,6 +64,7 @@
 </template>
 
 <script>
+
   import MaterialInput from "@/components/MaterialInput.vue";
   import Breadcrumbs from "../Breadcrumbs.vue";
   import { useConfigStore } from "@/store/index"; // Pinia store import
@@ -75,11 +82,19 @@
         menuStore : useConfigStore(),
         menuConfig,
       };
+
     },
-    props: ["minNav", "color"],
-    created() {
-      this.minNav;
+  },
+  components: {
+    Breadcrumbs,
+    MaterialInput,
+  },
+  computed: {
+    ...mapState(useConfigStore, { userId: "userId", isAbsolute: "isAbsolute" }),
+    userId() {
+      return this.userId; // Pinia store에서 userId 가져오기
     },
+
     methods: {
       toggleSidebar() {
         this.store.navbarMinimize(); // Pinia action 호출
@@ -96,11 +111,12 @@
         this.store.removeLoginId();
         this.$router.push("/login");
       },
+
     },
-    components: {
-      Breadcrumbs,
-      MaterialInput,
+    userStore() {
+      return useUserStore();
     },
+
     computed: {
       userId(){
       return this.store.userId; // Pinia store에서 userId 가져오기  
@@ -119,8 +135,10 @@
         // 로그인 여부를 확인하는 computed property
         return this.userId != undefined;
       }
+
     },
-  };
+  },
+};
 </script>
 <style>
   .collapse navbar-collapse{
