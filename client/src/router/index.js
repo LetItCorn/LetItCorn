@@ -9,11 +9,16 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
+
 import Process from "@/views/Process.vue";
 import ItemList  from '@/views/ItemList.vue';
 import ItemInfo   from '@/views/ItemInfo.vue';
+import Bom from '@/views/Bom.vue';
 import { compile } from "vue";
-
+import Productionplan from "@/views/Productionplan.vue";
+import MaLotList from "@/views/MaLotList.vue";
+import MOrderForm from '@/views/MOrderForm.vue';
+import MOrdersList from '@/views/MOrdersList.vue';
 
 
 
@@ -86,11 +91,25 @@ const routes = [
     meta: { title: '품목 관리' }
   },
   {
-    path: '/item',
-    name: 'ItemInfo',
-    component: ItemInfo,
-    meta: { title: '품목 상세' }
+    path: '/boms',
+    name: 'Bom',
+    component: Bom,
+    meta: { title: 'BOM 관리' }
 
+  },
+  {
+    path: '/plan',
+    name: 'ProductionPlan',
+    component: Productionplan,
+  { 
+    path: '/m_orders',
+    name: 'MOrderForm',
+    component: MOrderForm, 
+  },
+  {
+    path: '/m_orderslist',
+    name: 'MOrdersList',
+    component: MOrdersList,
   },
 ];
 

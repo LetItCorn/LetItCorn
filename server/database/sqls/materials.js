@@ -8,14 +8,14 @@ SELECT
   m.safe_stock                      AS safe_stock,
   COALESCE(
       (SELECT SUM(min_qty)
-         FROM m_inbound
+        FROM m_inbound
         WHERE mater_code = m.mater_code
       ), 0
     )
-   -
-   COALESCE(
+  -
+  COALESCE(
       (SELECT SUM(min_oqty)
-         FROM m_inbound
+        FROM m_inbound
         WHERE mater_code = m.mater_code
       ), 0
     )                                 AS total_stock

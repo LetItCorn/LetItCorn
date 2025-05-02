@@ -3,6 +3,7 @@
     id="sidenav-main"
     class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 ms-3"
     :class="`fixed-start ms-3 ${configStore.sidebarType}`"
+    v-if="isLoggedIn"
   >
     <div class="sidenav-header">
       <i
@@ -33,11 +34,18 @@
 
 <script setup>
 import { useConfigStore } from "@/store";
+import { useUserStore } from "@/store/user"; // Pinia store import
 import SidenavList from "./SidenavList.vue";
 import logo from "@/assets/img/logo-ct.png";
 import logoDark from "@/assets/img/logo-ct-dark.png";
+import { computed } from "vue";
 
 const configStore = useConfigStore();
+const store = useUserStore(); // Pinia store 등록
+
+const isLoggedIn = computed(() => {
+  return store.userId != undefined; // 로그인 여부를 확인하는 computed property
+});
 </script>
 <style>
   .sidenav .navbar-brand {
@@ -48,5 +56,8 @@ const configStore = useConfigStore();
   .nav-logo {
     max-width: 100px !important;
     width: 100% !important;
+  }
+  .navbar-brand {
+    color: #000 !important;
   }
 </style>

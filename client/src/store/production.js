@@ -25,7 +25,7 @@ actions:{
   resetAll() {
     this.searchDate = null
     this.orderList = []
-    this.setSelectedOrders = []
+    this.selectedOrder = []
     this.isOrderModalOpen = false
   }
 },
