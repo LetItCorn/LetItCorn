@@ -34,7 +34,7 @@ import axios from 'axios';
 // pinia 로 관리하는 store(저장소) 중 필요한 저장소를 가져옴
 import { useUserStore } from '@/store/user';
 // store(저장소) 중 actions 정보를 가져올 함수
-import { mapActions } from 'pinia';
+import { mapState, mapActions } from 'pinia';
 
 export default {
     data(){
@@ -44,6 +44,14 @@ export default {
             user_pw: ''
         },
         }
+    },
+    computed: {
+        ...mapState(useUserStore, ['userId']),
+    },
+    created(){
+        if (this.userId) {
+            this.$router.replace("/dashboard");
+        };
     },
     methods:{
         // 저장소가 가지고 있는 actions 중 필요한 함수만 가져옴

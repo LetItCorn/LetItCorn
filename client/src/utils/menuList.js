@@ -2,7 +2,7 @@ const menuConfig = {
   영업: {
     "주문서": [{
         name: "거래업체 주문서 조회",
-        path: 'dashboard'
+        path: 'Salesorder'
       },
       {
         name: "주문서 등록",

@@ -47,6 +47,7 @@ const lotRouter = require('./routers/lot_router.js');
 const outboundRouter = require('./routers/outbound_router.js');
 const mOrderRouter = require('./routers/m_order_router');
 //영업
+const soRouter = require('./routers/salesorder_router.js'); // 주문서
 const poRouter = require('./routers/purchaseorder_router.js');
 //관리
 const userRouter = require('./routers/user_router.js');
@@ -84,6 +85,7 @@ app.use('/', defectCodesRouter);
 app.use('/', commonCodesRouter);
 app.use('/', employeeRouter);   
 //영업
+app.use('/', soRouter);
 app.use('/', poRouter);
 //자재
 app.use('/', materialsRouter);
