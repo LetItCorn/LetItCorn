@@ -12,12 +12,14 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import { AgGridVue } from 'ag-grid-vue3';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import axios from "axios";
+
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
 const appInstance = createApp(App);
-
+axios.defaults.baseURL = '';
 appInstance.use(pinia);
 appInstance.use(store);
 appInstance.use(router);

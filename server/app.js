@@ -35,6 +35,7 @@ const planRouter = require('./routers/plan_router.js');
 const plansRouter = require('./routers/plans_router.js');
 const instRouter = require('./routers/inst_router.js');
 const instsRouter = require('./routers/instHead_router.js');
+const modalRouter = require('./routers/modal_router.js');
 //쪼의 영역(공정)
 const processRouter = require('./routers/processLog_router.js');
 const testQCRouter = require('./routers/testQc_router.js');
@@ -71,6 +72,7 @@ app.use('/', planRouter);
 app.use('/', plansRouter);
 app.use('/', instRouter);
 app.use('/', instsRouter);
+app.use('/', modalRouter);
 //공정
 app.use('/', processRouter);
 app.use('/', testQCRouter);

@@ -7,55 +7,75 @@ const findByPlan = async (planNo) => {
      return list;
     };
 
-const addNewPlan = async (planInfo) => {
-  const today = dayjs().format('YYMMDD')
-  const planNo = `PPN${today}01`   
-  planInfo.plan_no = planNo        
-  planInfo.plans_head = `PPHN${today}01` 
-
-  let insertColumns = ['plan_no', 'plans_head', 'porder_seq', 'item_no', 'plans_vol', 'delivery_date', 'item_name']
-  let data = convertObjToAry(planInfo, insertColumns)
-
-  let resInfo = await mariadb.query("plansInsert", data)
-
-  await mariadb.query(`
-    UPDATE salesorder SET status = '계획됨' WHERE sorder_code = ?
-  `, [planInfo.porder_seq])
-
-  return {
-    isSuccessed: resInfo.affectedRows > 0,
-    planNo: planInfo.plan_no,
-    rawResult: resInfo
-  }
-}
-
-const modifyPlan = async (planNo, planInfo) => {
-  let data = [planInfo, planNo];
-  let resInfo = await mariadb.query("plansUpdate", data);
-  
-  let result = null;
-  if (resInfo.affectedRows > 0) {
-    planInfo.no = planNo;
-    result = {
-      isUpdated: true,
-      planInfo,
+    const getNextPlanHead = async (conn, today) => {
+      const [result] = await conn.query(
+        `SELECT COUNT(*) AS count FROM plan_header WHERE plans_head LIKE ?`,
+        [`PPHN${today}%`]
+      );
+      const count = result.count + 1;
+      return `PPHN${today}${count.toString().padStart(2, "0")}`;
     };
-  } else {
-    result = {
-      isUpdated: false,
+    async function getNextPlanNo(conn, today) {
+      const [row] = await conn.query(
+        `SELECT COUNT(*) as count FROM plans WHERE plan_no LIKE ?`,
+        [`PPN${today}%`]
+      );
+      return row.count;
+    }    
+const addNewPlan = async ({ header, details }) => {
+      let conn = await mariadb.getConnection();
+      await conn.beginTransaction();
+    
+      try {
+        const today = dayjs().format("YYMMDD");        
+        const planHead = await getNextPlanHead(conn, today);        
+        const headerParams = [
+          planHead,
+          header.plan_start,
+          header.plan_end,
+          header.plan_stat || "K01",
+          header.plans_reg || dayjs().format("YYYY-MM-DD"),
+          header.planer || "관리자",
+        ];    
+        await conn.query(
+          `INSERT INTO plan_header (plans_head, plan_start, plan_end, plan_stat, plans_reg, planer)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          headerParams
+        );        
+        let count = await getNextPlanNo(conn, today);    
+        for (let i = 0; i < details.length; i++) {
+          const planNo = `PPN${today}${(count + i + 1).toString().padStart(2, "0")}`;
+          const item = details[i];    
+          const values = [
+            planNo,
+            planHead,
+            item.sorder_code,
+            item.item_code,
+            item.plans_vol,
+            item.delivery_date,
+            item.item_name,
+          ];    
+          await conn.query(
+            `INSERT INTO plans (plan_no, plans_head, porder_seq, item_code, plans_vol, delivery_date, item_name)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            values
+          );    
+          await conn.query(
+            `UPDATE salesorder SET status = '계획됨' WHERE sorder_code = ?`,
+            [item.sorder_code]
+          );
+        }    
+        await conn.commit();
+        return { isSuccessed: true, message: "등록 성공" };    
+      } catch (err) {
+        await conn.rollback();
+        console.error("❌ 등록 실패:", err);
+        return { isSuccessed: false, message: "등록 실패", error: err };
+      } finally {
+        conn.release();
+      }
     };
-  }
-  return result;
- };
-
- const removePlan = async (planNo) => {
-   let result = await mariadb.query("plansDelete", planNo);
-   return result;
-  };
-
 module.exports = {
   findByPlan,
   addNewPlan,
-  modifyPlan,
-  removePlan,
 }

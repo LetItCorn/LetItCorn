@@ -9,15 +9,14 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
-import Process from "@/views/Process.vue";
-
+import Process from "@/views/process.vue";
 import Productionplan from "@/views/Productionplan_v2.vue";
 import Item from "@/views/Item.vue";
-
 import Bom from '@/views/Bom.vue';
 import MOrderForm from '@/views/MOrderForm.vue';
 import MOrdersList from '@/views/MOrdersList.vue';
 import MInboundForm from '@/views/MInboundForm.vue';
+import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
 
 const routes = [
   {
@@ -100,9 +99,13 @@ const routes = [
     name: 'ProductionPlan',
     component: Productionplan,
 
+  },
+  {
+    path: '/plans',
+    name: 'ProductionPlanInquiry',
+    component: ProductionPlanInquiry,
   }
   ,{ 
-
     path: '/m_orders',
     name: 'MOrderForm',
     component: MOrderForm, 
