@@ -142,7 +142,7 @@ const menuConfig = {
   관리: {
     "사원": [{
       name: "사원목록",
-      path: '#'
+      path: 'employees'
     }, ],
     "품목": [{
       name: "품목 목록",
@@ -150,15 +150,15 @@ const menuConfig = {
     }, ],
     "설비": [{
       name: "설비 목록",
-      path: '#'
+      path: 'equipments'
     }, ],
     "공정": [{
       name: "공정 목록",
-      path: '#'
+      path: 'processes'
     }, ],
     "불량": [{
       name: "불량 목록",
-      path: '#'
+      path: 'defects'
     }, ],
     "BOM": [{
       name: "BOM 목록",

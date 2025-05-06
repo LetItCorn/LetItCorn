@@ -1,120 +1,105 @@
 // server/database/sqls/common_codes.js
 
-// 1) 전체조회
-const selectCommonList = `
-SELECT
-  code_group,
-  code_value,
-  code_name,
-  use_yn,
-  comm_etc
-FROM common_codes
-ORDER BY code_group, code_value
+// 1) 전체 조회 + 조건별 검색 (code_group, code_rear, code_name, use_yn 모두 옵션)
+const commonCodesList = `
+  SELECT code_group
+       , code_rear
+       , code_name
+       , use_yn
+       , comm_etc
+       , code_values
+  FROM common_codes
+  WHERE 1=1
+    AND (? = '' OR code_group = ?)
+    AND (? = '' OR code_rear = ?)
+    AND (? = '' OR code_name LIKE CONCAT('%', ?, '%'))
+    AND (? = '' OR use_yn = ?)
+  ORDER BY code_group, code_rear
 `;
 
-// 2) 단건조회 (group+value)
-const selectCommonOne = `
-SELECT
-  code_group,
-  code_value,
-  code_name,
-  use_yn,
-  comm_etc
-FROM common_codes
-WHERE code_group = ?
-  AND code_value = ?
+// 1-a) 그룹별 조회
+const commonCodesByGroup = `
+  SELECT code_group, code_rear, code_name, use_yn, comm_etc, code_values
+  FROM common_codes
+  WHERE code_group = ?
+  ORDER BY code_rear
 `;
 
-// 3) 그룹별 조회
-const selectCommonByGroup = `
-SELECT
-  code_group,
-  code_value,
-  code_name,
-  use_yn,
-  comm_etc
-FROM common_codes
-WHERE code_group = ?
-ORDER BY code_group, code_value
+// 1-b) 코드 후위별 조회
+const commonCodesByRear = `
+  SELECT code_group, code_rear, code_name, use_yn, comm_etc, code_values
+  FROM common_codes
+  WHERE code_rear = ?
+  ORDER BY code_group
 `;
 
-// 4) 값(value) LIKE 조회
-const selectCommonByValue = `
-SELECT
-  code_group,
-  code_value,
-  code_name,
-  use_yn,
-  comm_etc
-FROM common_codes
-WHERE code_value LIKE CONCAT('%', ?, '%')
-ORDER BY code_group, code_value
+// 1-c) 명칭별 조회 (LIKE 검색)
+const commonCodesByName = `
+  SELECT code_group, code_rear, code_name, use_yn, comm_etc, code_values
+  FROM common_codes
+  WHERE code_name LIKE CONCAT('%', ?, '%')
+  ORDER BY code_group, code_rear
 `;
 
-// 5) 이름(name) LIKE 조회
-const selectCommonByName = `
-SELECT
-  code_group,
-  code_value,
-  code_name,
-  use_yn,
-  comm_etc
-FROM common_codes
-WHERE code_name LIKE CONCAT('%', ?, '%')
-ORDER BY code_group, code_value
+// 1-d) 사용여부별 조회
+const commonCodesByUseYn = `
+  SELECT code_group, code_rear, code_name, use_yn, comm_etc, code_values
+  FROM common_codes
+  WHERE use_yn = ?
+  ORDER BY code_group, code_rear
 `;
 
-// 6) 사용여부(use_yn) 조회
-const selectCommonByUseYn = `
-SELECT
-  code_group,
-  code_value,
-  code_name,
-  use_yn,
-  comm_etc
-FROM common_codes
-WHERE use_yn = ?
-ORDER BY code_group, code_value
+// 2) 단건 조회 (code_group + code_rear 기준)
+const commonCodeInfo = `
+  SELECT code_group
+       , code_rear
+       , code_name
+       , use_yn
+       , comm_etc
+       , code_values
+  FROM common_codes
+  WHERE code_group = ?
+    AND code_rear  = ?
 `;
 
-// 7) 등록
-const insertCommon = `
-INSERT INTO common_codes (
-  code_group,
-  code_value,
-  code_name,
-  use_yn,
-  comm_etc
-) VALUES (?, ?, ?, ?, ?)
+// 3) 등록 (INSERT)
+const commonCodeInsert = `
+  INSERT INTO common_codes (
+    code_group
+  , code_rear
+  , code_name
+  , use_yn
+  , comm_etc
+  , code_values
+  ) VALUES (?, ?, ?, ?, ?, ?)
 `;
 
-// 8) 수정
-const updateCommon = `
-UPDATE common_codes
-SET
-  code_name = ?,
-  use_yn    = ?,
-  comm_etc  = ?
-WHERE
-  code_group = ?
-  AND code_value = ?
+// 4) 수정 (UPDATE)
+const commonCodeUpdate = `
+  UPDATE common_codes
+     SET code_name   = ?
+       , use_yn       = ?
+       , comm_etc     = ?
+       , code_values  = ?
+   WHERE code_group = ?
+     AND code_rear  = ?
 `;
 
-// 9) 삭제
-const deleteCommon = `
-DELETE FROM common_codes
-WHERE code_group = ?
-  AND code_value = ?
+// 5) 삭제 (DELETE)
+const commonCodeDelete = `
+  DELETE FROM common_codes
+   WHERE code_group = ?
+     AND code_rear  = ?
 `;
 
 module.exports = {
-  selectCommonList,
-  selectCommonOne,
-  selectCommonByGroup,
-  selectCommonByValue,
-  selectCommonByName,
-  selectCommonByUseYn,
-  insertCommon,
-  updateCommon,
-  deleteCommon,
+  commonCodesList,
+  commonCodesByGroup,
+  commonCodesByRear,
+  commonCodesByName,
+  commonCodesByUseYn,
+  commonCodeInfo,
+  commonCodeInsert,
+  commonCodeUpdate,
+  commonCodeDelete
 };

@@ -1,63 +1,97 @@
 // server/routers/process_router.js
 
 const express = require('express');
-const router  = express.Router();
-const svc     = require('../services/process_service.js');
+const router = express.Router();
+const processService = require('../services/process_service.js');
 
-// 1) 조회 (전체/검색)
-router.get('/processDef', async (req, res) => {
-  const { searchType, searchValue } = req.query;
+/**
+ * 1) 전체조회 혹은 필터 조회
+ *    - 쿼리 파라미터 code, name 기반으로 LIKE 검색
+ *    - 없으면 전체조회
+ */
+router.get('/processes', async (req, res) => {
+  const { code = '', name = '' } = req.query;  // 필터 파라미터 추출
   try {
-    const list = await svc.findProcesses(searchType, searchValue);
-    res.send(list);
+    let list;
+    if (code) {
+      // 공정코드 일부 검색
+      list = await processService.findProcessesByCode(code);
+    } else if (name) {
+      // 공정명 일부 검색
+      list = await processService.findProcessesByName(name);
+    } else {
+      // 전체 공정 목록 조회
+      list = await processService.findProcesses();
+    }
+    res.json(list);
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: '공정 조회 중 오류가 발생했습니다.' });
+    console.error('GET /processes error', err);
+    res.status(500).json({ error: '서버 오류' });
   }
 });
 
-// 2) 단건조회 (코드 기준)
-router.get('/processDef/:code', async (req, res) => {
+/**
+ * 2) 단건조회 (정확 일치 검색)
+ *    - URL 파라미터 process_code 사용
+ */
+router.get('/processes/:process_code', async (req, res) => {
+  const processCode = req.params.process_code;  // 경로 파라미터 추출
   try {
-    const list = await svc.findProcesses('code', req.params.code);
-    if (list.length === 0) return res.status(404).send({ error: '해당 공정이 없습니다.' });
-    res.send(list[0]);
+    const info = await processService.findProcess(processCode);
+    if (!info) {
+      // 해당 코드의 공정이 없을 경우
+      return res.status(404).json({ error: '해당 공정이 없습니다.' });
+    }
+    res.json(info);
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: '공정 단건 조회 오류' });
+    console.error(`GET /processes/${processCode} error`, err);
+    res.status(500).json({ error: '서버 오류' });
   }
 });
 
-// 3) 등록
-router.post('/processDef', async (req, res) => {
+/**
+ * 3) 등록
+ *    - 요청 바디에 공정 정보(process_code, process_header, process_name, duration_min) 포함
+ */
+router.post('/processes', async (req, res) => {
+  const payload = req.body;  // 새 공정 데이터
   try {
-    await svc.createProcess(req.body);
-    res.status(201).send({ message: '등록 완료' });
+    const result = await processService.createProcess(payload);
+    res.status(201).json(result);
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: '공정 등록 실패' });
+    console.error('POST /processes error', err);
+    res.status(500).json({ error: '등록 실패' });
   }
 });
 
-// 4) 수정
-router.put('/processDef/:code', async (req, res) => {
+/**
+ * 4) 수정
+ *    - URL 파라미터 process_code 및 요청 바디(process_header, process_name, duration_min)
+ */
+router.put('/processes/:process_code', async (req, res) => {
+  const processCode = req.params.process_code;
+  const payload = { ...req.body, process_code: processCode };  // 수정 데이터에 코드 병합
   try {
-    await svc.updateProcess({ process_code: req.params.code, ...req.body });
-    res.send({ message: '수정 완료' });
+    const result = await processService.updateProcess(payload);
+    res.json(result);
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: '공정 수정 실패' });
+    console.error(`PUT /processes/${processCode} error`, err);
+    res.status(500).json({ error: '수정 실패' });
   }
 });
 
-// 5) 삭제
-router.delete('/processDef/:code', async (req, res) => {
+/**
+ * 5) 삭제
+ *    - URL 파라미터 process_code로 대상 공정 삭제
+ */
+router.delete('/processes/:process_code', async (req, res) => {
+  const processCode = req.params.process_code;
   try {
-    await svc.deleteProcess(req.params.code);
-    res.send({ message: '삭제 완료' });
+    const result = await processService.deleteProcess(processCode);
+    res.json(result);
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: '공정 삭제 실패' });
+    console.error(`DELETE /processes/${processCode} error`, err);
+    res.status(500).json({ error: '삭제 실패' });
   }
 });
 

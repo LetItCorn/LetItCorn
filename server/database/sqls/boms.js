@@ -26,8 +26,24 @@ const bomInfo = `
 
 // 3) 등록 (INSERT)
 const bomInsert = `
-  INSERT INTO boms (bom_id, item_code, item_name, registered_date)
-  VALUES (?, ?, ?, ?)
+INSERT INTO boms (bom_id, item_code, item_name, registered_date)
+SELECT
+  CONCAT(
+    'BOM',
+    DATE_FORMAT(CURDATE(), '%Y%m%d'),
+    LPAD(
+      COALESCE(
+        MAX(CAST(SUBSTRING(bom_id, 12, 3) AS UNSIGNED)),
+        0
+      ) + 1,
+      3,
+      '0'
+    )
+  ),
+  ?,  -- item_code
+  ?,  -- item_name
+  NOW()
+FROM boms
 `;
 
 // 4) 수정 (UPDATE)
@@ -103,6 +119,10 @@ const bomComponentDelete = `
    WHERE item_seq_id = ?
 `;
 
+const bomitemsList = `
+  SELECT * FROM items WHERE item_type='01'
+`;
+
 module.exports = {
   bomList,
   bomInfo,
@@ -114,5 +134,6 @@ module.exports = {
   bomComponentInfo,
   bomComponentInsert,
   bomComponentUpdate,
-  bomComponentDelete
+  bomComponentDelete,
+  bomitemsList,
 };
