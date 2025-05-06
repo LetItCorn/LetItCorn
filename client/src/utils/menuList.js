@@ -2,7 +2,7 @@ const menuConfig = {
   영업: {
     "주문서": [{
         name: "거래업체 주문서 조회",
-        path: 'dashboard'
+        path: 'Salesorder'
       },
       {
         name: "주문서 등록",
@@ -61,7 +61,7 @@ const menuConfig = {
   생산: {
     "공정관리": [{
         name: "공정진행",
-        path: 'proc'
+        path: 'process'
       }, {
         name: "공정이력조회",
         path: '#'
@@ -88,7 +88,7 @@ const menuConfig = {
         path: '#'
       }, {
         name: "작성",
-        path: '#'
+        path: 'plan'
       },
 
     ],
@@ -122,21 +122,21 @@ const menuConfig = {
       path: 'm_inbound'
     },{
       name: "출고",
-      path: '#'
+      path: 'm_outbound'
     },
     {
       name: "조회",
-      path: '#'
+      path: 'm_movement'
     }
   ],
   "자재품질": [{
     name: "조회",
-    path: '#'
-  }, {
-    name: "등록",
-    path: '#'
+    path: 'qc_history'
   },
-
+],
+"반품 입고": [
+  { name: "반품조회", path: "returns" },
+  { name: "반품등록", path: "returns" }
 ],
   },
   관리: {
@@ -146,7 +146,7 @@ const menuConfig = {
     }, ],
     "품목": [{
       name: "품목 목록",
-      path: '#'
+      path: 'items'
     }, ],
     "설비": [{
       name: "설비 목록",
@@ -162,7 +162,7 @@ const menuConfig = {
     }, ],
     "BOM": [{
       name: "BOM 목록",
-      path: '#'
+      path: 'boms'
     }, ],
 
   }

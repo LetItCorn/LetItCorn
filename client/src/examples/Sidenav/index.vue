@@ -11,7 +11,7 @@
         aria-hidden="true"
         id="iconSidenav"
       ></i>
-      <a class="navbar-brand" href="/">
+      <a class="navbar-brand" href="/dashboard">
         <!-- <img
           :src="
             configStore.sidebarType === 'bg-white' ||

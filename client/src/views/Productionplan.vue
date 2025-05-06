@@ -1,6 +1,6 @@
 <template>
- <div class="container-fluid py-4">
-  <span>등록일자</span>
+ <div class="container-fluid py-4" style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
+  <span style="display: inline-block;">등록일자</span>
   <Datepicker v-model="searchDate" :format="'yy-MM-dd'" :min-date="minDate" :max-date="maxDate"/>
   <button @click="openOrderModal" class="btn btn-primary">주문서 조회</button>
   <OrderSelectModal v-if="isOrderModalOpen" />
@@ -21,8 +21,8 @@ import axios from 'axios'
 const productionPlanStore = useProductionPlanStore()
 const gridRef = ref(null)
 
-const searchDate = ref(productionPlanStore.searchDate)
-const selectedOrder = computed(()=>productionPlanStore.selectedOrder)
+const searchDate = ref(new Date(productionPlanStore.searchDate || new Date()))
+const selectedOrder = computed(()=>productionPlanStore.selectedOrder || [])
 const isOrderModalOpen = computed(()=>productionPlanStore.isOrderModalOpen)
 const openOrderModal = () => productionPlanStore.openOrderModal()
 const resetAll = () => productionPlanStore.resetAll()
