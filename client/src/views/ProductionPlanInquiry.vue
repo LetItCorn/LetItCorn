@@ -7,7 +7,7 @@
          range
          :format="'yyyy-MM-dd'"
          :teleport="true"
-         class="max-w-[250px]"
+         class="max-w-[100px] text-xs"
       />
       <button @click="fetchPlanList" class="bg-blue-500 px-3 py-1 rounded text-black">조회</button>
       <button @click="deletePlans" class="bg-red-500 px-3 py-1 rounded text-black">삭제</button>
@@ -76,7 +76,7 @@ const onGridReady = (params) => {
 }
 
 const onDetailGridReady = (params) => {
-  console.log('✅ detail grid ready 됨')
+  console.log('detail grid ready 됨')
   detailGridApi.value = params.api
 }
 
@@ -139,7 +139,7 @@ const fetchPlanList = async () => {
     store.updateSearchDate(dateRange.value)
   } catch (err) {
     alert('생산계획 조회에 실패했습니다.')
-    console.error('📛 조회 실패:', err)
+    console.error('조회 실패:', err)
   }
 }
 
@@ -151,9 +151,8 @@ const fetchPlanDetail = async (plansHead) => {
   const waitForGrid = () => {
     if (detailGridApi.value) {
       detailGridApi.value.setRowData(detailList.value)
-      console.log('✅ detailGridApi에 주입 성공:', detailList.value)
     } else {
-      console.warn('❗ detailGridApi 아직 준비 안됨, 재시도')
+      console.warn('detailGridApi 아직 준비 안됨, 재시도')
       setTimeout(waitForGrid, 100)
     }
   }
@@ -179,10 +178,13 @@ const handleRowClick = async (event) => {
 const deletePlans = async () => {
   if (selectedPlan.value.length === 0)
     return alert('삭제할 계획을 선택해주세요.')
-
-  for (const plan of selectedPlan.value) {
+  const invalid = selectedPlan.value.find(plan => plan.plan_stat !== '대기')
+    if (invalid) {
+      return alert(`'${invalid.plans_head}'은(는) 대기 상태가 아니므로 삭제할 수 없습니다.`)
+     }
+    for (const plan of selectedPlan.value) {
     await axios.delete(`/api/plans/${plan.plans_head}`)
-  }
+      }
   await fetchPlanList()
 }
 </script>

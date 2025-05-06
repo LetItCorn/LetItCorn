@@ -147,7 +147,4 @@ button {
   height: 40px;
   border-radius: 6px;
 }
-.max-w-[150px] {
-  max-width: 150px;
-}
 </style>

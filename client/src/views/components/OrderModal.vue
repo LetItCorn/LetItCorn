@@ -8,9 +8,9 @@
         </option>
       </select>
 
-      <Datepicker v-if="selected2 === '작성일자'" v-model="startDate" :teleport="true" :format="'yy-MM-dd'"/>
-      <Datepicker v-if="selected2 === '작성일자'" v-model="endDate" :teleport="true" :format="'yy-MM-dd'"/>
-      <Datepicker v-if="selected2 === '종료일자'" v-model="endDate" :teleport="true" :format="'yy-MM-dd'"/>
+      <Datepicker v-if="selected2 === '작성일자'" v-model="startDate" class="max-w-[100px] text-xs" :teleport="true" :format="'yy-MM-dd'"/>
+      <Datepicker v-if="selected2 === '작성일자'" v-model="endDate" class="max-w-[100px] text-xs" :teleport="true" :format="'yy-MM-dd'"/>
+      <Datepicker v-if="selected2 === '종료일자'" v-model="endDate" class="max-w-[100px] text-xs" :teleport="true" :format="'yy-MM-dd'"/>
 
       <div class="button-group" >
         <button @click="handleSearch">조회</button>
