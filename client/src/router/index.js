@@ -30,8 +30,7 @@ import MOutboundForm from '../views/MOutboundForm.vue';
 // import MOutboundList from '../views/MOutboundList.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
-import MOutboundForm from '../views/MOutboundForm.vue';
-import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
+import Material from "@/views/Material.vue";
 
 
 const routes = [
