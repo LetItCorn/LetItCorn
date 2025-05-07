@@ -15,6 +15,7 @@ import MReturnForm   from '../views/MReturnForm.vue';
 import MReturnsList  from '../views/MReturnsList.vue';
 import Productionplan from "@/views/Productionplan_v2.vue";
 import Item from "@/views/Item.vue";
+import Material from "@/views/Material.vue";
 import Bom from '@/views/Bom.vue';
 import Employee from "@/views/Employees.vue";
 import ProcessMain from "@/views/ProcessMain.vue";
@@ -24,10 +25,7 @@ import MOrderForm from '@/views/MOrderForm.vue';
 import MOrdersList from '@/views/MOrdersList.vue';
 import MInboundForm from '@/views/MInboundForm.vue';
 import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
-import Bom from '@/views/Bom.vue';
-import MOrderForm from '../views/MOrderForm.vue';
-import MOrdersList from '../views/MOrdersList.vue';
-import MInboundForm from '../views/MInboundForm.vue';
+
 import MOutboundForm from '../views/MOutboundForm.vue';
 // import MOutboundList from '../views/MOutboundList.vue';
 import MMovement       from '../views/MMovement.vue';
@@ -101,31 +99,26 @@ const routes = [
   // },
 
   {
-     // 품목관리 페이지
+    // 품목관리 페이지
     path: '/items',
     name: 'Item', 
     component: Item,
   },
   {
-    path: "/process",
-    name: "Process",
-    component: Process,
+    // 자재관리 페이지
+    path: '/materials',
+    name: 'Material', 
+    component: Material,
   },
-   {
-    // 품목관리 페이지
-     path: '/items',
-     name: 'Item', 
-     component: Item,
-   },
   {
     // BOM관리 페이지
-
     path: '/boms',
     name: 'Bom',
     component: Bom,
   },
+  {  
     // 설비 관리 
-  { path: "/equipments",
+   path: "/equipments",
     name: "Equipment",
     component: Equipment 
   },
@@ -135,13 +128,14 @@ const routes = [
     name: "ProcessMain",
     component: ProcessMain,
   },
-  // 불량 코드 관리 페이지
-  { path: '/defects',
+  {
+    // 불량 코드 관리 페이지
+    path: '/defects',
     name: 'Defect',
     component: Defect
   },
+  { 
     // 사원관리 페이지
-   {
     path: "/employees",
     name: "Employee",
     component: Employee
