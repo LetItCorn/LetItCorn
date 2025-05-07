@@ -11,11 +11,12 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
-import Process from "@/views/Process.vue";
+//import Process from "@/views/Process.vue";
 import MReturnForm   from '../views/MReturnForm.vue';
 import MReturnsList  from '../views/MReturnsList.vue';
 import Productionplan from "@/views/Productionplan_v2.vue";
 import Item from "@/views/Item.vue";
+import Material from "@/views/Material.vue";
 import Employee from "@/views/Employees.vue";
 import ProcessMain from "@/views/ProcessMain.vue";
 import Equipment from "@/views/Equipment.vue"; 
@@ -25,12 +26,12 @@ import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
 import MOrderForm from '../views/MOrderForm.vue';
 import MOrdersList from '../views/MOrdersList.vue';
 import Bom from '@/views/Bom.vue';
-import MOutboundForm from '../views/MOutboundForm.vue';
-// import MOutboundList from '../views/MOutboundList.vue';
+//import MOutboundForm from '../views/MOutboundForm.vue';
+//import MOutboundList from '../views/MOutboundList.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
-import MOutboundForm from '../views/MOutboundForm.vue';
-import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
+//import MOutboundForm from '../views/MOutboundForm.vue';
+//import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
 
 
 const routes = [

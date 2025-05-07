@@ -122,7 +122,7 @@ module.exports = {
     findAllSalesOrders,
     findSalesOrderByCode,
     findSalesOrdersByCondition,
-    addSalesOrder,
+    //addSalesOrder,
     updateSalesOrderInfo,
     removeSalesOrder,
     findAllClients,
