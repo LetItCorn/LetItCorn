@@ -39,7 +39,6 @@
           </div>
         </div>
       </div>
-
       <!-- 자재 목록 테이블 -->
       <div class="card-body p-0">
         <div class="table-responsive">

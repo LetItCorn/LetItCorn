@@ -1,3 +1,10 @@
+
+<style scoped>
+.selected {
+  background-color: #d0ebff; /* 연한 하늘색 */
+}
+</style>
+
 <template>
   <div class="container-fluid py-3">
     <!-- 1) 상단 조회·필터 바 -->
@@ -59,7 +66,7 @@
                   @click="selectItem(item)"
                   :class="{'table-active': item.item_code === selected.item_code} "
                   style="cursor:pointer"
-                >
+                >                  
                   <td>{{ item.item_code }}</td>
                   <td>{{ item.item_name }}</td>
                   <td>{{ item.item_type }}</td>
@@ -107,25 +114,16 @@
               </div>
             </div>
             <div class="mt-auto d-flex justify-content-end">
-              <button
-                @click="clearDetail"
-                class="btn btn-sm btn-outline-secondary mr-2"
-                style="width:80px;"
-              >
+              <button @click="clearDetail" class="btn btn-sm btn-outline-secondary mr-2" style="width:80px;">
                 초기화
               </button>
-              <button
-                @click="saveItem"
-                class="btn btn-sm btn-warning mr-2"
-                style="width:80px;"
-              >
+              <button @click="createItem" class="btn btn-sm btn-warning mr-2" style="width:80px;">
                 등록
               </button>
-              <button
-                @click="deleteItem"
-                class="btn btn-sm btn-danger"
-                style="width:80px;"
-              >
+              <button @click="updateItem" class="btn btn-sm btn-success mr-2" style="width:80px;">
+                수정
+              </button>
+              <button @click="deleteItem" class="btn btn-sm btn-danger" style="width:80px;">
                 삭제
               </button>
             </div>
@@ -153,46 +151,45 @@
               </thead>
               <tbody>
                 <template v-if="itemProcessFlowsList.length > 0">
-                  <tr
-                    v-for="group in itemProcessFlowsList"
-                    :key="group.sequence_order"
-                    :class="{ selected: selectedSeq === group.sequence_order }"
-                    @click="selectProcessItemFunc(group)"
-                  >
-                    <template v-if="!group.isAdding">
-                      <td>{{ group.sequence_order }}</td>
-                      <td>{{ group.process_name }}</td>
+                  <tr v-for="group in itemProcessFlowsList" :key="group.sequence_order"  :class="{ selected: selectedSeq === group.sequence_order }" @click="selectProcessItemFunc(group)"  >
+                    <!-- ✅ group에 item_code가 있으면 기존 행 -->
+                    <template v-if="group?.isAdding != true">
+                      <td  >{{ group.sequence_order }}</td>
                       <td>
-                        <input
-                          v-model="group.duration"
-                          class="form-control form-control-sm text-center mb-1"
-                          :placeholder="`예: ${group.duration_min}분`"
-                        />
+                        <div>
+                          {{ group.process_name }}
+                        </div>
+                      </td>
+                      <td>
+                        <div>                      
+                          <input
+                            v-model="group.duration"
+                            class="form-control form-control-sm text-center mb-1"
+                            :placeholder="`예: ${group.duration_min}분`"
+                          />
+                        </div>
                       </td>
                     </template>
+
+                    <!-- ❌ item_code 없으면 빈 행 보여주기 -->
                     <template v-else>
                       <td>{{ group.sequence_order }}</td>
-                      <td>
-                        <select
-                          v-model="group.process_header"
-                          @change="handleProcessSelect(group)"
-                        >
-                          <option value="">-- 선택하세요 --</option>
-                          <option
-                            v-for="item in processesListArr"
-                            :key="item.process_header"
-                            :value="item.process_header"
-                          >
-                            {{ item.process_name }}
-                          </option>
-                        </select>
+                      <td >                      
+                          <select  v-model="group.process_header"  @change="handleProcessSelect(group)">
+                            <option value="">-- 선택하세요 --</option>
+                            <option v-for="item in processesListArr" :key="item.process_header" :value="item.process_header">
+                              {{ item.process_name }}
+                            </option>
+                          </select>        
                       </td>
-                      <td></td>
+                      <td>
+                         
+                      </td>
                     </template>
                   </tr>
                 </template>
                 <tr v-else>
-                  <td colspan="3" class="text-center">등록된 공정이 없습니다.</td>
+                  <td colspan="2" class="text-center">등록된 공정이 없습니다.</td>
                 </tr>
               </tbody>
             </table>
@@ -203,7 +200,9 @@
   </div>
 </template>
 
+
 <script>
+
 import axios from 'axios';
 
 export default {
@@ -214,7 +213,7 @@ export default {
       searchValue: '',
       itemList: [],
       itemProcessFlowsList: [],
-      processesListArr: [],
+      processesListArr : [],
       selected: {
         item_code: '',
         item_name: '',
@@ -222,8 +221,8 @@ export default {
         unit_code: '',
         spec: ''
       },
-      selectedSeq: null,
-      selectProcessItem: {}
+      selectedSeq: null, 
+      selectProcessItem:{},
     };
   },
   computed: {
@@ -255,14 +254,28 @@ export default {
       } finally {
         this.clearDetail();
       }
-    },
+    },   
     resetFilter() {
       this.searchType = '';
       this.searchValue = '';
       this.loadItems();
     },
-    selectItem(item) {
+    async selectItem(item) {
       this.selected = { ...item };
+
+      
+      //let response = await axios.put(`/items/itemProcessFlowsList/${this.selected.item_code}`,'');
+      //await axios.put(`/api/items/${this.selected.item_code}`, this.selected);
+      //this.loadItems();
+      
+      // try {
+       // const response = await axios.get(`/api/items/itemProcessFlowsList/${this.selected.item_code}`,this.selected);
+        //this.itemProcessFlowsList = response.data;        
+      //} catch {
+      //  this.itemProcessFlowsList = [];
+      //}
+      
+
       this.fetchProcessFlows(item.item_code);
     },
     clearDetail() {

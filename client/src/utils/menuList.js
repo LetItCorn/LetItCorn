@@ -6,7 +6,7 @@ const menuConfig = {
       },
       {
         name: "주문서 등록",
-        path: '#'
+        path: 'Insertsalesorder'
       }
     ],
     "발주서": [{

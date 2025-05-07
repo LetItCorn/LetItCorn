@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
+import Dashboard from "../views/Dashboard.vue"; // 기본 대시보드
 import Login from "../views/LoginView.vue";
 import Sorder from "../views/Salesorder.vue";
-import Dashboard from "../views/Dashboard.vue";
+import InsertSorder from "../views/Insertsalesorder.vue";
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
 import RTL from "../views/Rtl.vue";
@@ -10,28 +11,28 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
-// import Process from "@/views/Process.vue";
-import Equipment from "@/views/Equipment.vue";
-import ProcessMain from "@/views/ProcessMain.vue";
-import Defect from "@/views/Defect.vue";
+// import Process from "./views/Process.vue";
+import MReturnForm   from '../views/MReturnForm.vue';
+import MReturnsList  from '../views/MReturnsList.vue';
 import Productionplan from "@/views/Productionplan_v2.vue";
 import Item from "@/views/Item.vue";
-import Material from "@/views/Material.vue";
-import Bom from '@/views/Bom.vue';
+//import Bom from '@/views/Bom.vue';
 import Employee from "@/views/Employees.vue";
-import Bom from '@/views/Bom.vue';
+import ProcessMain from "@/views/ProcessMain.vue";
+import Equipment from "@/views/Equipment.vue"; 
+import Defect from "@/views/Defect.vue";
 import MOrderForm from '@/views/MOrderForm.vue';
 import MOrdersList from '@/views/MOrdersList.vue';
 import MInboundForm from '@/views/MInboundForm.vue';
-import MReturnForm   from '../views/MReturnForm.vue';
-import MReturnsList  from '../views/MReturnsList.vue';
 import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
+import Bom from '@/views/Bom.vue';
 import MOutboundForm from '../views/MOutboundForm.vue';
 // import MOutboundList from '../views/MOutboundList.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
 import MOutboundForm from '../views/MOutboundForm.vue';
 import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
+
 
 const routes = [
   {
@@ -53,6 +54,11 @@ const routes = [
     path: "/salesorder",
     name: "Salesorder",
     component: Sorder,
+  },
+  {
+    path: "/insertsalesorder",
+    name: "Insertsalesorder",
+    component: InsertSorder,
   },
   {
     path: "/tables",
@@ -94,7 +100,6 @@ const routes = [
     name: "Leetest",
     component: Leetest,
   },
-
   {
     // 품목관리 페이지
     path: '/items',
@@ -109,6 +114,7 @@ const routes = [
   },
   {
     // BOM관리 페이지
+
     path: '/boms',
     name: 'Bom',
     component: Bom,
