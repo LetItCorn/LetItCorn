@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Login from "../views/LoginView.vue";
+import Sorder from "../views/Salesorder.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
@@ -37,6 +38,11 @@ const routes = [
     path: "/dashboard",
     name: "Dashboard",
     component: Dashboard,
+  },
+  {
+    path: "/salesorder",
+    name: "Salesorder",
+    component: Sorder,
   },
   {
     path: "/tables",
@@ -83,8 +89,6 @@ const routes = [
     name: "Process",
     component: Process,
   },
-
-
    {
     // 품목관리 페이지
      path: '/items',
@@ -123,10 +127,8 @@ const routes = [
     path: '/plan',
     name: 'ProductionPlan',
     component: Productionplan,
-
-  }
-  ,{ 
-
+  },
+  { 
     path: '/m_orders',
     name: 'MOrderForm',
     component: MOrderForm, 

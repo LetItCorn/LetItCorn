@@ -1,7 +1,7 @@
 const menuConfig = {
   영업: {
     "주문서": [{
-        name: "거래업체 주문서 조회",
+        name: "주문서 조회",
         path: 'Salesorder'
       },
       {
@@ -10,7 +10,7 @@ const menuConfig = {
       }
     ],
     "발주서": [{
-        name: "협력 업체 발주서 조회",
+        name: "발주서 조회",
         path: '#'
       },
       {
@@ -45,15 +45,15 @@ const menuConfig = {
         path: '#'
       }
     ],
-    "반품입고": [{
-        name: "반품조회",
+    "반품 입고": [{
+        name: "반품 조회",
         path: '#'
       }, {
-        name: "반품등록",
+        name: "반품 등록",
         path: '#'
       },
       {
-        name: "폐기 확인서 등록",
+        name: "폐기확인서 등록",
         path: '#'
       }
     ],
