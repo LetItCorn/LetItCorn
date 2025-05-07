@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container">
+    <div class="main-container">
         <div class="login-box"> 
             <div class="login-left">
                 <div class="login-logo">

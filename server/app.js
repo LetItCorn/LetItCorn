@@ -18,10 +18,8 @@
 
   // Session 설정 등록
   app.use(sessionSetting);
-
   app.use(express.urlencoded({ extended : false }));
   app.use(express.json()); 
-
 
   // Server 실행 
   app.listen(3000, ()=>{
@@ -49,7 +47,7 @@
   const inboundRouter = require('./routers/inbound_router.js');
   //영업
   const SoRouter = require('./routers/salesorder_router.js'); // 주문서
-  const PoRouter = require('./routers/purchaseorder_router.js');
+  const PoRouter = require('./routers/purchaseorder_router.js'); // 발주서
   //관리
   const userRouter = require('./routers/user_router.js');
   const itemRouter = require('./routers/item_router.js');
