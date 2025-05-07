@@ -30,6 +30,9 @@ import MOutboundForm from '../views/MOutboundForm.vue';
 // import MOutboundList from '../views/MOutboundList.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
+import MOutboundForm from '../views/MOutboundForm.vue';
+import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
+
 
 const routes = [
   {
@@ -98,10 +101,16 @@ const routes = [
     component: Leetest,
   },
   {
-     // 품목관리 페이지
+    // 품목관리 페이지
     path: '/items',
     name: 'Item', 
     component: Item,
+  },
+  {
+    // 자재관리 페이지
+    path: '/materials',
+    name: 'Material', 
+    component: Material,
   },
   {
     // BOM관리 페이지
@@ -110,8 +119,9 @@ const routes = [
     name: 'Bom',
     component: Bom,
   },
+  {  
     // 설비 관리 
-  { path: "/equipments",
+   path: "/equipments",
     name: "Equipment",
     component: Equipment 
   },
@@ -121,13 +131,14 @@ const routes = [
     name: "ProcessMain",
     component: ProcessMain,
   },
-  // 불량 코드 관리 페이지
-  { path: '/defects',
+  {
+    // 불량 코드 관리 페이지
+    path: '/defects',
     name: 'Defect',
     component: Defect
   },
+  { 
     // 사원관리 페이지
-   {
     path: "/employees",
     name: "Employee",
     component: Employee

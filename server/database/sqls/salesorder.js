@@ -168,7 +168,7 @@ module.exports = {
                     FROM items`,
 
   selectWarehouseList: `SELECT warehouse_code,
-                          warehouse_name,
-                          warehouse_type
-                          FROM warehouse`,
+         warehouse_name,
+         warehouse_type
+  FROM warehouse`
 };
