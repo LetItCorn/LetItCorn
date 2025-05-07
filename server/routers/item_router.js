@@ -40,19 +40,15 @@ router.get('/items/:item_code', async (req, res) => {
   res.send(info);
 });
 
-// 등록
+// 등록/수정 (MERGE)
 router.post('/items', async (req, res) => {
-  const itemInfo = req.body;
-  const result   = await itemService.createItem(itemInfo);
-  res.send(result);
-});
-
-// 수정
-router.put('/items/:item_code', async (req, res) => {
-  // URL param 에서 item_code 꺼내서 body 에 병합
-  const itemInfo = { ...req.body, item_code: req.params.item_code };
-  const result   = await itemService.updateItem(itemInfo);
-  res.send(result);
+  try {
+    const result = await itemService.saveItem(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    console.error('POST /items error:', err);
+    res.status(500).json({ error: '품목 저장 중 오류가 발생했습니다.' });
+  }
 });
 
 // 삭제

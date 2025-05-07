@@ -3,7 +3,7 @@
     <h2 class="text-center mb-4">자재 출고 처리</h2>
 
     <div class="row gx-4">
-      <!-- 왼쪽: 현재 재고 현황 (좀 더 넓게: lg-7) -->
+      <!-- 왼쪽 : 현재 재고 현황 ----------------------------------------- -->
       <div class="col-md-6 col-lg-7 mb-4">
         <div class="card shadow-sm h-100">
           <div class="card-header bg-secondary text-white">
@@ -46,7 +46,7 @@
         </div>
       </div>
 
-      <!-- 오른쪽: 출고 후보 목록 (lg-5) -->
+      <!-- 오른쪽 : 출고 후보 목록 --------------------------------------- -->
       <div class="col-md-6 col-lg-5 mb-4">
         <div class="card shadow-sm h-100">
           <div class="card-header bg-primary text-white">
@@ -78,7 +78,11 @@
                     :key="row.lot_cnt + '-' + row.mater_code"
                   >
                     <td>
-                      <input type="checkbox" v-model="selected" :value="row" />
+                      <input
+                        type="checkbox"
+                        v-model="selected"
+                        :value="row"
+                      />
                     </td>
                     <td>{{ row.mater_code }}</td>
                     <td>{{ row.mater_name }}</td>
@@ -122,7 +126,7 @@
       </div>
     </div>
 
-    <!-- 출고 버튼 (두 칼럼 아래 전체 폭) -->
+    <!-- 출고 버튼 -------------------------------------------------------- -->
     <div class="text-end">
       <button
         class="btn btn-success btn-lg"
@@ -142,9 +146,9 @@ export default {
   name: 'MOutboundForm',
   data() {
     return {
-      summaryList: [],    // 현재 재고 현황
-      rows: [],           // 출고 후보 (LOT 단위)
-      selected: []        // 체크된 행 목록
+      summaryList: [],   // 현재 재고 현황
+      rows: [],          // 출고 후보 (LOT 단위)
+      selected: []       // 체크된 행
     };
   },
   computed: {
@@ -157,47 +161,65 @@ export default {
     this.loadCandidates();
   },
   methods: {
+    // 재고 현황
     async loadMaterialStock() {
       try {
         const res = await axios.get('/api/materials');
-        this.summaryList = res.data.map(item => ({
+        /* API 스펙 변경 방어 : 배열인지 확인 */
+        const list = Array.isArray(res.data) ? res.data : res.data?.materials ?? [];
+        this.summaryList = list.map(item => ({
           mater_code:    item.mater_code,
           mater_name:    item.mater_name,
           safe_stock:    item.safe_stock,
-          current_stock: item.current_stock
+          current_stock: item.total_stock ?? item.current_stock ?? 0  // ← 필드명 호환
         }));
       } catch (e) {
         console.error('현재 재고 조회 실패', e);
         alert('현재 재고를 불러오는 중 오류가 발생했습니다.');
       }
     },
+
+    //출고 후보 불러오는 것
     async loadCandidates() {
       try {
         const res = await axios.get('/api/outbound_candidates');
-        this.rows = res.data.map(r => ({
+        // 넘어오는 데이터가 배열이 아닐 때 방어하는 함수 
+        const list = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data?.candidates)
+            ? res.data.candidates
+            : [];
+
+        this.rows = list.map(r => ({
           ...r,
-          mout_qty: 1,
-          lot_cnt: r.lot_cnt,
-          mater_lot: r.mater_lot
+          /* 기본값 지정 */
+          mout_qty:  1,
+          lot_cnt:   r.lot_cnt ?? '',
+          mater_lot: r.mater_lot ?? ''
         }));
       } catch (e) {
         console.error('출고 후보 조회 실패', e);
         alert('출고 후보를 불러오는 중 오류가 발생했습니다.');
       }
     },
+
     toggleAll(evt) {
       this.selected = evt.target.checked ? [...this.rows] : [];
     },
+
+    // 출고 처리 
     async processOutbound() {
       if (!this.selected.length) {
         return alert('출고할 자재가 선택되지 않았습니다.');
       }
+
       const today = new Date().toISOString().slice(0, 10);
+
       try {
         const results = await Promise.all(
           this.selected.map(r =>
             axios.post('/api/m_outbound', {
-              mout_id:      `${r.lot_cnt}-${Date.now()}`,
+              mout_id:      `${r.mater_code}-${Date.now()}`,
               mater_code:   r.mater_code,
               mout_qty:     r.mout_qty,
               mout_date:    today,
@@ -207,17 +229,20 @@ export default {
             })
           )
         );
-        const failed = results.filter(r => r.data.isSuccess === false);
+
+        const failed = results.filter(r => r.data?.isSuccess === false);
         if (failed.length) {
           console.error('일부 출고 실패', failed.map(f => f.data.error));
           return alert(
-            '일부 출고 실패:\n' + failed.map(f => f.data.error).join('\n')
+            '일부 항목 출고 실패:\n' +
+            failed.map(f => f.data.error).join('\n')
           );
         }
+
         alert('출고가 완료되었습니다.');
+        /* 화면 갱신 */
         this.selected = [];
-        this.loadMaterialStock();
-        this.loadCandidates();
+        await Promise.all([this.loadMaterialStock(), this.loadCandidates()]);
       } catch (err) {
         console.error('출고 처리 오류', err.response?.data || err);
         alert('출고 처리 중 오류가 발생했습니다.');
@@ -235,9 +260,9 @@ export default {
 .current-stock h5,
 .card-header {
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
 .btn-success {
-  width: 200px;
+  width: 220px;
 }
 </style>
