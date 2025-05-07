@@ -26,6 +26,7 @@ const materialQCList  = require('./sqls/material_qc.js');
 const materialQCInput = require('./sqls/material_qc_input.js');
 const mOrder = require('./sqls/m_order.js');
 const mInbound = require('./sqls/mInbound.js');
+const salesorder = require('./sqls/salesorder.js');
 
 module.exports = {
   // 펼침연산자(spread operator, ...)을 활용해 객체의 필드를 다른 객체로 쉽게 복사
@@ -55,4 +56,5 @@ module.exports = {
     ...materialQCInput,
     ...mOrder,
     ...mInbound,
+      ...salesorder,
 }
