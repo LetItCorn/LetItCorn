@@ -10,28 +10,23 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
-// import Process from "./views/Process.vue";
-import MReturnForm   from '../views/MReturnForm.vue';
-import MReturnsList  from '../views/MReturnsList.vue';
+// import Process from "@/views/Process.vue";
+import Equipment from "@/views/Equipment.vue";
+import ProcessMain from "@/views/ProcessMain.vue";
+import Defect from "@/views/Defect.vue";
 import Productionplan from "@/views/Productionplan_v2.vue";
 import Item from "@/views/Item.vue";
-import Bom from '@/views/Bom.vue';
 import Employee from "@/views/Employees.vue";
-import ProcessMain from "@/views/ProcessMain.vue";
-import Equipment from "@/views/Equipment.vue"; 
-import Defect from "@/views/Defect.vue";
+import Bom from '@/views/Bom.vue';
 import MOrderForm from '@/views/MOrderForm.vue';
 import MOrdersList from '@/views/MOrdersList.vue';
 import MInboundForm from '@/views/MInboundForm.vue';
-import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
-import Bom from '@/views/Bom.vue';
-import MOrderForm from '../views/MOrderForm.vue';
-import MOrdersList from '../views/MOrdersList.vue';
-import MInboundForm from '../views/MInboundForm.vue';
-import MOutboundForm from '../views/MOutboundForm.vue';
-// import MOutboundList from '../views/MOutboundList.vue';
+import MReturnForm   from '../views/MReturnForm.vue';
+import MReturnsList  from '../views/MReturnsList.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
+import MOutboundForm from '../views/MOutboundForm.vue';
+import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
 
 const routes = [
   {
@@ -94,11 +89,6 @@ const routes = [
     name: "Leetest",
     component: Leetest,
   },
-  // {
-  //   path: "/process",
-  //   name: "Process",
-  //   component: Process,
-  // },
 
   {
      // 품목관리 페이지
@@ -106,17 +96,6 @@ const routes = [
     name: 'Item', 
     component: Item,
   },
-  {
-    path: "/process",
-    name: "Process",
-    component: Process,
-  },
-   {
-    // 품목관리 페이지
-     path: '/items',
-     name: 'Item', 
-     component: Item,
-   },
   {
     // BOM관리 페이지
 
