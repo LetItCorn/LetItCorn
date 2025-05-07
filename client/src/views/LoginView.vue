@@ -16,11 +16,11 @@
                     </div>
                     <div class="input-box">
                         <i class="bx bxs-user"></i>
-                        <input type="text" name="user_id" v-model="loginInfo.user_id" placeholder="아이디" required>
+                        <input type="text" name="user_id" autoComplete="off" v-model="loginInfo.user_id" placeholder="아이디" required>
                     </div>
                     <div class="input-box">
                         <i class="bx bxs-lock-alt" ></i>
-                        <input type="password" name="user_pw" v-model="loginInfo.user_pw" placeholder="비밀번호" required>
+                        <input type="password" name="user_pw" autoComplete="off" v-model="loginInfo.user_pw" placeholder="비밀번호" required>
                     </div>
                     <button type="button" class="btn" v-on:click="userLogin">로그인</button>
                     <div class="myinfo-findbox">
@@ -87,7 +87,7 @@ export default {
     }
     }
 </script>
-<style>
+<style scoped>
 *{
     font-family: "42dot Sans", sans-serif;
     margin: 0;

@@ -6,7 +6,7 @@ const menuConfig = {
       },
       {
         name: "주문서 등록",
-        path: '#'
+        path: 'Insertsalesorder'
       }
     ],
     "발주서": [{
@@ -85,7 +85,7 @@ const menuConfig = {
     ],
     "생산계획": [{
         name: "조회",
-        path: '#'
+        path: 'ProductionPlanInquiry'
       }, {
         name: "작성",
         path: 'plan'
@@ -148,6 +148,10 @@ const menuConfig = {
       name: "품목 목록",
       path: 'items'
     }, ],
+    "자재": [{
+      name: "자재 목록",
+      path: 'materials'
+    }, ],
     "설비": [{
       name: "설비 목록",
       path: 'equipments'
@@ -164,7 +168,6 @@ const menuConfig = {
       name: "BOM 목록",
       path: 'boms'
     }, ],
-
   }
 
 }

@@ -3,10 +3,10 @@
     <h2 class="text-center mb-4">자재 조회</h2>
 
     <div class="card shadow-sm">
-      <!-- 필터 영역 -->
+      <!-- 필터 영역: 검색어 입력, 재고 부족 체크박스, 초기화 버튼 -->
       <div class="card-header bg-light">
         <div class="row g-2 align-items-center">
-          <!-- 검색어 -->
+          <!-- 검색창: 검색어 입력시 applyFilters 호출 -->
           <div class="col-md-4">
             <input
               v-model="searchQuery"
@@ -16,7 +16,7 @@
               placeholder="코드·명·카테고리 검색"
             />
           </div>
-          <!-- 재고 부족만 보기 -->
+          <!-- 재고 부족만 보기위해서 체크박스로 chage 이벤트 필터 적용 -->
           <div class="col-auto">
             <div class="form-check">
               <input
@@ -31,7 +31,7 @@
               </label>
             </div>
           </div>
-          <!-- 전체 초기화 버튼 -->
+          <!-- 전체 초기화 버튼 필터랑 선택 리셋을 할 수 있게 한다.-->
           <div class="col-auto ms-auto">
             <button class="btn btn-sm btn-outline-secondary" @click="resetFilters">
               초기화
@@ -39,13 +39,13 @@
           </div>
         </div>
       </div>
-
-      <!-- 테이블 -->
+      <!-- 자재 목록 테이블 -->
       <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-striped table-hover text-center mb-0">
             <thead class="table-dark">
               <tr>
+                <!-- 전체 선택 체크박스 -->
                 <th style="width:1%">
                   <input
                     type="checkbox"
@@ -61,6 +61,7 @@
               </tr>
             </thead>
             <tbody>
+              <!-- 필터된 리스트 반복 렌더링을 해서  -->
               <tr
                 v-for="mat in filteredList"
                 :key="mat.mater_code"
