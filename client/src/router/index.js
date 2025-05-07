@@ -21,6 +21,7 @@ import Defect from "@/views/Defect.vue";
 import MOrderForm from '@/views/MOrderForm.vue';
 import MOrdersList from '@/views/MOrdersList.vue';
 import MInboundForm from '@/views/MInboundForm.vue';
+import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
 
 
 const routes = [
@@ -128,7 +129,12 @@ const routes = [
     name: 'ProductionPlan',
     component: Productionplan,
   },
-  { 
+  {
+    path: '/plans',
+    name: 'ProductionPlanInquiry',
+    component: ProductionPlanInquiry,
+  }
+  ,{ 
     path: '/m_orders',
     name: 'MOrderForm',
     component: MOrderForm, 
