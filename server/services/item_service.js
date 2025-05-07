@@ -65,8 +65,8 @@ const findByItem = async (itemCode) => {
   return rows[0] || null;
 };
 
-// 3) 등록
-const createItem = async (item) => {
+// 등록/수정 (MERGE)
+const saveItem = async (item) => {
   const params = [
     item.item_code,
     item.item_name,
@@ -74,31 +74,12 @@ const createItem = async (item) => {
     item.unit_code,
     item.spec
   ];
-  const result = await mariaDB
-    .query('itemInsert', params)
-    .catch(err => {
-      console.error('createItem error', err);
-      throw err;
-    });
-  return result;
-};
-
-// 4) 수정
-const updateItem = async (item) => {
-  const params = [
-    item.item_name,
-    item.item_type,
-    item.unit_code,
-    item.spec,
-    item.item_code
-  ];
-  const result = await mariaDB
-    .query('itemUpdate', params)
-    .catch(err => {
-      console.error('updateItem error', err);
-      throw err;
-    });
-  return result;
+  try {
+    return await mariaDB.query('itemInsert', params);
+  } catch (err) {
+    console.error('saveItem error', err);
+    throw err;
+  }
 };
 
 // 5) 삭제
@@ -184,8 +165,7 @@ module.exports = {
   findItemsByName,
   findItemsByType,
   findByItem,
-  createItem,
-  updateItem,
+  saveItem,
   deleteItem,
   itemProcessFlowsList,
   processesList,
