@@ -1,32 +1,58 @@
 import { defineStore } from 'pinia'
-export const useProductionPlanStore = defineStore('productionPlan',{
-state: () => ({
-  searchDate : new Date(),
-  orderList: [],
-  selectedOrder: [],
-  isOrderModalOpen: false,
-}),
-actions:{
-  openOrderModal(){
-    this.isOrderModalOpen = true
+import axios from 'axios'
+
+export const useProductionPlanStore = defineStore('productionPlan', {
+  state: () => ({
+    searchDate: new Date(),
+    orderList: [],
+    selectedOrder: [],
+    isOrderModalOpen: false,
+  }),
+
+  getters: {
+    getSelectedOrderSafe: (state) => state.selectedOrder || []
   },
-  closeOrderModal(){
-    this.isOrderModalOpen = false
-  },
-  searchDate(date) {
-    this.searchDate = date
-  },
-  setOrderList(list){
-    this.orderList = list
-  },
-  setSelectedOrders(orders){
-    this.selectedOrder = orders
-  },
-  resetAll() {
-    this.searchDate = new Date()
-    this.orderList = []
-    this.selectedOrder = []
-    this.isOrderModalOpen = false
+
+  actions: {
+    openOrderModal() {
+      this.isOrderModalOpen = true
+    },
+    closeOrderModal() {
+      this.isOrderModalOpen = false
+    },
+    updateSearchDate(date) {
+      this.searchDate = date
+    },
+
+  async fetchOrders(type, startDate, endDate) {
+    const params = { type, startDate, endDate } 
+
+    let data = []
+    await axios
+      .get('/api/modal/search', { params })
+      .then(res => {
+        data = res.data
+        console.log('📦 주문서 조회 응답:', data)
+        this.orderList = data
+      })
+      .catch(err => {
+      console.error('스토어 주문서 조회 실패:', err)
+      this.orderList = []
+      })
+    return data
+   },
+
+    setOrderList(list) {
+      this.orderList = list
+    },
+    setSelectedOrders(orders) {
+      this.selectedOrder = orders
+    },
+    resetAll() {
+      this.searchDate = new Date()
+      this.orderList = []
+      this.selectedOrder = []
+      this.isOrderModalOpen = false
+    }
   }
-},
 })

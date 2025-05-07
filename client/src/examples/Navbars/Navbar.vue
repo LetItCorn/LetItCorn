@@ -10,14 +10,17 @@
             <button @click="selectedMenu(menu)" :class="{'active-menu':acvtiveMenu === menu}">{{ menu }}</button>
           </div>
         </div>
+
         <!-- <div class="pe-md-3 d-flex align-items-center ms-md-auto">
           <material-input id="search" label="Search here" />
         </div>  -->
-        <ul class="navbar-nav login-container">
-          <div class="login-group" v-if="isLoggedIn"> <!--로그인 사용자 정보-->
+
+        <ul class="navbar-nav login-container"> <!--로그인한 사용자 정보에 대한 container box-->
+          <div class="login-group" v-if="isLoggedIn">
             <span class="login-name">{{userStore.empName}}님</span>
             <button @click="logout">로그아웃</button>
           </div>
+          
           <!-- <li class="nav-item d-flex align-items-center">
             <router-link :to="{ name: 'SignIn' }" class="px-0 nav-link font-weight-bold lh-1"
               :class="color ? color : 'text-body'">
@@ -128,16 +131,13 @@
       }
 
     },
-
-
-
-  };
+};
 
 
 </script>
 <style>
   .collapse navbar-collapse{
-    font-size: 20px;
+    font-size: 20px !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
@@ -158,8 +158,8 @@
     border: none;
     color: #000 !important;
     text-decoration: none;
-    font-size: 45px;
-    margin-right: 100px;
+    font-size: 41px;
+    margin: 0 100px 0 100px;
   }
   .nav-group button:hover {
     color: #1900ff !important;
@@ -171,7 +171,7 @@
     font-weight: bold;
   }
   .login-group {
-    font-size: 20px;
+    font-size: 19px;
   }
   .login-name {
     color: #000 !important;
