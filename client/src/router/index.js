@@ -9,19 +9,21 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
+// import Process from "./views/Process.vue";
+import MReturnForm   from '../views/MReturnForm.vue';
+import MReturnsList  from '../views/MReturnsList.vue';
 
-import Process from "@/views/Process.vue";
-// import ItemList  from '@/views/ItemList.vue';
-// import ItemInfo   from '@/views/ItemInfo.vue';
+import Productionplan from "@/views/Productionplan_v2.vue";
+import Item from "@/views/Item.vue";
+
 import Bom from '@/views/Bom.vue';
-import { compile } from "vue";
-import Productionplan from "@/views/Productionplan.vue";
-import MaLotList from "@/views/MaLotList.vue";
-import MOrderForm from '@/views/MOrderForm.vue';
-import MOrdersList from '@/views/MOrdersList.vue';
-import MInboundForm from '@/views/MInboundForm.vue';
-
-
+import MOrderForm from '../views/MOrderForm.vue';
+import MOrdersList from '../views/MOrdersList.vue';
+import MInboundForm from '../views/MInboundForm.vue';
+import MOutboundForm from '../views/MOutboundForm.vue';
+// import MOutboundList from '../views/MOutboundList.vue';
+import MMovement       from '../views/MMovement.vue';
+import QCHistory from '../views/QCHistory.vue';
 
 const routes = [
   {
@@ -79,19 +81,22 @@ const routes = [
     name: "Leetest",
     component: Leetest,
   },
-  {
-    path: "/process",
-    name: "Process",
-    component: Process,
-  },
   // {
-  //   // 품목관리 페이지
-  //   path: '/items',
-  //   name: 'ItemList',
-  //   component: ItemList,
-  //   meta: { title: '품목 관리' }
+  //   path: "/process",
+  //   name: "Process",
+  //   component: Process,
   // },
+
+
   {
+     // 품목관리 페이지
+    path: '/items',
+    name: 'Item', 
+    component: Item,
+  },
+  {
+    // BOM관리 페이지
+
     path: '/boms',
     name: 'Bom',
     component: Bom,
@@ -100,8 +105,10 @@ const routes = [
     path: '/plan',
     name: 'ProductionPlan',
     component: Productionplan,
-  },
-  { 
+
+  }
+  ,{ 
+
     path: '/m_orders',
     name: 'MOrderForm',
     component: MOrderForm, 
