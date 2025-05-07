@@ -29,7 +29,6 @@
     console.log('http://localhost:3000');
   })
 
-
   // 라우팅 등록 영역
   //생산
   const planRouter = require('./routers/plan_router.js');

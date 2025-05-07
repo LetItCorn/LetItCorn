@@ -122,21 +122,21 @@ const menuConfig = {
       path: 'm_inbound'
     },{
       name: "출고",
-      path: '#'
+      path: 'm_outbound'
     },
     {
       name: "조회",
-      path: '#'
+      path: 'm_movement'
     }
   ],
   "자재품질": [{
     name: "조회",
-    path: '#'
-  }, {
-    name: "등록",
-    path: '#'
+    path: 'qc_history'
   },
-
+],
+"반품 입고": [
+  { name: "반품조회", path: "returns" },
+  { name: "반품등록", path: "returns" }
 ],
   },
   관리: {
