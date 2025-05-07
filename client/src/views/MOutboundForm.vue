@@ -161,7 +161,7 @@ export default {
     this.loadCandidates();
   },
   methods: {
-    /* ───────────────── 재고 현황 ───────────────── */
+    // 재고 현황
     async loadMaterialStock() {
       try {
         const res = await axios.get('/api/materials');
@@ -179,12 +179,11 @@ export default {
       }
     },
 
-    /* ───────────────── 출고 후보 ───────────────── */
+    //출고 후보 불러오는 것
     async loadCandidates() {
       try {
         const res = await axios.get('/api/outbound_candidates');
-
-        /* ▼ merge 이후 포맷 변화 대비 — 순수 배열이 아닐 때 방어 */
+        // 넘어오는 데이터가 배열이 아닐 때 방어하는 함수 
         const list = Array.isArray(res.data)
           ? res.data
           : Array.isArray(res.data?.candidates)
@@ -208,7 +207,7 @@ export default {
       this.selected = evt.target.checked ? [...this.rows] : [];
     },
 
-    /* ───────────────── 출고 처리 ───────────────── */
+    // 출고 처리 
     async processOutbound() {
       if (!this.selected.length) {
         return alert('출고할 자재가 선택되지 않았습니다.');
