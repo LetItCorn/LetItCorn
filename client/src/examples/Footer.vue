@@ -60,6 +60,7 @@ export default {
       store: useUserStore(), // Pinia store 인스턴스 -> 로그아웃 useConfigStroe에서 useUserStore로 변경
         // store/menuConfig
         menuStore : useConfigStore(),
+      userId : useUserStore().userId
     };
   },
   computed: {
