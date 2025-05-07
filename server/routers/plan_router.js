@@ -20,5 +20,13 @@ router.post("/plan", async (req, res) => {
     res.status(500).send({ error: "등록 실패" });
   }
 });
+//수정
+router.put("/plan/:plans_head", async(req,res)=>{
+  let plans_head = req.params.plans_head;
+  let { header, details } = req.body;
+
+  let result = await planService.modifyPlan(header, details, plans_head);
+  res.json(result)
+});
 
 module.exports = router;
