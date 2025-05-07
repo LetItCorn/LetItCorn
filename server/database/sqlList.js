@@ -21,12 +21,21 @@ const materials = require('./sqls/materials.js');
 const lotInventory  = require('./sqls/lot_inventory.js');
 const purchaseorders = require('./sqls/purchaseorders.js');
 const materialOrderDetail= require('./sqls/material_order_details.js');
-const outboundCandidates = require('./sqls/outbound_candidates.js');
 const materialQCList  = require('./sqls/material_qc.js');
 const materialQCInput = require('./sqls/material_qc_input.js');
 const mOrder = require('./sqls/m_order.js');
 const mInbound = require('./sqls/mInbound.js');
 const modal = require('./sqls/modal.js');
+const salesorder = require('./sqls/salesorder.js');
+const qcInspections = require('./sqls/qcInspections.js');
+const mOutbound        = require('./sqls/mOutbound.js');
+const mOrderDetail = require('./sqls/m_order_detail.js');
+const mOrderDetailIn = require('./sqls/m_order_detail_insert.js');
+const qcHistory = require('./sqls/qcHistory.js');
+const mReturns = require('./sqls/m_returns.js');
+const materialStock = require('./sqls/materials_stock.js');
+const outboundPicking = require('./sqls/mOutboundPicking.js');
+const outboundCandidates = require('./sqls/outbound_candidates.js');
 
 module.exports = {
   // 펼침연산자(spread operator, ...)을 활용해 객체의 필드를 다른 객체로 쉽게 복사
@@ -47,14 +56,23 @@ module.exports = {
   ...defectCodes,
   ...commonCodes,
   ...employees,
-    ...materials,
-    ...lotInventory,
-    ...purchaseorders,
-    ...materialOrderDetail,
-    ...outboundCandidates,
-    ...materialQCList,
-    ...materialQCInput,
-    ...mOrder,
-    ...mInbound,
-    ...modal,
+  ...materials,
+  ...lotInventory,
+  ...purchaseorders,
+  ...materialOrderDetail,
+  ...materialQCList,
+  ...materialQCInput,
+  ...mOrder,
+  ...mInbound,
+  ...modal,
+  ...salesorder,
+  ...qcInspections,
+  ...mOutbound,
+  ...mOrderDetail,
+  ...mOrderDetailIn,
+  ...qcHistory,
+  ...mReturns,
+  ...materialStock,
+  ...outboundPicking,
+  ...outboundCandidates,
 }

@@ -1,4 +1,4 @@
-
+// client/src/store/index.js
 import { defineStore } from "pinia";
 
 // 'config'라는 이름의 스토어를 정의합니다.

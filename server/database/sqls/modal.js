@@ -1,4 +1,4 @@
- const selectOrder = 
+const selectOrder = 
 `SELECT so.sorder_code, 
         so.item_code, 
         i.item_name, 

@@ -6,9 +6,9 @@ const findBySorder = async (ordNo) => {
      return list;
     };
  const findByDateRange = async (type, startDate, endDate) => {
-      console.log("👉 검색 날짜:", startDate, endDate);       
+      console.log("검색 날짜:", startDate, endDate);       
       let alias = type === '작성일자' ? 'selectByWriteDate' : 'selectByEndDate';
-      console.log("👉 검색 날짜:", startDate, endDate)
+      console.log("검색 날짜:", startDate, endDate)
       let range = await mariadb.query(alias, [startDate, endDate])
       return range;
     };

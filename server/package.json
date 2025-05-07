@@ -12,9 +12,11 @@
   "dependencies": {
     "dayjs": "^1.11.13",
     "dotenv": "^16.5.0",
+    "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
-    "mariadb": "^3.4.2"
+    "mariadb": "^3.4.2",
+    "pdfkit": "^0.17.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

@@ -1,82 +1,81 @@
 // server/database/sqls/defect_codes.js
 
-// 1) 전체 조회
-const selectDefectList = `
-SELECT
-  defect_code,
-  defect_type,
-  is_used,
-  DATE_FORMAT(created_date, '%Y-%m-%d') AS created_date
-FROM defect_codes
-ORDER BY defect_code
+// 1) 전체 조회 + 조건별 검색 (defect_code, defect_type, is_used 옵션)
+const defectCodesList = `
+  SELECT defect_code
+       , defect_type
+       , is_used
+       , created_date
+  FROM defect_codes
+  WHERE 1=1
+    AND (? = '' OR defect_code LIKE CONCAT('%', ?, '%'))
+    AND (? = '' OR defect_type LIKE CONCAT('%', ?, '%'))
+    AND (? = '' OR is_used = ?)
+  ORDER BY defect_code
 `;
 
-// 2) 단건조회 (code 기준)
-const selectDefectOne = `
-SELECT
-  defect_code,
-  defect_type,
-  is_used,
-  DATE_FORMAT(created_date, '%Y-%m-%d') AS created_date
-FROM defect_codes
-WHERE defect_code = ?
+// 1-a) 코드로만 조회
+const defectCodesByCode = `
+  SELECT defect_code, defect_type, is_used, created_date
+  FROM defect_codes
+  WHERE defect_code LIKE CONCAT('%', ?, '%')
+  ORDER BY defect_code
 `;
 
-// 3) 유형(searchType='type') 기준 조회
-const selectDefectByType = `
-SELECT
-  defect_code,
-  defect_type,
-  is_used,
-  DATE_FORMAT(created_date, '%Y-%m-%d') AS created_date
-FROM defect_codes
-WHERE defect_type = ?
-ORDER BY defect_code
+// 1-b) 유형으로만 조회
+const defectCodesByType = `
+  SELECT defect_code, defect_type, is_used, created_date
+  FROM defect_codes
+  WHERE defect_type LIKE CONCAT('%', ?, '%')
+  ORDER BY defect_code
 `;
 
-// 4) 사용여부(searchType='used') 기준 조회
-const selectDefectByUsed = `
-SELECT
-  defect_code,
-  defect_type,
-  is_used,
-  DATE_FORMAT(created_date, '%Y-%m-%d') AS created_date
-FROM defect_codes
-WHERE is_used = ?
-ORDER BY defect_code
+// 1-c) 사용 여부로만 조회
+const defectCodesByUsed = `
+  SELECT defect_code, defect_type, is_used, created_date
+  FROM defect_codes
+  WHERE is_used = ?
+  ORDER BY defect_code
 `;
 
-// 5) 등록
-const insertDefect = `
-INSERT INTO defect_codes (
-  defect_code,
-  defect_type,
-  is_used,
-  created_date
-) VALUES (?, ?, ?, ?)
+// 2) 단건 조회 (defect_code 기준)
+const defectCodeInfo = `
+  SELECT defect_code
+       , defect_type
+       , is_used
+       , created_date
+  FROM defect_codes
+  WHERE defect_code = ?
 `;
 
-// 6) 수정
-const updateDefect = `
-UPDATE defect_codes
-SET
-  defect_type = ?,
-  is_used     = ?
-WHERE defect_code = ?
+// 3) 등록 (INSERT)
+const defectCodeInsert = `
+  INSERT INTO defect_codes (defect_code, defect_type, is_used, created_date)
+  VALUES (?, ?, ?, ?)
 `;
 
-// 7) 삭제
-const deleteDefect = `
-DELETE FROM defect_codes
-WHERE defect_code = ?
+// 4) 수정 (UPDATE)
+const defectCodeUpdate = `
+  UPDATE defect_codes
+     SET defect_type  = ?
+       , is_used      = ?
+       , created_date = ?
+   WHERE defect_code = ?
+`;
+
+// 5) 삭제 (DELETE)
+const defectCodeDelete = `
+  DELETE FROM defect_codes
+   WHERE defect_code = ?
 `;
 
 module.exports = {
-  selectDefectList,
-  selectDefectOne,
-  selectDefectByType,
-  selectDefectByUsed,
-  insertDefect,
-  updateDefect,
-  deleteDefect,
+  defectCodesList,
+  defectCodesByCode,
+  defectCodesByType,
+  defectCodesByUsed,
+  defectCodeInfo,
+  defectCodeInsert,
+  defectCodeUpdate,
+  defectCodeDelete
 };

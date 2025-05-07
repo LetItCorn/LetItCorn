@@ -60,12 +60,13 @@ export default {
       store: useUserStore(), // Pinia store 인스턴스 -> 로그아웃 useConfigStroe에서 useUserStore로 변경
         // store/menuConfig
         menuStore : useConfigStore(),
+        userId : '' // 초기 공백으로 초기화
     };
   },
   computed: {
       isLoggedIn() {
-        // 로그인 여부를 확인하는 computed property
-        return this.userId != undefined;
+        this.userId = this.store.userId; // Pinia store에서 userId를 가져옴
+        return this.userId != undefined; // 로그인 여부를 확인하는 computed property
       }
     },
 };

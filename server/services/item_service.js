@@ -65,8 +65,8 @@ const findByItem = async (itemCode) => {
   return rows[0] || null;
 };
 
-// 3) 등록
-const createItem = async (item) => {
+// 등록/수정 (MERGE)
+const saveItem = async (item) => {
   const params = [
     item.item_code,
     item.item_name,
@@ -74,31 +74,12 @@ const createItem = async (item) => {
     item.unit_code,
     item.spec
   ];
-  const result = await mariaDB
-    .query('itemInsert', params)
-    .catch(err => {
-      console.error('createItem error', err);
-      throw err;
-    });
-  return result;
-};
-
-// 4) 수정
-const updateItem = async (item) => {
-  const params = [
-    item.item_name,
-    item.item_type,
-    item.unit_code,
-    item.spec,
-    item.item_code
-  ];
-  const result = await mariaDB
-    .query('itemUpdate', params)
-    .catch(err => {
-      console.error('updateItem error', err);
-      throw err;
-    });
-  return result;
+  try {
+    return await mariaDB.query('itemInsert', params);
+  } catch (err) {
+    console.error('saveItem error', err);
+    throw err;
+  }
 };
 
 // 5) 삭제
@@ -112,13 +93,82 @@ const deleteItem = async (itemCode) => {
   return result;
 };
 
+
+// 6) 품목공정 흐름도 조회
+const itemProcessFlowsList = async (itemCode) => {  
+  const list = await mariaDB
+    .query('itemProcessFlowsList', [itemCode])
+    .catch(err => {
+      console.error('findItems error', err);
+      return [];
+    }); 
+      
+  return list;
+};
+
+const processesList = async () => {  
+  
+  const list = await mariaDB
+    .query('processesList', [])
+    .catch(err => {
+      console.error('findItems error', err);
+      return [];
+    }); 
+      
+  return list;
+};
+
+
+// 3) 등록
+const saveProcessFlows = async (flows) => {
+  const conn = await mariaDB.getConnection();
+  await conn.beginTransaction();
+
+  try {
+    for (const flow of flows) {
+      const { item_code, process_header, sequence_order } = flow;
+
+      await conn.query(
+        `INSERT INTO item_process_flows (item_code, process_header, sequence_order)
+         VALUES (?, ?, ?)
+         ON DUPLICATE KEY UPDATE process_header = VALUES(process_header)`,
+        [item_code, process_header, sequence_order]
+      );
+    }
+
+    await conn.commit();
+    conn.release();
+    return { success: true };
+  } catch (err) {
+    await conn.rollback();
+    conn.release();
+    console.error('saveProcessFlows error', err);
+    throw err;
+  }
+};
+const deleteProcessItem = async (req) => {  
+  const { process_header, item_code, sequence_order } = req.body;    
+  const list = await mariaDB
+    .query('deleteProcessItem', [process_header,item_code,sequence_order])
+    .catch(err => {
+      console.error('findItems error', err);
+      return [];
+    }); 
+      
+  return list;
+};
+
+
 module.exports = {
   findItems,
   findItemsByCode,
   findItemsByName,
   findItemsByType,
   findByItem,
-  createItem,
-  updateItem,
+  saveItem,
   deleteItem,
+  itemProcessFlowsList,
+  processesList,
+  saveProcessFlows,
+  deleteProcessItem,
 };

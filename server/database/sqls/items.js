@@ -47,29 +47,61 @@ const itemInfo = `
        , unit_code
        , spec
   FROM items
+
   WHERE item_code = ?
 `;
 
-// 3) 등록 (Insert)
+// 3) 등록 (merge문 사용)
 const itemInsert = `
   INSERT INTO items (item_code, item_name, item_type, unit_code, spec)
   VALUES (?, ?, ?, ?, ?)
+  ON DUPLICATE KEY UPDATE
+    item_name = VALUES(item_name),
+    item_type = VALUES(item_type),
+    unit_code = VALUES(unit_code),
+    spec      = VALUES(spec)
 `;
 
-// 4) 수정 (Update)
-const itemUpdate = `
-  UPDATE items
-     SET item_name = ?
-       , item_type = ?
-       , unit_code = ?
-       , spec      = ?
-   WHERE item_code = ?
-`;
-
-// 5) 삭제 (Delete)
+// 4) 삭제 (Delete)
 const itemDelete = `
   DELETE FROM items
    WHERE item_code = ?
+`;
+
+// 품목흐름 리스트
+const itemProcessFlowsList = `
+  SELECT A.item_code
+        , A.item_name
+        , A.item_type
+        , A.unit_code
+        , A.spec
+        , C.process_name
+        , C.duration_min      
+        , B.sequence_order
+        , B.process_header        
+        FROM items A
+        INNER JOIN item_process_flows B
+        ON A.item_code = B.item_code
+        INNER JOIN processes C
+        ON B.process_header = C.process_header
+        WHERE A.item_code = ?
+        ORDER BY B.sequence_order ASC
+`;
+
+// 공정흐름 리스트
+const processesList = `
+SELECT 
+process_code
+,process_header
+,process_name
+,duration_min
+FROM processes
+where 1=1
+`;
+
+// 공정흐름 삭제
+const deleteProcessItem = `
+delete FROM item_process_flows WHERE process_header = ? AND item_code = ? AND sequence_order = ?
 `;
 
 module.exports = {
@@ -79,6 +111,8 @@ module.exports = {
   itemListByType,
   itemInfo,
   itemInsert,
-  itemUpdate,
   itemDelete,
+  itemProcessFlowsList,
+  processesList,
+  deleteProcessItem,
 };

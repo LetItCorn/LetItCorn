@@ -1,57 +1,109 @@
 // server/services/employee_service.js
-const db = require('../database/mapper.js');
 
-const findEmployees = async (searchType, searchValue) => {
-  let list;
-  if (!searchType || !searchValue) {
-    list = await db.query('selectEmployeeList');
-  } else if (searchType === 'id') {
-    const rows = await db.query('selectEmployeeOne', [searchValue]);
-    list = rows.length ? rows[0] : null;
-  } else if (searchType === 'name') {
-    list = await db.query('selectEmployeeByName', [searchValue]);
-  } else if (searchType === 'role') {
-    list = await db.query('selectEmployeeByRole', [searchValue]);
-  } else if (searchType === 'status') {
-    list = await db.query('selectEmployeeByStatus', [searchValue]);
-  } else {
-    list = [];
+const mariaDB = require('../database/mapper.js');
+
+/**
+ * 1) 전체조회 + 조건검색
+ * @param {{id?:string,name?:string,role?:string}} filters
+ */
+const findEmployees = async ({ id = '', name = '', role = '' } = {}) => {
+  // SQL의 (?='' OR ...) 절이 동작하려면 빈 문자열로 초기화 필요
+  const params = [
+    id,   id,    // emp_id 필터
+    name, name,  // emp_name 필터
+    role, role   // role_code 필터
+  ];
+  try {
+    return await mariaDB.query('employeesList', params);
+  } catch (err) {
+    console.error('findEmployees error', err);
+    return [];
   }
-  return list;
 };
 
-const createEmployee = async ({
-  emp_id, emp_name, role_code,
-  user_phone, user_email, user_addr,
-  status_code, hire_date, retire_date
-}) => {
-  return db.query('insertEmployee', [
-    emp_id, emp_name, role_code,
-    user_phone, user_email, user_addr,
-    status_code, hire_date, retire_date
-  ]);
+/**
+ * 2) 단건조회 (emp_id 기준)
+ */
+const findEmployee = async (empId) => {
+  try {
+    const rows = await mariaDB.query('employeeInfo', [empId]);
+    return rows[0] || null;
+  } catch (err) {
+    console.error('findEmployee error', err);
+    return null;
+  }
 };
 
-const updateEmployee = async (emp_id, {
-  emp_name, role_code,
-  user_phone, user_email, user_addr,
-  status_code, hire_date, retire_date
-}) => {
-  return db.query('updateEmployee', [
-    emp_name, role_code,
-    user_phone, user_email, user_addr,
-    status_code, hire_date, retire_date,
-    emp_id
-  ]);
+/**
+ * 3) 등록: 새 직원 추가
+ */
+const createEmployee = async (emp) => {
+  const params = [
+    emp.emp_id,
+    emp.emp_name,
+    emp.user_id,
+    emp.user_passd,    // 컬럼명 user_passd 와 일치
+    emp.user_phone,
+    emp.user_addr,
+    emp.user_email,
+    emp.user_birth,
+    emp.user_gender,
+    emp.role_code,
+    emp.status_code,
+    emp.hire_date,
+    emp.retire_date
+  ];
+  try {
+    return await mariaDB.query('employeeInsert', params);
+  } catch (err) {
+    console.error('createEmployee error', err);
+    throw err;
+  }
 };
 
-const deleteEmployee = async (emp_id) => {
-  return db.query('deleteEmployee', [emp_id]);
+/**
+ * 4) 수정: 기존 직원 정보 업데이트
+ */
+const updateEmployee = async (emp) => {
+  const params = [
+    emp.emp_name,
+    emp.user_id,
+    emp.user_passd,    // 컬럼명 user_passd 와 일치
+    emp.user_phone,
+    emp.user_addr,
+    emp.user_email,
+    emp.user_birth,
+    emp.user_gender,
+    emp.role_code,
+    emp.status_code,
+    emp.hire_date,
+    emp.retire_date,
+    emp.emp_id
+  ];
+  try {
+    return await mariaDB.query('employeeUpdate', params);
+  } catch (err) {
+    console.error('updateEmployee error', err);
+    throw err;
+  }
+};
+
+/**
+ * 5) 삭제: 직원 정보 삭제
+ */
+const deleteEmployee = async (empId) => {
+  try {
+    return await mariaDB.query('employeeDelete', [empId]);
+  } catch (err) {
+    console.error('deleteEmployee error', err);
+    throw err;
+  }
 };
 
 module.exports = {
   findEmployees,
+  findEmployee,
   createEmployee,
   updateEmployee,
-  deleteEmployee,
+  deleteEmployee
 };

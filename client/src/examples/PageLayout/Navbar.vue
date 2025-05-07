@@ -1,7 +1,7 @@
 <template>
   <!-- Navbar -->
   <nav
-    class="top-0 navbar navbar-expand-lg position-absolute z-index-3"
+    class="top-0 navbar navbar-expand-lg position-absolute z-index-3 "
     :class="isBlur ? isBlur : 'shadow-none my-2 navbar-transparent w-100'"
   >
     <div class="container px-0">
@@ -11,7 +11,7 @@
         v-bind="$attrs"
         :class="isBlur ? 'text-dark' : 'text-white'"
       >
-        Material Dashboa
+        Material Dashboard
       </router-link>
       <button
         class="navbar-toggler shadow-none ms-2"
@@ -119,3 +119,8 @@ export default {
   },
 };
 </script>
+<style>
+  span {
+    font-weight: bold;
+  }
+</style>

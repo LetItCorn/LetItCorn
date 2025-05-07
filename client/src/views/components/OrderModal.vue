@@ -7,7 +7,6 @@
           {{ item.name }}
         </option>
       </select>
-
       <Datepicker v-if="selected2 === '작성일자'" v-model="startDate" class="max-w-[100px] text-xs" :teleport="true" :format="'yy-MM-dd'"/>
       <Datepicker v-if="selected2 === '작성일자'" v-model="endDate" class="max-w-[100px] text-xs" :teleport="true" :format="'yy-MM-dd'"/>
       <Datepicker v-if="selected2 === '종료일자'" v-model="endDate" class="max-w-[100px] text-xs" :teleport="true" :format="'yy-MM-dd'"/>
@@ -38,9 +37,7 @@
 </template>
 
 <script setup>
-import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useProductionPlanStore } from '@/store/production'
 import { AgGridVue } from 'ag-grid-vue3'
 import Datepicker from '@vuepic/vue-datepicker'
@@ -52,7 +49,6 @@ import {
 
 ModuleRegistry.registerModules([ClientSideRowModelModule])
 
-const router = useRouter()
 const productionPlanStore = useProductionPlanStore()
 const emit = defineEmits(['selectOrder']);
 const selected2 = ref('작성일자')
