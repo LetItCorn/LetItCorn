@@ -6,7 +6,7 @@ const menuConfig = {
       },
       {
         name: "주문서 등록",
-        path: '#'
+        path: 'Insertsalesorder'
       }
     ],
     "발주서": [{
@@ -122,27 +122,27 @@ const menuConfig = {
       path: 'm_inbound'
     },{
       name: "출고",
-      path: '#'
+      path: 'm_outbound'
     },
     {
       name: "조회",
-      path: '#'
+      path: 'm_movement'
     }
   ],
   "자재품질": [{
     name: "조회",
-    path: '#'
-  }, {
-    name: "등록",
-    path: '#'
+    path: 'qc_history'
   },
-
+],
+"반품 입고": [
+  { name: "반품조회", path: "returns" },
+  { name: "반품등록", path: "returns" }
 ],
   },
   관리: {
     "사원": [{
       name: "사원목록",
-      path: '#'
+      path: 'employees'
     }, ],
     "품목": [{
       name: "품목 목록",
@@ -150,15 +150,15 @@ const menuConfig = {
     }, ],
     "설비": [{
       name: "설비 목록",
-      path: '#'
+      path: 'equipments'
     }, ],
     "공정": [{
       name: "공정 목록",
-      path: '#'
+      path: 'processes'
     }, ],
     "불량": [{
       name: "불량 목록",
-      path: '#'
+      path: 'defects'
     }, ],
     "BOM": [{
       name: "BOM 목록",

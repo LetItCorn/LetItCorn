@@ -62,7 +62,6 @@
   app.get('/', (req, res)=>{
     res.send('Welcome!!');
   })
-
   // 라우터 모듈 등록
   //생산
   app.use('/', planRouter);

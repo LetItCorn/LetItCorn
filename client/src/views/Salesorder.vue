@@ -331,7 +331,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .sorder-container {
   margin: 25px;
   color: #000 !important;
@@ -354,6 +354,13 @@ export default {
 /* button */
 .btn {
   margin-bottom: 0 !important;
+  width: 100%;
+  background-color: #000 !important;
+  color: #fff !important;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px !important;
+  border: 1px solid #000 !important;
 }
 
 /* 필터 버튼과 정렬 버튼 컨테이너 스타일 */
@@ -463,7 +470,7 @@ table {
 }
 
 th, td {
-  border: 2px solid #000 !important;
+  border: 1px solid #bebebe !important;
   padding: 8px;
   text-align: center;
 }

@@ -1,4 +1,5 @@
 module.exports = {
+  // 주문서 전체 목록 조회
   selectSalesOrderList: `SELECT
     so.sorder_code,
     c.client_name,
@@ -17,6 +18,7 @@ module.exports = {
     ON so.emp_id = e.emp_id
   ORDER BY so.sorder_code DESC`,
 
+  // 주문서 조건 목록 조회
   selectSalesOrderOne: `SELECT
     so.sorder_code,
     c.client_name,
@@ -36,6 +38,7 @@ module.exports = {
   WHERE so.delivery_date = ? or so.sorder_code = ? or c.client_name = ? or i.item_name = ? or c.client_mgr = ?
   ORDER BY so.sorder_code DESC`,
 
+  // filter 납기일자에 의한 조회
   selectSalesOrderByDeliveryDate: `SELECT
     so.sorder_code,
     c.client_name,
@@ -54,8 +57,7 @@ module.exports = {
     ON so.emp_id = e.emp_id
   ORDER BY so.delivery_date DESC`,
 
-  // 나머지 쿼리들도 추가...
-
+  // filter 주문서번호에 의한 조회
   selectSalesOrderBySorderCode: `SELECT
     so.sorder_code,
     c.client_name,
@@ -74,6 +76,7 @@ module.exports = {
     ON so.emp_id = e.emp_id
   ORDER BY so.sorder_code DESC`,
 
+  // filter 거래처명에 의한 조회
   selectSalesOrderByClientName: `SELECT
     so.sorder_code,
     c.client_name,
@@ -92,6 +95,7 @@ module.exports = {
     ON so.emp_id = e.emp_id
   ORDER BY c.client_name DESC`,
 
+  // filter 품목명에 의한 조회
   selectSalesOrderByItemName: `SELECT
     so.sorder_code,
     c.client_name,
@@ -110,6 +114,7 @@ module.exports = {
     ON so.emp_id = e.emp_id
   ORDER BY i.item_name DESC`,
 
+  // filter 거래처 담당자에 의한 조회
   selectSalesOrderByClientMgr: `SELECT
     so.sorder_code,
     c.client_name,
@@ -128,6 +133,7 @@ module.exports = {
     ON so.emp_id = e.emp_id
   ORDER BY c.client_mgr DESC`,
 
+  // 주문서 수정
   updateSalesOrder: `UPDATE salesorder AS so
   JOIN client AS c 
     ON so.client_code = c.client_code
@@ -142,25 +148,27 @@ module.exports = {
   WHERE
     so.sorder_code   = ?`,
 
+  // 주문서 삭제
   deleteSalesOrder: `DELETE FROM salesorder
-   WHERE sorder_code = ?`,
+    WHERE sorder_code = ?`,
 
+  
   insertSalesOrder: `INSERT INTO salesorder (sorder_code, client_name, client_mgr, item_name, sorder_count, warehouse_name, delivery_date)
-   VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    VALUES (?, ?, ?, ?, ?, ?, ?)`,
 
   selectClientList: `SELECT client_code,
-         client_name,
-         client_mgr,
-         client_type
-   FROM client`,
+                      client_name,
+                      client_mgr,
+                      client_type
+                      FROM client`,
 
   selectItemList: `SELECT item_code,
-         item_name,
-         item_type
-  FROM items`,
+                    item_name,
+                    item_type
+                    FROM items`,
 
   selectWarehouseList: `SELECT warehouse_code,
-         warehouse_name,
-         warehouse_type
-  FROM warehouse`
+                          warehouse_name,
+                          warehouse_type
+                          FROM warehouse`,
 };

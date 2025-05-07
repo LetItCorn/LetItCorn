@@ -2,27 +2,21 @@
 const mariadb = require('../database/mapper.js');
 const { convertObjToAry } = require('../utils/converts.js');
 
-/**
- * 주문서 전체 조회
- */
+// 주문서 전체 조회
 const findAllSalesOrders = async () => {
     let list = await mariadb.query('selectSalesOrderList')
         .catch(err => console.error(err));
     return list;
 };
 
-/**
- * 주문서 코드로 조회
- */
+// 주문서 코드로 조회
 const findSalesOrderByCode = async (orderCode) => {
     let order = await mariadb.query('selectSalesOrderOne', ['', orderCode, '', '', ''])
         .catch(err => console.error(err));
     return order[0]; // 단일 결과 반환
 };
 
-/**
- * 주문서 검색 조건별 조회
- */
+// 주문서 검색 조건별 조회
 const findSalesOrdersByCondition = async (conditions) => {
     let { deliveryDate, orderCode, clientName, itemName, clientMgr } = conditions;
     
@@ -38,39 +32,7 @@ const findSalesOrdersByCondition = async (conditions) => {
     return orders;
 };
 
-/**
- * 주문서 등록
- */
-const addSalesOrder = async (orderData) => {
-    const { 
-        sorderCode, 
-        clientName, 
-        clientMgr, 
-        itemName, 
-        sorderCount, 
-        warehouseName, 
-        deliveryDate 
-    } = orderData;
-    
-    await mariadb.query('insertSalesOrder', [
-        sorderCode, 
-        clientName, 
-        clientMgr, 
-        itemName, 
-        sorderCount, 
-        warehouseName, 
-        deliveryDate
-    ]).catch(err => {
-        console.error(err);
-        throw err;
-    });
-    
-    return { success: true, message: '주문서가 등록되었습니다.' };
-};
-
-/**
- * 주문서 수정
- */
+// 주문서 수정
 const updateSalesOrderInfo = async (orderCode, updateData) => {
     const { 
         clientName, 
@@ -95,9 +57,7 @@ const updateSalesOrderInfo = async (orderCode, updateData) => {
     return { success: true, message: '주문서가 수정되었습니다.' };
 };
 
-/**
- * 주문서 삭제
- */
+// 주문서 삭제
 const removeSalesOrder = async (orderCode) => {
     await mariadb.query('deleteSalesOrder', [orderCode])
         .catch(err => {
@@ -108,27 +68,21 @@ const removeSalesOrder = async (orderCode) => {
     return { success: true, message: '주문서가 삭제되었습니다.' };
 };
 
-/**
- * 거래처 목록 조회
- */
+// 거래처 목록 조회
 const findAllClients = async () => {
     let clients = await mariadb.query('selectClientList')
         .catch(err => console.error(err));
     return clients;
 };
 
-/**
- * 품목 목록 조회
- */
+// 품목 목록 조회
 const findAllItems = async () => {
     let items = await mariadb.query('selectItemList')
         .catch(err => console.error(err));
     return items;
 };
 
-/**
- * 창고 목록 조회
- */
+// 창고 목록 조회
 const findAllWarehouses = async () => {
     let warehouses = await mariadb.query('selectWarehouseList')
         .catch(err => console.error(err));

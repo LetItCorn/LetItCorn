@@ -4,6 +4,23 @@ const express    = require('express');
 const router     = express.Router();
 const bomService = require('../services/bom_service.js');
 
+
+
+/**
+ * 1) BOM 목록 조회
+ *    GET /boms?itemCode=ITM001
+ */
+router.get('/boms/bomitemsList', async (req, res) => {
+  
+  try {
+    const list = await bomService.bomitemsList();
+    res.send(list);
+  } catch (err) {
+    console.error('GET /bomsList error:', err);
+    res.status(500).send({ error: 'BOM 조회 중 오류가 발생했습니다.' });
+  }
+});
+
 /**
  * 1) BOM 목록 조회
  *    GET /boms?itemCode=ITM001
@@ -177,5 +194,7 @@ router.delete('/boms/:bomId/components/:seqId', async (req, res) => {
     res.status(500).send({ error: '구성품 삭제 중 오류가 발생했습니다.' });
   }
 });
+
+
 
 module.exports = router;

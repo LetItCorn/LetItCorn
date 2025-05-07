@@ -47,11 +47,18 @@ const removeMaterial = async (code) => {
     return { isDeleted: res && res.affectedRows > 0 };
 };
 
+async function findMaterialStock() {
+    // vw_material_stock 뷰를 바로 조회
+    return await mariadb.query('selectMaterialStock', [])
+    .catch(err => { console.error(err); return []; });
+};
+
 module.exports = {
     findAllMaterials,
     findMaterialByCode,
     addMaterial,
     updateMaterialInfo,
     removeMaterial,
-    findAllMAtLOTlist
+    findAllMAtLOTlist,
+    findMaterialStock
 };

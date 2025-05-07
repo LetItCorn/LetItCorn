@@ -21,11 +21,11 @@ const materials = require('./sqls/materials.js');
 const lotInventory  = require('./sqls/lot_inventory.js');
 const purchaseorders = require('./sqls/purchaseorders.js');
 const materialOrderDetail= require('./sqls/material_order_details.js');
-const outboundCandidates = require('./sqls/outbound_candidates.js');
 const materialQCList  = require('./sqls/material_qc.js');
 const materialQCInput = require('./sqls/material_qc_input.js');
 const mOrder = require('./sqls/m_order.js');
 const mInbound = require('./sqls/mInbound.js');
+const modal = require('./sqls/modal.js');
 const salesorder = require('./sqls/salesorder.js');
 
 module.exports = {
@@ -51,10 +51,10 @@ module.exports = {
     ...lotInventory,
     ...purchaseorders,
     ...materialOrderDetail,
-    ...outboundCandidates,
     ...materialQCList,
     ...materialQCInput,
     ...mOrder,
     ...mInbound,
+    ...modal,
       ...salesorder,
 }
