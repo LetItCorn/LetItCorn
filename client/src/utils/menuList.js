@@ -85,7 +85,7 @@ const menuConfig = {
     ],
     "생산계획": [{
         name: "조회",
-        path: '#'
+        path: 'ProductionPlanInquiry'
       }, {
         name: "작성",
         path: 'plan'
