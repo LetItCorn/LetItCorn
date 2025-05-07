@@ -39,7 +39,7 @@
 
 <script setup>
 import { storeToRefs } from 'pinia'
-import { ref, nextTick } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProductionPlanStore } from '@/store/production'
 import { AgGridVue } from 'ag-grid-vue3'
@@ -54,7 +54,6 @@ ModuleRegistry.registerModules([ClientSideRowModelModule])
 
 const router = useRouter()
 const productionPlanStore = useProductionPlanStore()
-const { selectedOrder } = storeToRefs(productionPlanStore)
 const emit = defineEmits(['selectOrder']);
 const selected2 = ref('작성일자')
 const startDate = ref(new Date())
@@ -110,7 +109,7 @@ async function handleSearch() {
     const data = await productionPlanStore.fetchOrders(type, start, end)
     productionPlanStore.setOrderList(data)
     selectPlan.value = Array.isArray(data) ? data : []
-    console.log('📦 조회된 주문서:', data)
+    console.log('조회된 주문서:', data)
   } catch (err) {
     console.error('주문서 조회 실패:', err)
   }
@@ -125,7 +124,7 @@ async function handleSelect() {
     alert('선택된 항목이 없습니다.')
     return
   }
-  console.log('🧾 [모달] 선택된 주문서:', selectedRows)
+  console.log('[모달] 선택된 주문서:', selectedRows)
 
   const plan_start = toYYMMDD(startDate.value)
   const plan_end = toYYMMDD(endDate.value)
@@ -141,7 +140,7 @@ async function handleSelect() {
   ? new Date(row.delivery_date).toISOString().slice(0, 10)
   : '',
 }))
-  console.log('📦 [모달] 가공된 주문서:', processed)
+  console.log('[모달] 가공된 주문서:', processed)
   productionPlanStore.setSelectedOrders(processed)
   productionPlanStore.closeOrderModal()
 }

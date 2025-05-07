@@ -61,7 +61,7 @@ const addNewPlan = async ({ header, details }) => {
             values
           );    
           await conn.query(
-            `UPDATE salesorder SET status = '계획됨' WHERE sorder_code = ?`,
+            `UPDATE salesorder SET status = '대기' WHERE sorder_code = ?`,
             [item.sorder_code]
           );
         }    
@@ -69,7 +69,7 @@ const addNewPlan = async ({ header, details }) => {
         return { isSuccessed: true, message: "등록 성공" };    
       } catch (err) {
         await conn.rollback();
-        console.error("❌ 등록 실패:", err);
+        console.error("등록 실패:", err);
         return { isSuccessed: false, message: "등록 실패", error: err };
       } finally {
         conn.release();

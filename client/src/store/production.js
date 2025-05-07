@@ -32,7 +32,7 @@ export const useProductionPlanStore = defineStore('productionPlan', {
       .get('/api/modal/search', { params })
       .then(res => {
         data = res.data
-        console.log('📦 주문서 조회 응답:', data)
+        console.log('주문서 조회 응답:', data)
         this.orderList = data
       })
       .catch(err => {

@@ -26,7 +26,6 @@
 </template>
 
 <script>
-import { storeToRefs } from 'pinia'
 import { useProductionPlanStore } from '@/store/production'
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
@@ -88,7 +87,7 @@ export default {
       return date instanceof Date ? date.toISOString().slice(0, 10) : ''
     },
     handleSelectedOrders(orders) {
-    console.log('📦 [plan.vue] 전달받은 주문서:', orders);
+    console.log('[plan.vue] 전달받은 주문서:', orders);
     this.productionPlanStore.setSelectedOrders(orders);
   },
     generatePlanCode(index) {
@@ -116,7 +115,7 @@ export default {
           item_name: order.item_name
         })),
       }
-        console.log('📦 Payload:', payload)
+        console.log('Payload:', payload)
         const res = await axios.post('/api/plan', payload)
         if (res.data.isSuccessed) {
           alert('등록 성공')
@@ -125,7 +124,7 @@ export default {
           alert('등록 실패')
         }
       } catch (err) {
-        console.error('❌ 등록 실패:', err)
+        console.error('등록 실패:', err)
         alert('등록 실패')
       }
     },
