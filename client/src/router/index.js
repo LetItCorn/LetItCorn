@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Login from "../views/LoginView.vue";
+import Sorder from "../views/Salesorder.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
@@ -13,10 +14,15 @@ import Process from "@/views/process.vue";
 import Productionplan from "@/views/Productionplan_v2.vue";
 import Item from "@/views/Item.vue";
 import Bom from '@/views/Bom.vue';
+import Employee from "@/views/Employees.vue";
+import ProcessMain from "@/views/ProcessMain.vue";
+import Equipment from "@/views/Equipment.vue"; 
+import Defect from "@/views/Defect.vue";
 import MOrderForm from '@/views/MOrderForm.vue';
 import MOrdersList from '@/views/MOrdersList.vue';
 import MInboundForm from '@/views/MInboundForm.vue';
 import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
+
 
 const routes = [
   {
@@ -33,6 +39,11 @@ const routes = [
     path: "/dashboard",
     name: "Dashboard",
     component: Dashboard,
+  },
+  {
+    path: "/salesorder",
+    name: "Salesorder",
+    component: Sorder,
   },
   {
     path: "/tables",
@@ -79,26 +90,44 @@ const routes = [
     name: "Process",
     component: Process,
   },
-
-
    {
-     // 품목관리 페이지
+    // 품목관리 페이지
      path: '/items',
      name: 'Item', 
      component: Item,
    },
   {
     // BOM관리 페이지
-
     path: '/boms',
     name: 'Bom',
     component: Bom,
+  },
+    // 설비 관리 
+  { path: "/equipments",
+    name: "Equipment",
+    component: Equipment 
+  },
+  {
+    // 공정관리 페이지
+    path: "/processes",
+    name: "ProcessMain",
+    component: ProcessMain,
+  },
+  // 불량 코드 관리 페이지
+  { path: '/defects',
+    name: 'Defect',
+    component: Defect
+  },
+    // 사원관리 페이지
+   {
+    path: "/employees",
+    name: "Employee",
+    component: Employee
   },
   {
     path: '/plan',
     name: 'ProductionPlan',
     component: Productionplan,
-
   },
   {
     path: '/plans',

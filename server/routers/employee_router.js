@@ -1,69 +1,83 @@
 // server/routers/employee_router.js
+
 const express = require('express');
-const router  = express.Router();
-const svc     = require('../services/employee_service.js');
+const router = express.Router();
+const employeeService = require('../services/employee_service.js');
 
-// 1) 전체조회 또는 검색
-// GET /employees?searchType=id|name|role|status&searchValue=...
+/**
+ * 1) 전체조회 + 필터검색
+ *    GET /employees?id=EMP01&name=홍길동&role=A01
+ */
 router.get('/employees', async (req, res) => {
-  const { searchType, searchValue } = req.query;
+  const { id = '', name = '', role = '' } = req.query;
   try {
-    const list = await svc.findEmployees(searchType, searchValue);
-    res.send(list);
+    const list = await employeeService.findEmployees({ id, name, role });
+    res.json(list);
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: '사원 조회 중 오류가 발생했습니다.' });
+    console.error('GET /employees error:', err);
+    res.status(500).json({ error: '직원 목록 조회 중 오류가 발생했습니다.' });
   }
 });
 
-// 2) 단건조회 (사번 기준)
-// GET /employees/:id
-router.get('/employees/:id', async (req, res) => {
+/**
+ * 2) 단건조회
+ *    GET /employees/:emp_id
+ */
+router.get('/employees/:emp_id', async (req, res) => {
+  const empId = req.params.emp_id;
   try {
-    const rec = await svc.findEmployees('one', req.params.id);
-    if (!rec) return res.status(404).send({ error: '해당 사원이 없습니다.' });
-    res.send(rec);
+    const emp = await employeeService.findEmployee(empId);
+    if (!emp) return res.status(404).json({ error: '해당 직원이 없습니다.' });
+    res.json(emp);
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: '사원 단건 조회 오류' });
+    console.error(`GET /employees/${empId} error:`, err);
+    res.status(500).json({ error: '직원 단건 조회 중 오류가 발생했습니다.' });
   }
 });
 
-// 3) 등록
-// POST /employees
-// body: { emp_id?, emp_name, role_code, user_phone, user_email, user_addr, status_code, hire_date, retire_date }
+/**
+ * 3) 등록
+ *    POST /employees
+ *    body: { emp_id, emp_name, user_id, user_passd, user_phone, ... }
+ */
 router.post('/employees', async (req, res) => {
   try {
-    await svc.createEmployee(req.body);
-    res.status(201).send({ message: '등록 완료' });
+    await employeeService.createEmployee(req.body);
+    res.status(201).json({ message: '직원이 등록되었습니다.' });
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: '사원 등록 실패' });
+    console.error('POST /employees error:', err);
+    res.status(500).json({ error: '직원 등록 중 오류가 발생했습니다.' });
   }
 });
 
-// 4) 수정
-// PUT /employees/:id
-// body: { emp_name, role_code, user_phone, user_email, user_addr, status_code, hire_date, retire_date }
-router.put('/employees/:id', async (req, res) => {
+/**
+ * 4) 수정
+ *    PUT /employees/:emp_id
+ */
+router.put('/employees/:emp_id', async (req, res) => {
+  const empId = req.params.emp_id;
+  const payload = { ...req.body, emp_id: empId };
   try {
-    await svc.updateEmployee(req.params.id, req.body);
-    res.send({ message: '수정 완료' });
+    await employeeService.updateEmployee(payload);
+    res.json({ message: '직원 정보가 수정되었습니다.' });
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: '사원 수정 실패' });
+    console.error(`PUT /employees/${empId} error:`, err);
+    res.status(500).json({ error: '직원 수정 중 오류가 발생했습니다.' });
   }
 });
 
-// 5) 삭제
-// DELETE /employees/:id
-router.delete('/employees/:id', async (req, res) => {
+/**
+ * 5) 삭제
+ *    DELETE /employees/:emp_id
+ */
+router.delete('/employees/:emp_id', async (req, res) => {
+  const empId = req.params.emp_id;
   try {
-    await svc.deleteEmployee(req.params.id);
-    res.send({ message: '삭제 완료' });
+    await employeeService.deleteEmployee(empId);
+    res.json({ message: '직원이 삭제되었습니다.' });
   } catch (err) {
-    console.error(err);
-    res.status(500).send({ error: '사원 삭제 실패' });
+    console.error(`DELETE /employees/${empId} error:`, err);
+    res.status(500).json({ error: '직원 삭제 중 오류가 발생했습니다.' });
   }
 });
 

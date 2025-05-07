@@ -48,10 +48,13 @@ async function findBomById(bomId) {
  */
 async function createBom(bom) {
   const { bom_id, item_code, item_name, registered_date } = bom;
+  console.log(item_code);
+    console.log(item_name);
   try {
     return await mapper.query('bomInsert', [
-      bom_id, item_code, item_name, registered_date
+      item_code, item_name
     ]);
+    
   } catch (err) {
     console.error('createBom error:', err);
     throw err;
@@ -200,6 +203,17 @@ async function deleteComponent(seqId) {
   }
 }
 
+async function bomitemsList() {
+  try {
+    console.log("사공웅222222222");
+    return await mapper.query('bomitemsList', []);
+  } catch (err) {
+    console.error('bomitemsList error:', err);
+    return [];
+  }
+}
+
+
 module.exports = {
   // BOM master
   findBoms,
@@ -214,4 +228,5 @@ module.exports = {
   createComponent,
   updateComponent,
   deleteComponent,
+  bomitemsList,
 };

@@ -1,17 +1,19 @@
 <template>
-  <div class="main_container">
-        <div class="login_box"> 
-            <div class="login_left">
-                <div class="login_logo">
-                    <img src="/logo.png" alt="">
+  <div class="main-container">
+        <div class="login-box"> 
+            <div class="login-left">
+                <div class="login-logo">
+                    <img src="/logo.png" alt="로고">
                 </div>
-                <div class="login_title">
+                <div class="login-title">
                     <span>MES</span>
                 </div>
             </div>
-
-            <div class="login_right">
-                <form name="login_form">
+            <div class="login-right">
+                <form name="login-form">
+                    <div class="input-box">
+                        <span>LOGIN</span>
+                    </div>
                     <div class="input-box">
                         <i class="bx bxs-user"></i>
                         <input type="text" name="user_id" v-model="loginInfo.user_id" placeholder="아이디" required>
@@ -21,8 +23,8 @@
                         <input type="password" name="user_pw" v-model="loginInfo.user_pw" placeholder="비밀번호" required>
                     </div>
                     <button type="button" class="btn" v-on:click="userLogin">로그인</button>
-                    <div class="input-box">
-                        <span>인사담당자 : 내선번호 0000</span>
+                    <div class="myinfo-findbox">
+                        <span><a href="#" @click.prevent="showInfoFinder">내 사원정보 찾기</a></span>
                     </div>
                 </form>
             </div>
@@ -35,6 +37,7 @@ import axios from 'axios';
 import { useUserStore } from '@/store/user';
 // store(저장소) 중 actions 정보를 가져올 함수
 import { mapState, mapActions } from 'pinia';
+import Swal from 'sweetalert2';
 
 export default {
     data(){
@@ -71,12 +74,21 @@ export default {
         } else {
             alert(loginRes.message);
         }
+    },
+    showInfoFinder(){ // sweetalert2
+        Swal.fire({
+            title : '내 사원정보 찾기',
+            text : '인사관리자 문의',
+            icon : 'info',
+            confirmButtonText : '확인',
+            timer : 5000 // 5초 후 alert2 창 닫힘
+        });
     }
     }
     }
 </script>
 <style>
-  *{
+*{
     font-family: "42dot Sans", sans-serif;
     margin: 0;
     padding: 0;
@@ -88,15 +100,15 @@ html, body {
     height: 100%;
 }
 
-.main_container{
+.main-container{
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 85vh;
+    min-height: 95vh;
 }
 
 
-.login_box {
+.login-box {
     width: 1200px;
     height: 600px;
     border: 3px solid #000000;
@@ -106,7 +118,7 @@ html, body {
     background-color: #fff;
 }
 
-.login_left{
+.login-left{
     width: 50%;
     border-right: 3px solid #000000;
     display: flex;
@@ -116,20 +128,20 @@ html, body {
     padding: 20px;
 }
 
-.login_right{
+.login-right{
     width: 50%;
-    padding: 150px 50px 40px 50px;
+    padding: 75px 50px 40px 50px;
     display: flex;
     flex-direction: column;
 }
 
-.login_right form{
+.login-right form{
     width: 100%;
     max-width: 400px;
     margin: 0 auto;
 }
 
-.login_right .input-box{
+.login-right .input-box{
     position: relative;
     width: 100%;
     margin: 25px 0;
@@ -166,42 +178,53 @@ html, body {
     color: #000;
 }
 
-.login_logo > img {
+.login-logo > img {
     max-width: 370px;
     width: 100%;
     height: auto;
 }
 
-.login_title {
+.login-title {
     margin-top: 20px;
 }
 
-.login_title > span{
+.login-title > span{
     font-size: 100px;
     font-weight: bold;
     color: #000;
 }
 
 .btn{
-    display: block !important;
-    width: 250px;
-    height: 50px;
+    width: 100%;
     background-color: #000 !important;
     color: #fff !important;
     border-radius: 10px;
     cursor: pointer;
-    margin: 0 auto;
-    margin-top: 50px;
-    margin-bottom: 70px !important;
     font-size: 16px !important;
+    border: 1px solid #000 !important;
+}
+
+.btn:hover{
+    background-color: #fff !important;
+    color: #000 !important;
+    border: 1px solid #000 !important;
 }
 
 .input-box > span{
-    font-size: 25px;
+    font-size: 41px;
     font-weight: bold;
     display: block;
-    text-align: center;
+    text-align: left;
     width: 100%;
     color: #000;
+}
+
+myinfo-findbox a{
+    color: #000 !important;
+}
+
+.myinfo-findbox a:hover{
+    font-weight: bold !important;
+    color: #000 !important;
 }
 </style>
