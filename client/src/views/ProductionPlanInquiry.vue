@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
@@ -81,14 +81,14 @@ const onDetailGridReady = (params) => {
 }
 
 watch(detailList, (newVal) => {
-  console.log("🔥 detailList 변경됨:", newVal)
+  console.log("detailList 변경됨:", newVal)
   console.table(JSON.parse(JSON.stringify(newVal)))
   window.__debug_detailList = newVal
 })
 onMounted(() => {
   const checkGridReady = () => {
     if (mainGridRef.value?.api) {
-      console.log('✅ Grid API 준비됨:', mainGridRef.value.api)
+      console.log(' Grid API 준비됨:', mainGridRef.value.api)
       mainGridRef.value.api.setRowData(planList.value)
     } else {
       setTimeout(checkGridReady, 100)
@@ -132,7 +132,7 @@ const fetchPlanList = async () => {
     const res = await axios.get(`/api/plans/list`, {
       params: { startDate, endDate }
     })
-    console.log("📦 받아온 planList 데이터:", res.data)
+    console.log("받아온 planList 데이터:", res.data)
     planList.value = res.data
     selectedPlan.value = []
     detailList.value = []
@@ -144,7 +144,7 @@ const fetchPlanList = async () => {
 }
 
 const fetchPlanDetail = async (plansHead) => {
-  console.log('👉 plans_head:', plansHead)
+  console.log('plans_head:', plansHead)
   const res = await axios.get(`/api/plans/detail/${plansHead}`)
   detailList.value = Array.isArray(res.data) ? res.data : []
 
@@ -169,7 +169,7 @@ const handleRowSelection = () => {
 }
 
 const handleRowClick = async (event) => {
-  console.log('🖱️ Row Clicked:', event.data)
+  console.log('Row Clicked:', event.data)
   const selectedRow = event.data
   selectedPlan.value = [selectedRow]
   await fetchPlanDetail(selectedRow.plans_head)

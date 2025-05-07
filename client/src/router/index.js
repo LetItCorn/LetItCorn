@@ -11,7 +11,7 @@ import Profile from "../views/Profile.vue";
 import SignIn from "../views/SignIn.vue";
 import SignUp from "../views/SignUp.vue";
 import Leetest from "../views/Leetest.vue";
-// import Process from "./views/Process.vue";
+//import Process from "./views/Process.vue";
 import MReturnForm   from '../views/MReturnForm.vue';
 import MReturnsList  from '../views/MReturnsList.vue';
 import Productionplan from "@/views/Productionplan_v2.vue";
@@ -178,11 +178,6 @@ const routes = [
     path: '/returns/list',
     name: 'MReturnsList',
     component: MReturnsList,
-  },
-  {
-    path: '/m_outbound',
-    name: 'MOutboundForm',
-    component: MOutboundForm
   },
   // {
   //   path: '/m_outbound_list',
