@@ -1,83 +1,78 @@
 // server/database/sqls/processes.js
 
-// 1) 전체조회
-const selectProcessList = `
-  SELECT 
-    process_code,
-    process_header,
-    process_name,
-    duration_min
+// 1) 전체 조회 (필터 없이 모든 공정 조회)
+const processList = `
+  SELECT process_code
+       , process_header
+       , process_name
+       , duration_min
   FROM processes
   ORDER BY process_code
 `;
 
-// 2) 단건조회 (코드 기준)
-const selectProcessOne = `
-  SELECT 
-    process_code,
-    process_header,
-    process_name,
-    duration_min
+// 1-a) 코드로 조회 (LIKE 검색)
+const processListByCode = `
+  SELECT process_code
+       , process_header
+       , process_name
+       , duration_min
   FROM processes
-  WHERE process_code = ?
+  WHERE process_code LIKE CONCAT('%', ?, '%')
+  ORDER BY process_code
 `;
 
-// 3) 이름(searchType='name') 기준 조회
-const selectProcessByName = `
-  SELECT 
-    process_code,
-    process_header,
-    process_name,
-    duration_min
+// 1-b) 이름으로 조회 (LIKE 검색)
+const processListByName = `
+  SELECT process_code
+       , process_header
+       , process_name
+       , duration_min
   FROM processes
   WHERE process_name LIKE CONCAT('%', ?, '%')
   ORDER BY process_code
 `;
 
-// 4) 소요시간(searchType='duration') 기준 조회
-const selectProcessByDuration = `
-  SELECT 
-    process_code,
-    process_header,
-    process_name,
-    duration_min
+// 2) 단건 조회 (정확 일치)
+const processInfo = `
+  SELECT process_code
+       , process_header
+       , process_name
+       , duration_min
   FROM processes
-  WHERE duration_min = ?
-  ORDER BY process_code
+  WHERE process_code = ?
 `;
 
-// 5) 등록
-const insertProcess = `
+// 3) 등록 (INSERT)
+const processInsert = `
   INSERT INTO processes (
-    process_code,
-    process_header,
-    process_name,
-    duration_min
+    process_code
+  , process_header
+  , process_name
+  , duration_min
   ) VALUES (?, ?, ?, ?)
 `;
 
-// 6) 수정
-const updateProcess = `
+// 4) 수정 (UPDATE)
+const processUpdate = `
   UPDATE processes
-  SET
-    process_header = ?,
-    process_name   = ?,
-    duration_min   = ?
-  WHERE process_code = ?
+     SET process_header = ?
+       , process_name   = ?
+       , duration_min   = ?
+   WHERE process_code = ?
 `;
 
-// 7) 삭제
-const deleteProcess = `
+// 5) 삭제 (DELETE)
+const processDelete = `
   DELETE FROM processes
-  WHERE process_code = ?
+   WHERE process_code = ?
 `;
 
 module.exports = {
-  selectProcessList,
-  selectProcessOne,
-  selectProcessByName,
-  selectProcessByDuration,
-  insertProcess,
-  updateProcess,
-  deleteProcess,
+  processList,
+  processListByCode,
+  processListByName,
+  processInfo,
+  processInsert,
+  processUpdate,
+  processDelete,
 };

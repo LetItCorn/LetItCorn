@@ -1,3 +1,24 @@
+<style scoped>
+  .modal-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-box {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 800px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+</style>
 <!-- src/views/Bom.vue -->
 <template>
   <div class="container-fluid p-0" style="height:100vh;">
@@ -76,28 +97,14 @@
             </div>
 
             <!-- 버튼 그룹 (테이블 아래, 오른쪽 정렬) -->
-            <div class="mt-2 d-flex justify-content-end">
-              <button
-                @click="clearBomDetail"
-                class="btn btn-sm btn-outline-secondary me-1"
-                style="width:150px; height:32px; font-size:0.875rem;"
-              >
-                초기화
-              </button>
+            <div class="mt-2 d-flex justify-content-end">              
               <button
                 @click="createBom"
                 class="btn btn-sm btn-warning me-1"
                 style="width:150px; height:32px; font-size:0.875rem;"
               >
                 등록
-              </button>
-              <button
-                @click="updateBom"
-                class="btn btn-sm btn-success me-1"
-                style="width:150px; height:32px; font-size:0.875rem;"
-              >
-                수정
-              </button>
+              </button>              
               <button
                 @click="deleteBom"
                 class="btn btn-sm btn-danger"
@@ -151,14 +158,7 @@
             </div>
 
             <!-- 버튼 그룹 (테이블 아래) -->
-            <div class="mt-2 d-flex justify-content-end">
-              <button
-                @click="clearBomDetail"
-                class="btn btn-sm btn-outline-secondary me-1"
-                style="width:150px; height:32px; font-size:0.875rem;"
-              >
-                초기화
-              </button>
+            <div class="mt-2 d-flex justify-content-end">              
               <button
                 @click="createBom"
                 class="btn btn-sm btn-warning me-1"
@@ -188,6 +188,42 @@
     </div>
 
   </div>
+  <!-- Modal -->
+<div v-if="showBomModal" class="modal-backdrop">
+  <div class="modal-box">
+    <h5>BOM 등록</h5>
+    
+    <table class="table table-hover table-sm mb-0" >
+                <thead class="thead-light sticky-top">
+                  <tr>                    
+                    <th>품목코드</th>
+                    <th>품목명</th>
+                    <th>단위코드</th>
+                    <th>규격</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="item in bomitemsList"
+                    :key="item.item_code"
+                    @click="selectItemBom(item)"
+                    :class="{ 'table-active': item.item_code===selectedItemBom?.item_code }"
+                    style="cursor:pointer"
+                  >
+                    <td>{{item.item_code}}</td>
+                    <td>{{item.item_name}}</td>
+                    <td>{{item.unit_code}}</td>
+                    <td>{{item.spec}}</td>
+                  </tr>
+                  <tr v-if="bomitemsList.length===0">
+                    <td colspan="4" class="text-center py-4">데이터가 없습니다.</td>
+                  </tr>
+                </tbody>
+              </table>
+            <button class="btn btn-sm btn-secondary" @click="registeritemBomModal">등록</button>
+            <button class="btn btn-sm btn-secondary" @click="showBomModal = false">취소</button>
+  </div>
+</div>
 </template>
 
 <script>
@@ -200,7 +236,10 @@ export default {
       bomList: [],
       compList: [],
       selectedBom: null,
-      selectedComp: null
+      selectedComp: null,
+      showBomModal: false,
+      bomitemsList:[],
+      selectedItemBom:null,
     }
   },
   created() {
@@ -228,13 +267,31 @@ export default {
       this.selectedComp = null
     },
     clearBomDetail()   { this.selectedBom = null; this.compList = [] },
-    clearCompDetail()  { this.selectedComp = null },
-    createBom()        { /* POST /api/boms */ },
+    clearCompDetail()  { this.selectedComp = null },    
     updateBom()        { /* PUT  /api/boms/:bomId */ },
-    deleteBom()        { /* DELETE /api/boms/:bomId */ },
+    async deleteBom(){        
+      
+      const res = await axios.delete(`/api/boms/${this.selectedBom.bom_id}`).catch(()=>({data:[]}))
+      this.loadBoms();
+    },
     createComp()       { /* POST /api/boms/:bomId/components */ },
     updateComp()       { /* PUT  /api/boms/:bomId/components/:seqId */ },
-    deleteComp()       { /* DELETE /api/boms/:bomId/components/:seqId */ }
+    deleteComp()       { /* DELETE /api/boms/:bomId/components/:seqId */ },
+    async createBom() {
+      const res = await axios.get(`/api/boms/bomitemsList`).catch(()=>({data:[]}));
+      this.bomitemsList = res.data;
+      console.log(this.bomitemsList );
+      this.showBomModal = true;
+    },
+    selectItemBom(item) {
+      this.selectedItemBom =item
+      //this.loadComps(bom.bom_id)
+    },
+    async registeritemBomModal(){      
+      const res = await axios.post('/api/boms',  this.selectedItemBom ).catch(()=>({data:[]}))
+      this.showBomModal = false;
+      this.loadBoms();
+    }
   }
 }
 </script>

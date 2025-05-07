@@ -47,6 +47,7 @@ const itemInfo = `
        , unit_code
        , spec
   FROM items
+
   WHERE item_code = ?
 `;
 
@@ -72,6 +73,41 @@ const itemDelete = `
    WHERE item_code = ?
 `;
 
+const itemProcessFlowsList = `
+  SELECT A.item_code
+        , A.item_name
+        , A.item_type
+        , A.unit_code
+        , A.spec
+        , C.process_name
+        , C.duration_min      
+        , B.sequence_order
+        , B.process_header        
+        FROM items A
+        INNER JOIN item_process_flows B
+        ON A.item_code = B.item_code
+        INNER JOIN processes C
+        ON B.process_header = C.process_header
+        WHERE A.item_code = ?
+        ORDER BY B.sequence_order ASC
+        
+`;
+
+const processesList = `
+SELECT 
+process_code
+,process_header
+,process_name
+,duration_min
+FROM processes
+where 1=1
+`;
+
+
+const deleteProcessItem = `
+delete FROM item_process_flows WHERE process_header = ? AND item_code = ? AND sequence_order = ?
+`;
+
 module.exports = {
   itemList,
   itemListByCode,
@@ -81,4 +117,7 @@ module.exports = {
   itemInsert,
   itemUpdate,
   itemDelete,
+  itemProcessFlowsList,
+  processesList,
+  deleteProcessItem,
 };
