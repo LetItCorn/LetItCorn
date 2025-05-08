@@ -3,15 +3,17 @@
 // ── BOM 마스터 ────────────────────────────────
 // 1) 전체조회 (+ 옵션검색: bom_id 혹은 item_code)  
 const bomList = `
-  SELECT bom_id
-       , item_code
-       , item_name
-       , registered_date
-  FROM boms
-  WHERE 1=1
-    AND (? = '' OR bom_id       = ?)
-    AND (? = '' OR item_code    = ?)
-  ORDER BY bom_id
+  SELECT b.bom_id
+       , b.item_code
+       , b.item_name
+       , b.registered_date
+  FROM boms AS b
+  JOIN items AS i
+    ON b.item_code = i.item_code
+  WHERE i.item_type = '01'               -- 완제품만
+    AND (? = '' OR b.bom_id    = ?)
+    AND (? = '' OR b.item_code = ?)
+  ORDER BY b.bom_id
 `;
 
 // 2) 단건조회 (BOM_ID 기준)
