@@ -63,7 +63,7 @@ const addNewPlan = async ({ header, details }) => {
         values
       );
       await conn.query(
-        `UPDATE salesorder SET status = 'K01' WHERE sorder_code = ?`,
+        `UPDATE salesorder SET status = '대기' WHERE sorder_code = ?`,
         [item.sorder_code]
       );
     }
