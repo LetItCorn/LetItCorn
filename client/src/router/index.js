@@ -29,6 +29,7 @@ import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
 import Material from "@/views/Material.vue";
 import MOutboundForm from '../views/MOutboundForm.vue';
+import ProductionInst from "@/views/ProductionInst.vue";
 
 
 const routes = [
@@ -149,8 +150,13 @@ const routes = [
     path: '/plans',
     name: 'ProductionPlanInquiry',
     component: ProductionPlanInquiry,
-  }
-  ,{ 
+  },
+  {
+    path: '/inst',
+    name: 'ProductionInst',
+    component: ProductionInst,
+  },
+  { 
 
     path: '/m_orders',
     name: 'MOrderForm',
