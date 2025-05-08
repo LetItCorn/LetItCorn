@@ -116,6 +116,10 @@ const menuConfig = {
         name: "발주서 조회",
         path: 'm_orderslist'
       },
+      {
+        name: "반제품 생산지시 조회",
+        path: 'sf_product'
+      },
     ],
     "자재 입∙출고": [{
       name: "입고",
@@ -128,16 +132,21 @@ const menuConfig = {
       name: "조회",
       path: 'm_movement'
     }
+    ],
+    "자재품질": [{
+      name: "조회",
+      path: 'qc_history'
+    },
+    ],
+    "반품 입고": [{ 
+    name: "반품조회", 
+    path: "returns" 
+    },
+    { 
+    name: "반품등록", 
+    path: "returns" 
+    }
   ],
-  "자재품질": [{
-    name: "조회",
-    path: 'qc_history'
-  },
-],
-"반품 입고": [
-  { name: "반품조회", path: "returns" },
-  { name: "반품등록", path: "returns" }
-],
   },
   관리: {
     "사원": [{

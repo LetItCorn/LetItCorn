@@ -27,20 +27,20 @@ router.get('/outbound_candidates', async (req, res) => {
 });
 
 
-// 출고 등록
-router.post('/m_outbound', async (req, res) => {
-  try {
-    const result = await outboundService.addOutbound(req.body);
-    if (!result.isSuccess) {
-    // 재고 부족 등 클라이언트 오류
-    return res.status(400).json({ error: result.error });
-    }
-    res.json(result);
-  } catch (err) {
-    console.error('출고 등록 오류:', err);
-    res.status(500).send({ error: '출고 등록 중 오류가 발생했습니다.' });
-  }
-});
+// // 출고 등록
+// router.post('/m_outbound', async (req, res) => {
+//   try {
+//     const result = await outboundService.addOutbound(req.body);
+//     if (!result.isSuccess) {
+//     // 재고 부족 등 클라이언트 오류
+//     return res.status(400).json({ error: result.error });
+//     }
+//     res.json(result);
+//   } catch (err) {
+//     console.error('출고 등록 오류:', err);
+//     res.status(500).send({ error: '출고 등록 중 오류가 발생했습니다.' });
+//   }
+// });
 
 
 // 출고 취소(롤백)
