@@ -1,16 +1,32 @@
 // table = inst  (생산지시 디테일)
 
 const selectInst = 
-`SELECT  inst_no,
-         lot_cnt,
-         plans_vol,
-         iord_no,
-         process_header,
-         item_code,
-         out_od
-FROM inst
-WHERE inst_head = ?
-ORDER BY inst_no`;
+`SELECT
+  i.inst_no,
+  p.plan_no,
+  i.lot_cnt,
+  it.item_name,
+  p.plans_vol,
+  i.iord_no,
+  p.porder_seq,
+  (p.plans_vol - i.iord_no) AS unassigned_count,
+  ph.plan_end,
+  ph.plan_start,
+  CASE pl.process_header
+    WHEN '0' THEN '반공정'
+    WHEN '1' THEN '완공정'
+  END AS process_header,
+  CASE i.out_od
+    WHEN 'Y' THEN 'O'
+    WHEN 'N' THEN 'X'
+    ELSE NULL
+  END AS out_od
+FROM inst i
+JOIN inst_header ih ON i.inst_head = ih.inst_head
+JOIN plan_header ph ON ih.plans_head = ph.plans_head
+JOIN plans p ON p.plans_head = ph.plans_head AND p.item_code = i.item_code
+JOIN items it ON i.item_code = it.item_code
+LEFT JOIN process_log pl ON pl.iord_no = i.iord_no`;
 
 const insertInst= 
 `INSERT INTO inst (inst_no, lot_cnt, plans_vol, iord_no, process_header, inst_head, item_code, out_od)
