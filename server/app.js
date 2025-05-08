@@ -33,6 +33,7 @@
   const plansRouter = require('./routers/plans_router.js');
   const instRouter = require('./routers/inst_router.js');
   const instsRouter = require('./routers/instHead_router.js');
+  const instModalRouter = require('./routers/inst_modal_router.js');
   const modalRouter = require('./routers/modal_router');
   //쪼의 영역(공정)
   const processRouter = require('./routers/processLog_router.js');
@@ -50,6 +51,7 @@
   const movementRouter = require('./routers/movement_router.js');
   const qcHistoryRouter = require('./routers/qc_history_router.js');
   const mReturnsRouter = require('./routers/m_returns_router.js');
+  const instHeaderAPIRouter= require('./routers/inst_header_router.js');
   //영업
   const SoRouter = require('./routers/salesorder_router.js'); // 주문서
   const PoRouter = require('./routers/purchaseorder_router.js'); // 발주서
@@ -73,6 +75,7 @@
   app.use('/', plansRouter);
   app.use('/', instRouter);
   app.use('/', instsRouter);
+  app.use('/', instModalRouter);
   app.use('/', modalRouter);
   //공정
   app.use('/', processRouter);
@@ -102,3 +105,4 @@
   app.use('/', movementRouter);  
   app.use('/', qcHistoryRouter);
   app.use('/', mReturnsRouter);
+  app.use('/', instHeaderAPIRouter);

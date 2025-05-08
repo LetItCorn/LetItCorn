@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import axios from 'axios';
 
 export const useInstStore = defineStore('inst', {
   state: () => ({
@@ -27,6 +28,21 @@ export const useInstStore = defineStore('inst', {
     },
     setSelectedPlans(data) {
       this.selectedPlans = data
+    },
+    resetAll() {
+      this.selectedPlans = []
+      this.selectedPlan = null
+      this.planModalData = []
+    },
+    async registerInstData(data) {
+      try {
+        await axios.post('/api/inst/register', data);
+        alert('등록 완료');
+        this.resetAll();
+      } catch (err) {
+        console.error(err);
+        alert('등록 실패');
+      }
     },
   },
 });

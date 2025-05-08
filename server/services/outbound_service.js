@@ -1,109 +1,99 @@
-// server/services/outbound_service.js
-
-const { query, getConnection, selectedQuery } = require('../database/mapper.js');
-const { queryFormat } = require('../utils/converts.js');
+/**
+ *  자재 출고 서비스
+ *  - 생산지시 기반 LOT 후보 조회
+ *  - 재고 검증 후 출고 INSERT
+ *  - 출고 취소(롤백)
+ *  - 피킹 리스트 PDF 생성
+ */
+const mariadb         = require('../database/mapper.js');
 const materialService = require('./material_service.js');
-const PDFDocument = require('pdfkit');
+const { queryFormat } = require('../utils/converts.js');
+const PDFDocument     = require('pdfkit');
 
-/**
- * 전체 출고 이력 조회
- */
+/* ────────────────────────────────────────────────────────── */
+/* 1) 출고 이력 전체                                              */
 async function findAllOutbounds() {
-  return await query('selectOutboundList', []);
+  return await mariadb.query('selectOutboundList');
 }
 
-/**
- * 출고 후보 조회 (입고 LOT 기반)
- */
-async function findOutboundCandidates() {
-  return await query('selectOutboundCandidates', []);
+/* ────────────────────────────────────────────────────────── */
+/* 2) 생산지시 기반 LOT 후보 조회                                 */
+async function findOutboundCandidates(instHead) {
+  return await mariadb.query('selectOutboundCandidatesByInst', [instHead]);
 }
 
-/**
- * 출고 등록
- * @param {{
- *   mout_id: string,
- *   mater_code: string,
- *   mout_qty: number,
- *   mout_date: string,
- *   mout_checker: string,
- *   lot_cnt: string,
- *   mater_lot: string
- * }} info
- */
+/* ────────────────────────────────────────────────────────── */
+/* 3) 출고 INSERT + 상태 변경                                     */
 async function addOutbound(info) {
   const {
-    mout_id,
-    mater_code,
-    mout_qty,
-    mout_date,
-    mout_checker,
-    lot_cnt,
-    mater_lot
+    inst_head, mout_id, mater_code, mout_qty,
+    mout_date, mout_checker, lot_cnt, mater_lot
   } = info;
 
-  // 1) 재고 검증
+  /* 3-1) 재고 검증 */
   const material = await materialService.findMaterialByCode(mater_code);
-  if (!material) {
-    return { isSuccess: false, error: '존재하지 않는 자재입니다.' };
-  }
-  if (mout_qty > material.current_stock) {
-    return { isSuccess: false, error: '현재 재고보다 큰 수량은 출고할 수 없습니다.' };
-  }
+  if (!material) return { isSuccess: false, error: '존재하지 않는 자재' };
+  if (mout_qty > material.current_stock)
+    return { isSuccess: false, error: '재고 부족' };
 
-  // 2) 출고 등록
-  const params = [
-    mout_id,
-    mater_code,
-    mout_qty,
-    mout_date,
-    mout_checker,
-    lot_cnt,
-    mater_lot
-  ];
-  const res = await query('insertOutbound', params);
-  return { isSuccess: res && res.affectedRows > 0 };
-}
-
-/**
- * 출고 롤백 (삭제) — 트랜잭션으로 입고·재고 되돌리기
- */
-async function cancelOutbound(moutId) {
-  const conn = await getConnection();
+  /* 3-2) 트랜잭션 */
+  const conn = await mariadb.getConnection();
   try {
     await conn.beginTransaction();
 
-    // 1) 기존 출고 레코드 조회
-    const rows = await conn.query(
-      selectedQuery('selectOutboundOne', [moutId]),
-      [moutId]
+    /* (a) 출고 INSERT */
+    await conn.query(
+      mariadb.selectedQuery('insertOutbound', [mout_id, mater_code, mout_qty,
+                                              mout_date, mout_checker, lot_cnt, mater_lot]),
+      [mout_id, mater_code, mout_qty, mout_date, mout_checker, lot_cnt, mater_lot]
     );
-    if (!rows.length) {
-      await conn.rollback();
-      return false;
-    }
-    const { mout_qty, lot_cnt, mater_code } = rows[0];
 
-    // 2) m_inbound.min_oqty 롤백
+    /* (b) inst_header → 자재입고 로 상태 변경 */
+    await conn.query(
+      `UPDATE inst_header SET inst_stat='자재 입고'
+       WHERE inst_head = ? AND inst_stat='대기'`,
+      [inst_head]
+    );
+
+    await conn.commit();
+    return { isSuccess: true };
+  } catch (err) {
+    await conn.rollback();
+    console.error('addOutbound error', err);
+    return { isSuccess: false, error: 'DB 오류' };
+  } finally {
+    conn.release();
+  }
+}
+
+/* ────────────────────────────────────────────────────────── */
+/* 4) 출고 롤백                                                   */
+async function cancelOutbound(moutId) {
+  const conn = await mariadb.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const [row] = await conn.query(
+      mariadb.selectedQuery('selectOutboundOne', [moutId]), [moutId]
+    );
+    if (!row) { await conn.rollback(); return false; }
+
     await conn.query(
       `UPDATE m_inbound
-        SET min_oqty = min_oqty - ?
-      WHERE min_id = ? AND mater_code = ?`,
-      [mout_qty, lot_cnt, mater_code]
+         SET min_oqty = min_oqty - ?
+       WHERE min_id = ? AND mater_code = ?`,
+      [row.mout_qty, row.lot_cnt, row.mater_code]
     );
 
-    // 3) material.current_stock 롤백
     await conn.query(
       `UPDATE material
-        SET current_stock = current_stock + ?
-      WHERE mater_code = ?`,
-      [mout_qty, mater_code]
+         SET current_stock = current_stock + ?
+       WHERE mater_code = ?`,
+      [row.mout_qty, row.mater_code]
     );
 
-    // 4) 출고 레코드 삭제
     await conn.query(
-      selectedQuery('deleteOutbound', [moutId]),
-      [moutId]
+      mariadb.selectedQuery('deleteOutbound', [moutId]), [moutId]
     );
 
     await conn.commit();
@@ -116,88 +106,58 @@ async function cancelOutbound(moutId) {
   }
 }
 
-/**
- * 피킹 리스트 PDF 생성
- * @param {string[]} ids - 출력할 mout_id 목록
- * @param {Response} res - Express 응답 객체
- */
+/* ────────────────────────────────────────────────────────── */
+/* 5) 피킹 리스트 PDF                                             */
 async function generatePickingListPDF(ids, res) {
-  const conn = await getConnection();
+  const conn = await mariadb.getConnection();
   try {
-    // 1) 데이터 조회
     const sql = `
-      SELECT
-        o.mout_id,
-        o.mater_code,
-        m.mater_name,
-        o.mout_qty,
-        o.lot_cnt,
-        o.mater_lot,
-        DATE_FORMAT(o.mout_date,'%Y-%m-%d') AS mout_date,
-        o.mout_checker
-      FROM m_outbound o
-      JOIN material m ON m.mater_code = o.mater_code
-      WHERE o.mout_id IN (${ids.map(() => '?').join(',')})
-      ORDER BY o.mout_date, o.mout_id
+      SELECT o.mout_id, o.mater_code, m.mater_name, o.mout_qty,
+             o.lot_cnt,  o.mater_lot,
+             DATE_FORMAT(o.mout_date,'%Y-%m-%d') AS mout_date,
+             o.mout_checker
+        FROM m_outbound o
+        JOIN material m USING(mater_code)
+       WHERE o.mout_id IN (${ids.map(() => '?').join(',')})
+       ORDER BY o.mout_date, o.mout_id
     `;
-    const records = await conn.query(sql, ids);
+    const rows = await conn.query(sql, ids);
 
-    // 2) PDF 세팅
-    const doc = new PDFDocument({ margin: 40, size: 'A4' });
+    const doc = new PDFDocument({ size: 'A4', margin: 40 });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename="picking_list.pdf"');
     doc.pipe(res);
 
-    // 3) 제목
-    doc.fontSize(18).text('피킹 리스트 (Picking List)', { align: 'center' });
+    doc.fontSize(18).text('피킹 리스트', { align: 'center' });
     doc.moveDown();
 
-    // 4) 테이블 헤더
-    const headers = ['출고ID','자재코드','자재명','수량','LOT#','LOT 번호','날짜','담당자'];
-    const widths = [80,80,120,60,60,80,80,80];
-    let x = doc.x, y = doc.y;
-    doc.fontSize(12);
-    headers.forEach((h,i) => {
-      doc.text(h, x, y, { width: widths[i], align: 'center' });
-      x += widths[i];
-    });
+    const header = ['출고ID','자재코드','자재명','수량','LOT#','LOT번호','날짜','담당자'];
+    const widths = [80,80,120,40,50,80,80,80];
+    let y = doc.y;
+    header.forEach((h,i)=>doc.text(h, 40+widths.slice(0,i).reduce((a,b)=>a+b,0), y, {width:widths[i],align:'center'}));
     doc.moveDown();
 
-    // 5) 테이블 데이터
-    records.forEach(r => {
-      x = doc.x;
-      const rowY = doc.y;
-      [
-        r.mout_id,
-        r.mater_code,
-        r.mater_name,
-        r.mout_qty.toString(),
-        r.lot_cnt,
-        r.mater_lot,
-        r.mout_date,
-        r.mout_checker
-      ].forEach((val,i) => {
-        doc.text(val, x, rowY, { width: widths[i], align: 'center' });
-        x += widths[i];
-      });
+    rows.forEach(r=>{
+      const vals = [r.mout_id,r.mater_code,r.mater_name,r.mout_qty,
+                    r.lot_cnt,r.mater_lot,r.mout_date,r.mout_checker];
+      let x=40, rowY=doc.y;
+      vals.forEach((v,i)=>{doc.text(String(v),x,rowY,{width:widths[i],align:'center'}); x+=widths[i];});
       doc.moveDown();
     });
-
     doc.end();
   } catch (err) {
-    console.error('피킹 리스트 PDF 생성 오류:', err);
-    if (!res.headersSent) {
-      res.status(500).send('PDF 생성 중 오류가 발생했습니다.');
-    }
+    console.error('PDF error', err);
+    res.status(500).send('PDF 생성 오류');
   } finally {
     conn.release();
   }
 }
 
+/* ────────────────────────────────────────────────────────── */
 module.exports = {
   findAllOutbounds,
   findOutboundCandidates,
   addOutbound,
   cancelOutbound,
-  generatePickingListPDF,
+  generatePickingListPDF
 };
