@@ -30,6 +30,7 @@ import QCHistory from '../views/QCHistory.vue';
 import MOutboundForm from '../views/MOutboundForm.vue';
 import ProductionInst from "@/views/ProductionInst.vue";
 import Process from "@/views/process.vue";
+import SFproduct from "../views/SFproduct.vue";
 
 
 const routes = [
@@ -206,7 +207,12 @@ const routes = [
     path: '/process',
     name:'process',
     component: Process
-  }
+  },
+  {
+    path: '/sf_product',
+    name:'sfproduct',
+    component: SFproduct 
+  },
 ];
 
 const router = createRouter({
