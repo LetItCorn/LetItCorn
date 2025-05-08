@@ -5,7 +5,7 @@
         <div class="card">
           <div class="card-header">생산지시</div>
           <div class="card-body">
-              <Grid :rowData="rowData" :columnDefs="columnDefs"/>
+              <Grid :rowData="rowData" :columnDefs="columnDefs" @passInst="getInstData" />
           </div>
         </div>
       </div>
@@ -34,6 +34,7 @@
 <script>
 import Grid from '@/components/Grid.vue';
 import axios from 'axios';
+import { watch } from 'vue';
 export default {
   data() {
     return {
@@ -49,6 +50,7 @@ export default {
         { field: 'cur_cnt', headerName: '현생산량', flex: 1},
         { field: 'state', headerName: '진행상태', flex: 1},
       ],
+      instData : {},
     };
   },
   components: {
@@ -69,7 +71,14 @@ export default {
 
       this.rowData = res.data
     },
-    
+    getInstData(data){
+      this.instData = data
+    }
+  },
+  watch:{
+    instData(){
+      console.log(this.instData);
+    }
   }
 };
 </script>
