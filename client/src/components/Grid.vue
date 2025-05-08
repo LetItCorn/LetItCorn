@@ -17,7 +17,9 @@ export default {
     // 그리드의 컬럼 정보 field는 rowData의 key값과 일치하게, headerName은 화면에 보여지는 그리드의 컬럼명을 표시한다.
     columnDefs : Array
   },
-  components: {},
+  components: {
+    AgGridVue
+  },
   data() {
     return {
       // col에 적용할 기본 속성
@@ -29,8 +31,8 @@ export default {
   },
   methods: {
     onCellClicked(e) {
-      console.log(e.data);
-      this.$emit
+      // console.log(e.data);
+      this.$emit('passInst',e.data)
     },
     
   },
