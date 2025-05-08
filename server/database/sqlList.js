@@ -27,6 +27,7 @@ const mOrder = require('./sqls/m_order.js');
 const mInbound = require('./sqls/mInbound.js');
 const modal = require('./sqls/modal.js');
 const salesorder = require('./sqls/salesorder.js');
+const Insertsorder = require('./sqls/Insertsalesorder.js');
 const qcInspections = require('./sqls/qcInspections.js');
 const mOutbound        = require('./sqls/mOutbound.js');
 const mOrderDetail = require('./sqls/m_order_detail.js');
@@ -58,6 +59,7 @@ module.exports = {
   ...defectCodes,
   ...commonCodes,
   ...employees,
+      ...Insertsorder,
   ...materials,
   ...lotInventory,
   ...purchaseorders,
