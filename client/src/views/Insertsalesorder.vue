@@ -47,11 +47,7 @@
         <input type="number" v-model.number="orderData.sorderCount" min="1">
       </div>
       
-<<<<<<< HEAD
       <!-- <div class="form-group">
-=======
-      <div class="form-group">
->>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
         <label>출하창고</label>
         <select v-model="selectedWarehouse" @change="handleWarehouseChange">
           <option value="">창고를 선택하세요</option>
@@ -59,11 +55,7 @@
             {{ warehouse.warehouse_name }}
           </option>
         </select>
-<<<<<<< HEAD
       </div> -->
-=======
-      </div>
->>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
       
       <div class="form-group">
         <label>납기일자</label>
@@ -82,7 +74,6 @@ export default {
     return {
       orderData: {
         sorderCode: '',
-<<<<<<< HEAD
         clientName: '',
         clientMgr: '',
         itemName: '',
@@ -90,40 +81,20 @@ export default {
         // warehouseName: '',
         deliveryDate: this.getTodayDate(),
         status: '대기', // 기본 상태 추가
-=======
-        clientCode: '', // client_name 대신 clientCode 사용
-        clientMgr: '',
-        itemCode: '', // item_name 대신 itemCode 사용
-        sorderCount: 1,
-        warehouseName: '',
-        deliveryDate: this.getTodayDate(),
-        status: '계획됨', // 기본 상태 추가
->>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
         empId: 'EMP01' // 현재 로그인한 사용자 ID
       },
       selectedClient: '',
       selectedItem: '',
-<<<<<<< HEAD
       // selectedWarehouse: '',
       clients: [],
       items: [],
       // warehouses: []
-=======
-      selectedWarehouse: '',
-      clients: [],
-      items: [],
-      warehouses: []
->>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
     };
   },
   created() {
     this.fetchClients();
     this.fetchItems();
-<<<<<<< HEAD
     // this.fetchWarehouses();
-=======
-    this.fetchWarehouses();
->>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
     this.orderData.sorderCode = this.generateOrderCode();
   },
   methods: {
@@ -174,7 +145,6 @@ export default {
       }
     },
     // 창고 목록 조회
-<<<<<<< HEAD
     // async fetchWarehouses() {
     //   try {
     //     const response = await axios.get('/api/warehouses');
@@ -188,26 +158,10 @@ export default {
     //     });
     //   }
     // },
-=======
-    async fetchWarehouses() {
-      try {
-        const response = await axios.get('/api/warehouses');
-        this.warehouses = response.data;
-      } catch (error) {
-        console.error('창고 목록을 가져오는 중 오류 발생:', error);
-        Swal.fire({
-          icon: 'error',
-          title: '데이터 로딩 실패',
-          text: '창고 목록을 불러오는데 실패했습니다.'
-        });
-      }
-    },
->>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
     // 거래처 선택 시 담당자 정보 자동 입력
     // 거래처 선택 시 clientCode 저장
     handleClientChange() {
       if (this.selectedClient) {
-<<<<<<< HEAD
         this.orderData.clientName = this.selectedClient.client_name;
         this.orderData.clientMgr = this.selectedClient.client_mgr;
       } else {
@@ -231,38 +185,12 @@ export default {
     //     this.orderData.warehouseName = '';
     //   }
     // },
-=======
-        this.orderData.clientCode = this.selectedClient.client_code;
-        this.orderData.clientMgr = this.selectedClient.client_mgr;
-      } else {
-        this.orderData.clientCode = '';
-        this.orderData.clientMgr = '';
-      }
-    },
-    // 품목 선택 시 itemCode 저장
-    handleItemChange() {
-      if (this.selectedItem) {
-        this.orderData.itemCode = this.selectedItem.item_code;
-      } else {
-        this.orderData.itemCode = '';
-      }
-    },
-    // 창고 선택 시 창고명 설정
-    handleWarehouseChange() {
-      if (this.selectedWarehouse) {
-        this.orderData.warehouseName = this.selectedWarehouse.warehouse_name;
-      } else {
-        this.orderData.warehouseName = '';
-      }
-    },
->>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
     // 주문서 등록
     async registerSalesOrder() {
       // 필수 항목 검증
       if (!this.validateForm()) {
         return;
       }
-<<<<<<< HEAD
 
       let obj ={
         sorder_code:this.orderinfo.sorder_code,
@@ -289,20 +217,6 @@ export default {
         // 등록 성공 후 목록 페이지로 이동
         this.goBack();
         
-=======
-      
-      try {
-        const response = await axios.post('/api/salesorders', this.orderData);
-        
-        Swal.fire({
-          icon: 'success',
-          title: '등록 완료',
-          text: '주문서가 성공적으로 등록되었습니다.'
-        });
-        
-        // 등록 성공 후 목록 페이지로 이동
-        this.goBack();
->>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
       } catch (error) {
         console.error('주문서 등록 중 오류 발생:', error);
         Swal.fire({
@@ -341,7 +255,6 @@ export default {
         return false;
       }
       
-<<<<<<< HEAD
       // if (!this.orderData.warehouseName) {
       //   Swal.fire({
       //     icon: 'warning',
@@ -350,16 +263,6 @@ export default {
       //   });
       //   return false;
       // }
-=======
-      if (!this.orderData.warehouseName) {
-        Swal.fire({
-          icon: 'warning',
-          title: '입력 오류',
-          text: '출하창고를 선택해주세요.'
-        });
-        return false;
-      }
->>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
       
       if (!this.orderData.deliveryDate) {
         Swal.fire({

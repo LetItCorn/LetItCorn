@@ -28,8 +28,11 @@ const mInbound = require('./sqls/mInbound.js');
 const modal = require('./sqls/modal.js');
 const salesorder = require('./sqls/salesorder.js');
 <<<<<<< HEAD
+<<<<<<< HEAD
 const Insertsorder = require('./sqls/Insertsalesorder.js');
 =======
+=======
+>>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
 const qcInspections = require('./sqls/qcInspections.js');
 const mOutbound        = require('./sqls/mOutbound.js');
 const mOrderDetail = require('./sqls/m_order_detail.js');
@@ -39,6 +42,9 @@ const mReturns = require('./sqls/m_returns.js');
 const materialStock = require('./sqls/materials_stock.js');
 const outboundPicking = require('./sqls/mOutboundPicking.js');
 const outboundCandidates = require('./sqls/outbound_candidates.js');
+<<<<<<< HEAD
+>>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
+=======
 >>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
 
 module.exports = {
@@ -61,6 +67,7 @@ module.exports = {
   ...commonCodes,
   ...employees,
 <<<<<<< HEAD
+<<<<<<< HEAD
     ...materials,
     ...lotInventory,
     ...purchaseorders,
@@ -73,6 +80,8 @@ module.exports = {
       ...salesorder,
       ...Insertsorder,
 =======
+=======
+>>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
   ...materials,
   ...lotInventory,
   ...purchaseorders,
@@ -92,5 +101,8 @@ module.exports = {
   ...materialStock,
   ...outboundPicking,
   ...outboundCandidates,
+<<<<<<< HEAD
+>>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
+=======
 >>>>>>> 59554fbb8935f69576135f3b992c06f70eafd19f
 }
