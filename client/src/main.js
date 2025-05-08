@@ -1,6 +1,6 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import store from "./store";
+// import store from "./store";
 import router from "./router";
 import "./assets/css/nucleo-icons.css";
 import "./assets/css/nucleo-svg.css";
@@ -21,7 +21,7 @@ pinia.use(piniaPluginPersistedstate)
 const appInstance = createApp(App);
 axios.defaults.baseURL = '';
 appInstance.use(pinia);
-appInstance.use(store);
+// appInstance.use(store);
 appInstance.use(router);
 appInstance.use(MaterialDashboard);
 
