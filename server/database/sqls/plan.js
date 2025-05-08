@@ -22,7 +22,23 @@ const plansInsert =
 `INSERT INTO plans (plan_no, plans_head, porder_seq, item_code, plans_vol, delivery_date, item_name)
 VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
+const updatePlan = 
+`UPDATE plan_header
+SET  plan_start = ?, plan_end = ?, plan_stat = ?, plans_reg = ?, planer = ?
+WHERE plans_head = ?`;
+
+const deletePlans = 
+` DELETE FROM plans 
+WHERE plans_head = ?`;
+
+const insertPlanDetail = 
+`INSERT INTO plans (plan_no, plans_head, porder_seq, item_code, plans_vol, delivery_date, item_name)
+VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
 module.exports = {
   selectPlansOne,
   plansInsert,
+  updatePlan,
+  deletePlans,
+  insertPlanDetail
 }
