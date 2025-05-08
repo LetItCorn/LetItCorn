@@ -28,6 +28,7 @@ import Bom from '@/views/Bom.vue';
 // import MOutboundList from '../views/MOutboundList.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
+import Material from "@/views/Material.vue";
 import MOutboundForm from '../views/MOutboundForm.vue';
 
 
