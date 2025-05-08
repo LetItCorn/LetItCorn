@@ -105,12 +105,12 @@ const routes = [
     name: 'Item', 
     component: Item,
   },
-   {
-     // 자재관리 페이지
-     path: '/materials',
-     name: 'Material', 
-     component: Material,
-   },
+  //  {
+  //    // 자재관리 페이지
+  //    path: '/materials',
+  //    name: 'Material', 
+  //    component: Material,
+  //  },
   {
     // BOM관리 페이지
 
