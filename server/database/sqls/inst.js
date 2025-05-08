@@ -9,12 +9,12 @@ const selectInst =
   p.plans_vol,
   i.iord_no,
   p.porder_seq,
-  (p.plans_vol - i.iord_no) AS unassigned_count,
+  (IFNULL(p.plans_vol, 0) - IFNULL(i.iord_no, 0)) AS unassigned_count,
   ph.plan_end,
   ph.plan_start,
-  CASE pl.process_header
-    WHEN '0' THEN '반공정'
-    WHEN '1' THEN '완공정'
+  CASE i.process_header
+    WHEN 'A01' THEN '완공정'
+    WHEN 'B01' THEN '반공정'
   END AS process_header,
   CASE i.out_od
     WHEN 'Y' THEN 'O'
@@ -26,10 +26,10 @@ JOIN inst_header ih ON i.inst_head = ih.inst_head
 JOIN plan_header ph ON ih.plans_head = ph.plans_head
 JOIN plans p ON p.plans_head = ph.plans_head AND p.item_code = i.item_code
 JOIN items it ON i.item_code = it.item_code
-LEFT JOIN process_log pl ON pl.iord_no = i.iord_no`;
+ORDER BY ph.plan_start DESC`;
 
 const insertInst= 
-`INSERT INTO inst (inst_no, lot_cnt, plans_vol, iord_no, process_header, inst_head, item_code, out_od)
+`INSERT INTO inst (inst_no, lot_cnt, plans_vol, iord_no, process_header, inst_head, item_code, out_od, ins_stat)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
 const updateInst = 
