@@ -1,4 +1,5 @@
 // server/services/bom_service.js
+
 const mapper = require('../database/mapper.js');
 
 //
@@ -14,9 +15,6 @@ const mapper = require('../database/mapper.js');
  */
 async function findBoms({ bomId = '', itemCode = '' } = {}) {
   try {
-    // SQL: bomList 에 정의된
-    //   (? = '' OR bom_id = ?)
-    //   (? = '' OR item_code = ?)
     return await mapper.query('bomList', [
       bomId, bomId,
       itemCode, itemCode
@@ -44,17 +42,16 @@ async function findBomById(bomId) {
 
 /**
  * 새 BOM 등록
- * @param {{bom_id:string, item_code:string, item_name:string, registered_date:string}} bom
+ * @param {{ item_code:string, item_name:string }} bom
+ *   - SQL에서 bom_id와 registered_date는 자동 생성됩니다.
  */
-async function createBom(bom) {
-  const { bom_id, item_code, item_name, registered_date } = bom;
-  console.log(item_code);
-    console.log(item_name);
+async function createBom({ item_code, item_name }) {
   try {
+    // bomInsert : CONCAT('BOM' + 오늘날짜 + 일련번호) + NOW()
     return await mapper.query('bomInsert', [
-      item_code, item_name
+      item_code,
+      item_name
     ]);
-    
   } catch (err) {
     console.error('createBom error:', err);
     throw err;
@@ -63,13 +60,14 @@ async function createBom(bom) {
 
 /**
  * BOM 수정
- * @param {{bom_id:string, item_code:string, item_name:string, registered_date:string}} bom
+ * @param {{ bom_id:string, item_code:string, item_name:string, registered_date:string }} bom
  */
-async function updateBom(bom) {
-  const { bom_id, item_code, item_name, registered_date } = bom;
+async function updateBom({ bom_id, item_code, item_name, registered_date }) {
   try {
     return await mapper.query('bomUpdate', [
-      item_code, item_name, registered_date,
+      item_code,
+      item_name,
+      registered_date,
       bom_id
     ]);
   } catch (err) {
@@ -126,17 +124,16 @@ async function findComponentById(seqId) {
 
 /**
  * BOM 구성품 등록
- * @param {{
- *   item_seq_id: string|number,
- *   bom_id: string,
- *   mater_code: string,
- *   mater_name: string,
- *   mater_type: string,
- *   spec: string,
- *   unit_code: string,
- *   quantity: number,
- *   mater_id: string
- * }} comp
+ * @param {object} comp
+ * @param {string|number} comp.item_seq_id
+ * @param {string} comp.bom_id
+ * @param {string} comp.mater_code
+ * @param {string} comp.mater_name
+ * @param {string} comp.mater_type
+ * @param {string} comp.spec
+ * @param {string} comp.unit_code
+ * @param {number} comp.quantity
+ * @param {string} comp.mater_id
  */
 async function createComponent(comp) {
   const params = [
@@ -160,16 +157,15 @@ async function createComponent(comp) {
 
 /**
  * BOM 구성품 수정
- * @param {{
- *   item_seq_id: string|number,
- *   mater_code: string,
- *   mater_name: string,
- *   mater_type: string,
- *   spec: string,
- *   unit_code: string,
- *   quantity: number,
- *   mater_id: string
- * }} comp
+ * @param {object} comp
+ * @param {string|number} comp.item_seq_id
+ * @param {string} comp.mater_code
+ * @param {string} comp.mater_name
+ * @param {string} comp.mater_type
+ * @param {string} comp.spec
+ * @param {string} comp.unit_code
+ * @param {number} comp.quantity
+ * @param {string} comp.mater_id
  */
 async function updateComponent(comp) {
   const params = [
@@ -203,16 +199,22 @@ async function deleteComponent(seqId) {
   }
 }
 
+//
+// ─── 완제품 목록 조회 (BOM 등록 Modal용) ────────────────────────────
+//
+
+/**
+ * 완제품(item_type='01') 목록 조회
+ * @returns {Promise<Array>} item_code, item_name, unit_code, spec
+ */
 async function bomitemsList() {
   try {
-    console.log("사공웅222222222");
     return await mapper.query('bomitemsList', []);
   } catch (err) {
     console.error('bomitemsList error:', err);
     return [];
   }
 }
-
 
 module.exports = {
   // BOM master
@@ -228,5 +230,7 @@ module.exports = {
   createComponent,
   updateComponent,
   deleteComponent,
+
+  // BOM 등록용 완제품 리스트
   bomitemsList,
 };
