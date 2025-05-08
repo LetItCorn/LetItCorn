@@ -15,7 +15,6 @@ import MReturnForm   from '../views/MReturnForm.vue';
 import MReturnsList  from '../views/MReturnsList.vue';
 import Productionplan from "@/views/Productionplan_v2.vue";
 import Item from "@/views/Item.vue";
-import Material from "@/views/Material.vue";
 import Employee from "@/views/Employees.vue";
 import ProcessMain from "@/views/ProcessMain.vue";
 import Equipment from "@/views/Equipment.vue"; 
@@ -29,6 +28,7 @@ import Bom from '@/views/Bom.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
 import MOutboundForm from '../views/MOutboundForm.vue';
+import ProductionInst from "@/views/ProductionInst.vue";
 import Process from "@/views/process.vue";
 
 
@@ -150,8 +150,13 @@ const routes = [
     path: '/plans',
     name: 'ProductionPlanInquiry',
     component: ProductionPlanInquiry,
-  }
-  ,{ 
+  },
+  {
+    path: '/inst',
+    name: 'ProductionInst',
+    component: ProductionInst,
+  },
+  { 
 
     path: '/m_orders',
     name: 'MOrderForm',

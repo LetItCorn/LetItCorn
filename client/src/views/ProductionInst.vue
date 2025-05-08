@@ -20,8 +20,10 @@
 <script setup>
 import { storeToRefs } from "pinia";
 import { AgGridVue } from "ag-grid-vue3";
+import "ag-grid-community/styles/ag-grid.css";
 import { ref } from "vue";
 import { useInstStore } from "@/store/inst";
+import axios from 'axios'
 
 const productionInstStore = useInstStore();
 const gridRef = ref(null);
@@ -33,7 +35,7 @@ const columnDefs = ref([
   { field: "lot_cnt", headerName: "LOT번호" },
   { field: "item_name", headerName: "품목명" },
   { field: "plans_vol", headerName: "생산계획수량" },
-  { field: "iord_no", headerName: "지시수량" },
+  { field: "iord_no", headerName: "지시수량", editable: true },
   { field: "unassigned_count", headerName: "미지시수량" },
   { field: "plan_end", headerName: "생산종료일" },
   { field: "plan_start", headerName: "생산지시일" },

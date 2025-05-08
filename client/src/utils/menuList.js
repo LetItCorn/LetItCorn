@@ -97,7 +97,7 @@ const menuConfig = {
       path: '#'
     }, {
       name: "작성",
-      path: '#'
+      path: 'inst'
     }, ],
   },
   자재: {
