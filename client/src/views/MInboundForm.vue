@@ -67,10 +67,18 @@ export default {
   data() {
     return {
       inboundRows: [],    // { moder_id, mater_code, moder_qty, min_qty, quality }
-      selectedRows: []
+      selectedRows: []    //체크된 행 객체 배열
     };
   },
   computed: {
+    // allSelected 계산 속성 프로세스 흐름:
+    // 1. 전체 선택 체크박스 렌더링 시 호출
+    // 
+    // 2. 데이터 존재 여부 확인: this.inboundRows.length > 0
+    //
+    // 3. 배열 검사: this.inboundRows.every(r => selectRows.includes(r))
+    //
+    // 4. 결과 반환 -> 체크박스에 반영
     allSelected() {
       return (
         this.inboundRows.length > 0 &&
