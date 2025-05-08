@@ -10,6 +10,7 @@ const selectPlanHeaderList =
     i.item_name,
     ph.plan_start,
     ph.plan_end,
+    ph.plan_stat,
     p.plans_vol,
     IFNULL(SUM(ins.plans_vol), 0) AS issued_vol,
     (p.plans_vol - IFNULL(SUM(ins.plans_vol), 0)) AS unissued_vol
@@ -23,13 +24,18 @@ ORDER BY ph.plans_reg DESC`;
 
 const selectPlanDetailByHead =
 `SELECT
+    ph.plans_head,
     p.plan_no,
     i.item_name,
+    i.item_code,
+    so.sorder_code,
     so.sorder_count,
     p.plans_vol,
+    p.porder_seq,
     so.delivery_date,
     ph.plan_start,
-    ph.plan_end
+    ph.plan_end,
+    ph.plan_stat
 FROM plans p
 JOIN plan_header ph ON p.plans_head = ph.plans_head
 JOIN items i ON p.item_code = i.item_code
@@ -40,12 +46,12 @@ ORDER BY ph.plan_start DESC`;
  const updatePlanHeader = 
 `UPDATE plan_header
 SET plan_start = ?, plan_end = ?, plan_stat = ?, planer = ?
-WHERE plans_head = ? AND plan_stat = '대기'`;
+WHERE plans_head = ? AND plan_stat = 'K01'`;
 
  const deletePlanHeader = 
  `DELETE FROM plan_header
   WHERE plans_head = ? 
-  AND plan_stat = '대기'`;
+  AND plan_stat = 'K01'`;
 
 module.exports = {
   selectPlanHeaderList,

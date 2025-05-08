@@ -59,15 +59,15 @@ router.get('/salesorders/sort/:type', async (req, res) => {
 });
 
 // 주문서 등록
-router.post('/salesorders', async (req, res) => {
-    try {
-        const orderData = req.body;
-        const result = await soService.addSalesOrder(orderData);
-        res.status(201).send(result);
-    } catch (err) {
-        res.status(500).send({ error: '주문서 등록에 실패했습니다.' });
-    }
-});
+// router.post('/salesorders', async (req, res) => {
+//     try {
+//         const orderData = req.body;
+//         const result = await soService.addSalesOrder(orderData);
+//         res.status(201).send(result);
+//     } catch (err) {
+//         res.status(500).send({ error: '주문서 등록에 실패했습니다.' });
+//     }
+// });
 
 // 주문서 수정
 router.put('/salesorders/:id', async (req, res) => {
@@ -142,4 +142,4 @@ router.get('/warehouses', async (req, res) => {
     }
 });
 
-module.exports = router;
+    module.exports = router;

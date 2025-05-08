@@ -1,8 +1,10 @@
+
 <style scoped>
 .selected {
   background-color: #d0ebff; /* 연한 하늘색 */
 }
 </style>
+
 <template>
   <div class="container-fluid py-3">
     <!-- 1) 상단 조회·필터 바 -->
@@ -62,7 +64,7 @@
                   v-for="item in itemList"
                   :key="item.item_code"
                   @click="selectItem(item)"
-                  :class="{ 'table-active': item.item_code === selected.item_code }"
+                  :class="{'table-active': item.item_code === selected.item_code} "
                   style="cursor:pointer"
                 >                  
                   <td>{{ item.item_code }}</td>
@@ -88,7 +90,11 @@
             <div class="form-row flex-fill">
               <div class="form-group col-6">
                 <label>품목코드</label>
-                <input v-model="selected.item_code" class="form-control form-control-sm" />
+                <input
+                  v-model="selected.item_code"
+                  class="form-control form-control-sm"
+                  readonly
+                />
               </div>
               <div class="form-group col-6">
                 <label>품목명</label>
@@ -199,7 +205,7 @@
 
 import axios from 'axios';
 
-export default { // 외부에서 사용할 수 있도록 내보냄.
+export default {
   name: 'Item',
   data() {
     return {
@@ -219,18 +225,18 @@ export default { // 외부에서 사용할 수 있도록 내보냄.
       selectProcessItem:{},
     };
   },
-  computed: { // 정의된 데이터 값 변경 감시,  변경될 떄마다 정의된 함수 실행
+  computed: {
     filterPlaceholder() {
       switch (this.searchType) {
         case 'code': return '품목코드';
         case 'name': return '품목명';
         case 'type': return '구분';
-        default:     return '';
+        default: return '';
       }
     }
   },
-  created() { // 컴포넌트가 처음 화면에 등장할 때 함수를 자동으로 호출하겠단 의미
-    this.loadItems();
+  async created() {
+    await this.loadItems();
     this.processesList();
   },
   methods: {
@@ -241,10 +247,12 @@ export default { // 외부에서 사용할 수 있도록 내보냄.
         type: this.searchType === 'type' ? this.searchValue : ''
       };
       try {
-        const res = await axios.get('/api/items', { params });        
+        const res = await axios.get('/api/items', { params });
         this.itemList = res.data;
       } catch {
         this.itemList = [];
+      } finally {
+        this.clearDetail();
       }
     },   
     resetFilter() {
@@ -254,118 +262,114 @@ export default { // 외부에서 사용할 수 있도록 내보냄.
     },
     async selectItem(item) {
       this.selected = { ...item };
+
       
       //let response = await axios.put(`/items/itemProcessFlowsList/${this.selected.item_code}`,'');
       //await axios.put(`/api/items/${this.selected.item_code}`, this.selected);
       //this.loadItems();
       
-       try {
-        const response = await axios.get(`/api/items/itemProcessFlowsList/${this.selected.item_code}`,this.selected);
-        this.itemProcessFlowsList = response.data;        
-      } catch {
-        this.itemProcessFlowsList = [];
-      }
+      // try {
+       // const response = await axios.get(`/api/items/itemProcessFlowsList/${this.selected.item_code}`,this.selected);
+        //this.itemProcessFlowsList = response.data;        
+      //} catch {
+      //  this.itemProcessFlowsList = [];
+      //}
       
+
+      this.fetchProcessFlows(item.item_code);
     },
     clearDetail() {
+      // 자동 코드는 현재 리스트에서 최대 숫자 찾아 생성
+      let nextNum = 1;
+      if (this.itemList.length) {
+        const nums = this.itemList
+          .map(i => {
+            const n = parseInt(i.item_code.replace(/^ITM/, ''), 10);
+            return isNaN(n) ? 0 : n;
+          });
+        nextNum = Math.max(...nums) + 1;
+      }
+      const nextCode = 'ITM' + String(nextNum).padStart(3, '0');
       this.selected = {
-        item_code: '',
+        item_code: nextCode,
         item_name: '',
         item_type: '',
         unit_code: '',
         spec: ''
       };
+      this.itemProcessFlowsList = [];
     },
-    async createItem() {
+    async saveItem() {
       try {
-        await axios.post('/api/items', this.selected);
-        this.loadItems();
-        this.clearDetail();
-      } catch {}
-    },
-    async updateItem() {
-      try {
-        await axios.put(`/api/items/${this.selected.item_code}`, this.selected);
-        this.loadItems();
-      } catch {}
+        const exists = this.itemList.some(i => i.item_code === this.selected.item_code);
+        if (exists) {
+          await axios.put(`/api/items/${this.selected.item_code}`, this.selected);
+        } else {
+          await axios.post('/api/items', this.selected);
+        }
+        await this.loadItems();
+      } catch (err) {
+        console.error('saveItem error', err);
+      }
     },
     async deleteItem() {
       if (!this.selected.item_code) return;
       try {
         await axios.delete(`/api/items/${this.selected.item_code}`);
-        this.loadItems();
-        this.clearDetail();
-      } catch {}
+        await this.loadItems();
+      } catch (err) {
+        console.error('deleteItem error', err);
+      }
     },
-    addProcessFlow(){
-      // 현재 최대 sequence_order 기준으로 설정
-        const nextSeq =
-          this.itemProcessFlowsList.length > 0
-            ? Math.max(...this.itemProcessFlowsList.map(f => Number(f.sequence_order))) + 1
-            : 1;
-
-        this.itemProcessFlowsList.push({
-          sequence_order: nextSeq,
-          process_code: '',
-          process_header: '',
-          item_code : this.selected.item_code,
-          isAdding : true
-        });        
+    async fetchProcessFlows(code) {
+      try {
+        const res = await axios.get(`/api/items/itemProcessFlowsList/${code}`);
+        this.itemProcessFlowsList = res.data;
+      } catch {
+        this.itemProcessFlowsList = [];
+      }
+    },
+    addProcessFlow() {
+      const nextSeq = this.itemProcessFlowsList.length
+        ? Math.max(...this.itemProcessFlowsList.map(f => Number(f.sequence_order))) + 1
+        : 1;
+      this.itemProcessFlowsList.push({
+        sequence_order: nextSeq,
+        process_header: '',
+        item_code: this.selected.item_code,
+        isAdding: true
+      });
     },
     async saveProcessFlows() {
-       try {
-          console.log(this.itemProcessFlowsList);
-          const res = await axios.post('/api/saveProcessFlows', {
-            flows: this.itemProcessFlowsList
-          });
-          alert('저장 완료!');
-          try {
-            const response = await axios.get(`/api/items/itemProcessFlowsList/${this.selected.item_code}`,this.selected);
-            this.itemProcessFlowsList = response.data;        
-          } catch {
-            this.itemProcessFlowsList = [];
-          }          
-        } catch (err) {
-          console.error('저장 실패:', err);
-          alert('저장 중 오류 발생');
-        }
+      try {
+        await axios.post('/api/saveProcessFlows', { flows: this.itemProcessFlowsList });
+        this.fetchProcessFlows(this.selected.item_code);
+      } catch (err) {
+        console.error('saveProcessFlows error', err);
+      }
     },
-    async processesList(){
-      try{       
-        const res = await axios.get(`/api/items/processesList` );                
+    async deleteProcessItem() {
+      if (!this.selectProcessItem.sequence_order) return;
+      try {
+        await axios.post('/api/items/deleteProcessItem', this.selectProcessItem);
+        this.fetchProcessFlows(this.selected.item_code);
+      } catch {}
+    },
+    async processesList() {
+      try {
+        const res = await axios.get('/api/items/processesList');
         this.processesListArr = res.data;
-      }catch{
+      } catch {
         this.processesListArr = [];
       }
-    },handleProcessSelect(group){
-      console.log(group);
-      console.log(this.itemProcessFlowsList);
-      
-    },selectProcessItemFunc(group){
-       this.selectedSeq = group.sequence_order;
-       this.selectProcessItem = group;
-       console.log(this.selectedSeq);
-       console.log( this.selectProcessItem );
-    },async deleteProcessItem(){
-      try{
-        
-        console.log( this.selectProcessItem);
-        const res = await axios.post(`/api/items/deleteProcessItem` , this.selectProcessItem );   
-         const response = await axios.get(`/api/items/itemProcessFlowsList/${this.selected.item_code}`,this.selected);
-        this.itemProcessFlowsList = response.data;                     
-        
-      }catch{
-
-      }
-    }     
+    },
+    handleProcessSelect(group) {
+      // noop
+    },
+    selectProcessItemFunc(group) {
+      this.selectedSeq = group.sequence_order;
+      this.selectProcessItem = group;
+    }
   }
 };
 </script>
-
-<style scoped>
-.sticky-top th {
-  position: sticky;
-  top: 0;
-  background: white;
-}
-</style>
