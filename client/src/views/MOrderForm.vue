@@ -167,19 +167,19 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from 'axios';     // http 클라이언트트
 import VueDatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
+import '@vuepic/vue-datepicker/dist/main.css';   //날짜 포맷 유틸
 import useDates from '@/utils/useDates';
 
 export default {
-  name: 'MOrderForm',
-  components: { VueDatePicker },
-  data() {
-    return {
-      materials: [],
-      form: {
-        moder_id: '',
+  name: 'MOrderForm',               //컴포넌트 이름 선언  
+  components: { VueDatePicker },    // 외부 컴포넌트 등록
+  data() {                          // data() 초기 상태 설정 흐름:
+    return {                        // 컴포넌트 인스턴스 생성 -> data() 실행 -> 초기 state 반환
+      materials: [],                // materials = [] (빈 배열)
+      form: {                       // form = { moder_id:'', reciver:'', ... } (폼 필드 초기화)
+        moder_id: '',               
         receiver: '',
         reference: '',
         moder_date: null,
@@ -201,6 +201,11 @@ export default {
       }))
     };
   },
+   // 2) computed 속성 흐름:
+  //    - dateFormat: 달력 포맷 지정 ('yyyy-MM-dd')
+  //    - totalSupply: rows 변경 감지 → 합계 계산 → 반환
+  //    - totalTax: totalSupply 변경 감지 → 0.1 곱 → 반환
+  //    - canSubmit: form 필수 필드 + rows 검사 → boolean 반환
   computed: {
     dateFormat() { return 'yyyy-MM-dd'; },
     totalSupply() { return this.rows.reduce((sum, r) => sum + r.quantity * r.unit_price, 0); },
@@ -222,6 +227,16 @@ export default {
       alert('자재 목록을 불러오는 중 오류가 발생했습니다.');
     }
   },
+    // 4) methods 흐름:
+  //    - formatCurrency: 템플릿 호출 → 숫자 포맷 문자열 반환
+  //    - addRow: 버튼 클릭 → this.rows.push → 뷰 반영
+  //    - submitForm:
+  //        1. 클릭 → 함수 실행
+  //        2. 날짜 포맷 변환(useDates)
+  //        3. payload 구성(header + details)
+  //        4. axios.post('/api/m_orders', payload)
+  //        5. 성공: this.$router.push → 목록 페이지 이동
+  //        6. 오류: console.error + alert
   methods: {
     formatCurrency(val) { return val.toLocaleString(); },
     addRow() {

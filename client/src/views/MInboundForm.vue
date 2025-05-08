@@ -136,6 +136,18 @@ export default {
      *  2) processInbound() 호출 -> selectedRows.length 확인
      * 
      *  3) 선택된 행 없으면 alert & 함수 종료 
+     * 
+     *  4) today 생성 (new Date -> toISOString -> slice)
+     * 
+     *  5) Promise.all 실행 -> axios.post('/api/m_inbound') 호출 (병렬)
+     * 
+     *  6) 모든 POST 요청 완료 시 alert('입고 완료')
+     * 
+     *  7) entries 배열 생성 -> processedInbounds 스토어 저장
+     * 
+     *  8) pendingOrders 초기화 
+     *  
+     *  9) this.$router.push -> 조회 페이지로 네비게이션
      */
     async processInbound() {
       if (!this.selectedRows.length) {
