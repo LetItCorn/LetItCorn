@@ -119,8 +119,17 @@ const bomComponentDelete = `
    WHERE item_seq_id = ?
 `;
 
+// ── 완제품 목록 (BOM 등록 모달용) ─────────────────
+//  완제품(item_type='01')만 조회, 코드 순 정렬
 const bomitemsList = `
-  SELECT * FROM items WHERE item_type='01'
+  SELECT
+      item_code
+    , item_name
+    , unit_code
+    , spec
+  FROM items
+  WHERE item_type = '01'
+  ORDER BY item_code
 `;
 
 module.exports = {
@@ -135,5 +144,6 @@ module.exports = {
   bomComponentInsert,
   bomComponentUpdate,
   bomComponentDelete,
+
   bomitemsList,
 };

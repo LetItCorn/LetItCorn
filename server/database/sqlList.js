@@ -36,6 +36,8 @@ const mReturns = require('./sqls/m_returns.js');
 const materialStock = require('./sqls/materials_stock.js');
 const outboundPicking = require('./sqls/mOutboundPicking.js');
 const outboundCandidates = require('./sqls/outbound_candidates.js');
+const outboundInst   = require('./sqls/outbound_candidates_inst.js');
+const instructionSql = require('./sqls/instruction.js');
 
 module.exports = {
   // 펼침연산자(spread operator, ...)을 활용해 객체의 필드를 다른 객체로 쉽게 복사
@@ -75,4 +77,6 @@ module.exports = {
   ...materialStock,
   ...outboundPicking,
   ...outboundCandidates,
+  ...outboundInst,
+  ...instructionSql,
 }
