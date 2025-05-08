@@ -4,6 +4,7 @@ const plans = require('./sqls/plans.js');
 const plan = require('./sqls/plan.js');
 const inst = require('./sqls/inst.js');
 const instH = require('./sqls/instHead.js');
+const instM = require('./sqls/inst_modal.js');
 const qcLog = require('./sqls/pQcLog.js');
 const prLogDt = require('./sqls/prLogDt.js');
 const prLog = require('./sqls/processLog.js');
@@ -47,6 +48,7 @@ module.exports = {
   ...plan,
   ...inst,
   ...instH,
+  ...instM,
   ...qcLog,
   ...prLogDt,
   ...prLog,

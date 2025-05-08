@@ -32,6 +32,7 @@ import MOutboundForm from '../views/MOutboundForm.vue';
 import ProductionInst from "@/views/ProductionInst.vue";
 import Process from "@/views/process.vue";
 import SFproduct from "../views/SFproduct.vue";
+import Material from "@/views/Material.vue";
 
 
 const routes = [
