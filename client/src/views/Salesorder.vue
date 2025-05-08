@@ -2,10 +2,10 @@
 <div class="sorder-container">
     <!-- 제목과 액션 버튼을 같은 행에 배치 -->
     <div class="header-container">
-      <div class="main-title">
+      <div class="main-title"> <!-- title -->
         <h2>거래업체 주문서 조회</h2>
       </div>
-      
+      <!-- 모든 버튼에 active 효과 / action-buttons 제외 하고 색깔 변경 -->
       <div class="action-buttons">
         <button class="btn btn-select" :class="{ active: activeAction === 'search' }" @click="showSearchModal">조회</button>
         <button class="btn btn-update" :class="{ active: activeAction === 'update' }" @click="goToAddSalesOrder">수정</button>
@@ -15,17 +15,18 @@
     </div>
     
     <!-- 필터 버튼과 정렬 버튼을 같은 행에 배치 -->
+    <!-- filter-buttons setFilter methods / sort-buttons sortBy methods -->
     <div class="filter-sort-container">
       <div class="filter-buttons">
         <button class="btn btn-filter" :class="{ active: activeFilter === 'all' }" @click="setFilter('all')">전체</button>
-        <button class="btn btn-filter" :class="{ active: activeFilter === 'planned' }" @click="setFilter('planned')">계획됨</button>
+        <button class="btn btn-filter" :class="{ active: activeFilter === 'planned' }" @click="setFilter('planned')">대기</button>
         <button class="btn btn-filter" :class="{ active: activeFilter === 'progress' }" @click="setFilter('progress')">진행중</button>
         <button class="btn btn-filter" :class="{ active: activeFilter === 'complete' }" @click="setFilter('complete')">완료</button>
       </div>
 
       <div class="sort-buttons">
-        <button class="btn btn-sort" :class="{ active: activeSort === 'delivery_date' }" @click="sortBy('delivery_date')">납기일자</button>
         <button class="btn btn-sort" :class="{ active: activeSort === 'order_code' }" @click="sortBy('order_code')">주문번호</button>
+        <button class="btn btn-sort" :class="{ active: activeSort === 'delivery_date' }" @click="sortBy('delivery_date')">납기일자</button>
         <button class="btn btn-sort" :class="{ active: activeSort === 'client_name' }" @click="sortBy('client_name')">거래처명</button>
         <button class="btn btn-sort" :class="{ active: activeSort === 'item_name' }" @click="sortBy('item_name')">품목명</button>
         <button class="btn btn-sort" :class="{ active: activeSort === 'client_mgr' }" @click="sortBy('client_mgr')">담당자</button>
@@ -37,6 +38,7 @@
       <table>
         <thead>
           <tr>
+            <!-- seletAll 초기 false / @change 해당 태그의 값이 변할 때 함수 or 특정 동작의 값이 실행-->
             <th><input type="checkbox" v-model="selectAll" @change="toggleSelectAll"></th>
             <th>주문번호</th>
             <th>거래처명</th>
@@ -156,7 +158,7 @@ export default {
       if (filter === 'all') {
         this.salesOrders = [...this.originalSalesOrders];
       } else if (filter === 'planned') {
-        this.salesOrders = this.originalSalesOrders.filter(order => order.status === '계획됨');
+        this.salesOrders = this.originalSalesOrders.filter(order => order.status === '대기');
       } else if (filter === 'progress') {
         this.salesOrders = this.originalSalesOrders.filter(order => order.status === '진행중');
       } else if (filter === 'complete') {
@@ -168,12 +170,13 @@ export default {
     sortBy(sortType) {
       this.activeSort = sortType; // 정렬 버튼 활성화
       
+      // localeCompare를 사용하여 문자열 정렬 -> 쿼리문으로 정렬하는게 될지 확인 후 수정 예정
       switch (sortType) {
-        case 'delivery_date':
-          this.salesOrders.sort((a, b) => new Date(b.delivery_date) - new Date(a.delivery_date));
-          break;
         case 'order_code':
           this.salesOrders.sort((a, b) => a.sorder_code.localeCompare(b.sorder_code));
+          break;
+        case 'delivery_date':
+          this.salesOrders.sort((a, b) => new Date(b.delivery_date) - new Date(a.delivery_date));
           break;
         case 'client_name':
           this.salesOrders.sort((a, b) => a.client_name.localeCompare(b.client_name));

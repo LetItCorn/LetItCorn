@@ -27,6 +27,7 @@ const mOrder = require('./sqls/m_order.js');
 const mInbound = require('./sqls/mInbound.js');
 const modal = require('./sqls/modal.js');
 const salesorder = require('./sqls/salesorder.js');
+const Insertsorder = require('./sqls/Insertsalesorder.js');
 const qcInspections = require('./sqls/qcInspections.js');
 const mOutbound        = require('./sqls/mOutbound.js');
 const mOrderDetail = require('./sqls/m_order_detail.js');
@@ -36,6 +37,8 @@ const mReturns = require('./sqls/m_returns.js');
 const materialStock = require('./sqls/materials_stock.js');
 const outboundPicking = require('./sqls/mOutboundPicking.js');
 const outboundCandidates = require('./sqls/outbound_candidates.js');
+const outboundInst   = require('./sqls/outbound_candidates_inst.js');
+const instructionSql = require('./sqls/instruction.js');
 
 module.exports = {
   // 펼침연산자(spread operator, ...)을 활용해 객체의 필드를 다른 객체로 쉽게 복사
@@ -56,6 +59,7 @@ module.exports = {
   ...defectCodes,
   ...commonCodes,
   ...employees,
+      ...Insertsorder,
   ...materials,
   ...lotInventory,
   ...purchaseorders,
@@ -75,4 +79,6 @@ module.exports = {
   ...materialStock,
   ...outboundPicking,
   ...outboundCandidates,
+  ...outboundInst,
+  ...instructionSql,
 }

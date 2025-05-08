@@ -88,6 +88,19 @@ export default {
   },
   created() {
     // Pinia store 에서 가져온 PASS 발주서
+    /**
+     *  created() 훅 프로세스 흐름:
+     * 
+     *  컴포넌트 생성 완료 -> created() 호출
+     * 
+     *  this.inboundStore.pendingOrders 호출 -> pending 배열 수신
+     * 
+     *  pending.map 각 개체에 min_qty, quality 추가
+     * 
+     *  this.inboundRows에 매핑 결과 할당
+     * 
+     *  this.selectedRows = [...this.inboundRows ] 초기 선택
+     */
     const pending = this.inboundStore.pendingOrders;
     this.inboundRows = pending.map(o => ({
       ...o,
@@ -97,11 +110,33 @@ export default {
     this.selectedRows = [...this.inboundRows];
   },
   methods: {
+    /**
+     * toggleAllRows 메서드 프로세스 흐름:
+     *  1) 사용자가 전체 선택 체크박스 클릭 -> change 이벤트 발생
+     * 
+     *  2) toggleAllRows(evt) 호출 -> evt.target.checked 확인
+     * 
+     *  3) evt.target.checked === true ? 전체 행 복사 : 빈 배열 할당
+     * 
+     *  4) this.selectedRows 변경 -> 뷰 자동 업데이트
+     * 
+     */
     toggleAllRows(evt) {
       this.selectedRows = evt.target.checked
         ? [...this.inboundRows]
         : [];
     },
+
+
+
+    /**
+     *  processInbound 메서드 프로세스 흐름:
+     *  1) 사용자가 입고 버튼 클릭 -> click 이벤트 발생
+     * 
+     *  2) processInbound() 호출 -> selectedRows.length 확인
+     * 
+     *  3) 선택된 행 없으면 alert & 함수 종료 
+     */
     async processInbound() {
       if (!this.selectedRows.length) {
         return alert('선택된 행이 없습니다.');
