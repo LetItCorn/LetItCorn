@@ -47,7 +47,6 @@ const itemInfo = `
        , unit_code
        , spec
   FROM items
-
   WHERE item_code = ?
 `;
 
@@ -67,8 +66,9 @@ const itemDelete = `
   DELETE FROM items
    WHERE item_code = ?
 `;
+// ======================================================================
 
-// 품목흐름 리스트
+// 1) 공정 흐름 리스트 : 특정품목에 등록된 전체 공정 흐름 목록을 가져오기 위한 SQL
 const itemProcessFlowsList = `
   SELECT A.item_code
         , A.item_name
@@ -80,26 +80,34 @@ const itemProcessFlowsList = `
         , B.sequence_order
         , B.process_header        
         FROM items A
-        INNER JOIN item_process_flows B
-        ON A.item_code = B.item_code
-        INNER JOIN processes C
+        JOIN item_process_flows B
+        ON A.item_code = B.item_code  
+        JOIN processes C
         ON B.process_header = C.process_header
         WHERE A.item_code = ?
         ORDER BY B.sequence_order ASC
 `;
 
-// 공정흐름 리스트
+// 2) 공정 흐름 리스트
 const processesList = `
-SELECT 
-process_code
-,process_header
-,process_name
-,duration_min
-FROM processes
-where 1=1
+  SELECT 
+        process_code
+        ,process_header
+        ,process_name
+        ,duration_min
+  FROM processes
+  where 1=1
 `;
 
-// 공정흐름 삭제
+
+// 3) 공정 흐름 등록(merge문 사용)
+const insertProcessItem =`
+INSERT INTO item_process_flows (item_code, process_header, sequence_order, duration)
+         VALUES (?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE process_header = VALUES(process_header)`;
+
+
+// 4) 공정 흐름 삭제
 const deleteProcessItem = `
 delete FROM item_process_flows WHERE process_header = ? AND item_code = ? AND sequence_order = ?
 `;
@@ -114,5 +122,6 @@ module.exports = {
   itemDelete,
   itemProcessFlowsList,
   processesList,
+  insertProcessItem,
   deleteProcessItem,
 };

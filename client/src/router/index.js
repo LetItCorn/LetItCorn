@@ -28,7 +28,6 @@ import Bom from '@/views/Bom.vue';
 // import MOutboundList from '../views/MOutboundList.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
-import Material from "@/views/Material.vue";
 import MOutboundForm from '../views/MOutboundForm.vue';
 import Process from "@/views/process.vue";
 
@@ -105,12 +104,12 @@ const routes = [
     name: 'Item', 
     component: Item,
   },
-  // {
-  //   // 자재관리 페이지
-  //   path: '/materials',
-  //   name: 'Material', 
-  //   component: Material,
-  // },
+   {
+     // 자재관리 페이지
+     path: '/materials',
+     name: 'Material', 
+     component: Material,
+   },
   {
     // BOM관리 페이지
 
