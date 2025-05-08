@@ -15,7 +15,6 @@ import MReturnForm   from '../views/MReturnForm.vue';
 import MReturnsList  from '../views/MReturnsList.vue';
 import Productionplan from "@/views/Productionplan_v2.vue";
 import Item from "@/views/Item.vue";
-import Material from "@/views/Material.vue";
 import Employee from "@/views/Employees.vue";
 import ProcessMain from "@/views/ProcessMain.vue";
 import Equipment from "@/views/Equipment.vue"; 
@@ -28,9 +27,10 @@ import Bom from '@/views/Bom.vue';
 // import MOutboundList from '../views/MOutboundList.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
-import Material from "@/views/Material.vue";
 import MOutboundForm from '../views/MOutboundForm.vue';
+import ProductionInst from "@/views/ProductionInst.vue";
 import Process from "@/views/process.vue";
+import SFproduct from "../views/SFproduct.vue";
 
 
 const routes = [
@@ -105,12 +105,12 @@ const routes = [
     name: 'Item', 
     component: Item,
   },
-  // {
-  //   // 자재관리 페이지
-  //   path: '/materials',
-  //   name: 'Material', 
-  //   component: Material,
-  // },
+   {
+     // 자재관리 페이지
+     path: '/materials',
+     name: 'Material', 
+     component: Material,
+   },
   {
     // BOM관리 페이지
 
@@ -151,8 +151,13 @@ const routes = [
     path: '/plans',
     name: 'ProductionPlanInquiry',
     component: ProductionPlanInquiry,
-  }
-  ,{ 
+  },
+  {
+    path: '/inst',
+    name: 'ProductionInst',
+    component: ProductionInst,
+  },
+  { 
 
     path: '/m_orders',
     name: 'MOrderForm',
@@ -202,7 +207,12 @@ const routes = [
     path: '/process',
     name:'process',
     component: Process
-  }
+  },
+  {
+    path: '/sf_product',
+    name:'sfproduct',
+    component: SFproduct 
+  },
 ];
 
 const router = createRouter({

@@ -32,6 +32,9 @@
 import { ref, onMounted } from 'vue'
 import { useInstStore } from '@/store/inst'
 import { storeToRefs } from 'pinia'
+import { AgGridVue } from "ag-grid-vue3"
+import "ag-grid-community/styles/ag-grid.css"
+import Datepicker from "@vuepic/vue-datepicker"
 import axios from 'axios'
 // Store 연결
 const instStore = useInstStore()
@@ -43,26 +46,28 @@ const endDate = ref('')
 const gridRef = ref(null)
 // 그리드 컬럼들어갈 값
 const columnDefs = [
-  { field: 'plans_head', headerName: '생산계획번호', checkboxSelection: true, headerCheckboxSelection: true },
-  { field: 'item_name', headerName: '품목명' },
-  { field: 'plans_vol', headerName: '생산계획수량' },
-  { field: 'plan_start', headerName: '시작일' },
-  { field: 'plan_end', headerName: '종료일' },
-  { field: 'plan_stat', headerName: '계획상태' },
+  { field: 'select',  checkboxSelection: true, headerCheckboxSelection: true, pinned: "left", width: 50},
+  { field: 'plans_head', headerName: '생산계획번호'},
+  { field: 'item_name', headerName: '품목명'},
+  { field: 'spec', headerName: '규격'},
+  { field: 'plans_vol', headerName: '생산계획수량'},
+  { field: 'plan_start', headerName: '시작일'},
+  { field: 'plan_end', headerName: '종료일'},
+  { field: 'plan_stat', headerName: '계획상태'},
 ]
-// grid ready 시 초기 데이터 로딩 가능
+// grid ready 시 초기 데이터 로딩 
 function onGridReady(params) {
   gridRef.value = params.api
 }
 
 // 조회 버튼
 async function handleSearch() {
-  const res = await axios.get('/api/plan', {
-    params: {
-      from: startDate.value,
-      to: endDate.value
-    }
-  })
+  const res = axios.get('/api/plan', {
+  params: {
+    startDate: selectedStartDate || null,
+    endDate: selectedEndDate || null
+  }
+  });
   instStore.setPlanModalData(res.data)
 }
 

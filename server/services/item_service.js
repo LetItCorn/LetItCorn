@@ -2,7 +2,7 @@
 
 const mariaDB = require('../database/mapper.js');
 
-// 1) 전체조회 + 조건검색
+// 1) 품목 전체조회 + 조건검색
 //    filters: { code: string, name: string, type: string }
 const findItems = async (filters = {}) => {
   // 기본 빈 문자열로 초기화해야 SQL에서 (? = '' OR ...) 구문이 동작합니다
@@ -21,7 +21,7 @@ const findItems = async (filters = {}) => {
   return list;
 };
 
-// 1-a) 코드 단독 조회
+// 1-a) 품목 코드 단독 조회
 const findItemsByCode = async (code) => {
   const list = await mariaDB
     .query('itemListByCode', [code])
@@ -32,7 +32,7 @@ const findItemsByCode = async (code) => {
   return list;
 };
 
-// 1-b) 명칭 단독 조회
+// 1-b) 품목 명칭 단독 조회
 const findItemsByName = async (name) => {
   const list = await mariaDB
     .query('itemListByName', [name])
@@ -43,7 +43,7 @@ const findItemsByName = async (name) => {
   return list;
 };
 
-// 1-c) 타입 단독 조회
+// 1-c) 품목 타입 단독 조회
 const findItemsByType = async (type) => {
   const list = await mariaDB
     .query('itemListByType', [type])
@@ -54,7 +54,7 @@ const findItemsByType = async (type) => {
   return list;
 };
 
-// 2) 단건조회
+// 2) 품목 단건조회
 const findByItem = async (itemCode) => {
   const rows = await mariaDB
     .query('itemInfo', [itemCode])
@@ -65,7 +65,7 @@ const findByItem = async (itemCode) => {
   return rows[0] || null;
 };
 
-// 등록/수정 (MERGE)
+// 3) 품목 등록/수정 (MERGE)
 const saveItem = async (item) => {
   const params = [
     item.item_code,
@@ -82,7 +82,7 @@ const saveItem = async (item) => {
   }
 };
 
-// 5) 삭제
+// 4) 품목 삭제
 const deleteItem = async (itemCode) => {
   const result = await mariaDB
     .query('itemDelete', [itemCode])
@@ -93,8 +93,9 @@ const deleteItem = async (itemCode) => {
   return result;
 };
 
+// =================================================================
 
-// 6) 품목공정 흐름도 조회
+// 1) 공정 흐름도 조회
 const itemProcessFlowsList = async (itemCode) => {  
   const list = await mariaDB
     .query('itemProcessFlowsList', [itemCode])
@@ -119,20 +120,18 @@ const processesList = async () => {
 };
 
 
-// 3) 등록
+// 2) 공정 흐름도 등록
 const saveProcessFlows = async (flows) => {
   const conn = await mariaDB.getConnection();
   await conn.beginTransaction();
 
   try {
     for (const flow of flows) {
-      const { item_code, process_header, sequence_order } = flow;
+      const { item_code, process_header, sequence_order, duration } = flow;
 
       await conn.query(
-        `INSERT INTO item_process_flows (item_code, process_header, sequence_order)
-         VALUES (?, ?, ?)
-         ON DUPLICATE KEY UPDATE process_header = VALUES(process_header)`,
-        [item_code, process_header, sequence_order]
+        'insertProcessItem',
+        [item_code, process_header, sequence_order, duration]
       );
     }
 
@@ -146,6 +145,8 @@ const saveProcessFlows = async (flows) => {
     throw err;
   }
 };
+
+// 3) 공정 흐름도 삭제 
 const deleteProcessItem = async (req) => {  
   const { process_header, item_code, sequence_order } = req.body;    
   const list = await mariaDB

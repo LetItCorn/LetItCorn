@@ -1,4 +1,3 @@
-
 <style scoped>
 .selected {
   background-color: #d0ebff; /* 연한 하늘색 */
@@ -13,6 +12,7 @@
         <div class="card">
           <div class="card-body d-flex align-items-center">
             <div class="ms-auto d-flex align-items-center">
+              <!-- 필터 유형 선택 -->
               <select
                 v-model="searchType"
                 class="form-control form-control-sm me-2 border"
@@ -23,7 +23,7 @@
                 <option value="name">품목명</option>
                 <option value="type">구분</option>
               </select>
-
+              <!-- 필터 입력 -->
               <input
                 v-model="searchValue"
                 :placeholder="filterPlaceholder"
@@ -31,9 +31,11 @@
                 style="width:200px"
               />
 
+              <!-- 조회 버튼 -->
               <button @click="loadItems" class="btn btn-sm btn-primary me-2" style="width:80px;">
                 조회
               </button>
+              <!-- 초기화 버튼 -->
               <button @click="resetFilter" class="btn btn-sm btn-outline-secondary" style="width:80px;">
                 초기화
               </button>
@@ -60,19 +62,21 @@
                 </tr>
               </thead>
               <tbody>
+                <!-- 리스트 반복 렌더링 -->
                 <tr
                   v-for="item in itemList"
                   :key="item.item_code"
                   @click="selectItem(item)"
-                  :class="{'table-active': item.item_code === selected.item_code} "
+                  :class="{'table-active': item.item_code === selected.item_code}"
                   style="cursor:pointer"
-                >                  
+                >
                   <td>{{ item.item_code }}</td>
                   <td>{{ item.item_name }}</td>
                   <td>{{ item.item_type }}</td>
                   <td>{{ item.unit_code }}</td>
                   <td>{{ item.spec }}</td>
                 </tr>
+                <!-- 데이터 없을 때 -->
                 <tr v-if="itemList.length === 0">
                   <td colspan="5" class="text-center py-4">데이터가 없습니다.</td>
                 </tr>
@@ -88,6 +92,7 @@
         <div class="card flex-fill mb-2">
           <div class="card-body d-flex flex-column">
             <div class="form-row flex-fill">
+              <!-- 품목코드 (읽기전용) -->
               <div class="form-group col-6">
                 <label>품목코드</label>
                 <input
@@ -96,33 +101,37 @@
                   readonly
                 />
               </div>
+              <!-- 품목명 -->
               <div class="form-group col-6">
                 <label>품목명</label>
                 <input v-model="selected.item_name" class="form-control form-control-sm" />
               </div>
+              <!-- 구분 -->
               <div class="form-group col-6">
                 <label>구분</label>
                 <input v-model="selected.item_type" class="form-control form-control-sm" />
               </div>
+              <!-- 단위 -->
               <div class="form-group col-6">
                 <label>단위</label>
                 <input v-model="selected.unit_code" class="form-control form-control-sm" />
               </div>
+              <!-- 규격 -->
               <div class="form-group col-12">
                 <label>규격</label>
                 <input v-model="selected.spec" class="form-control form-control-sm" />
               </div>
             </div>
             <div class="mt-auto d-flex justify-content-end">
+              <!-- 초기화: 신규 등록용 기본값 세팅 -->
               <button @click="clearDetail" class="btn btn-sm btn-outline-secondary mr-2" style="width:80px;">
                 초기화
               </button>
-              <button @click="createItem" class="btn btn-sm btn-warning mr-2" style="width:80px;">
+              <!-- 등록/수정 병합 버튼 (머지문 사용) -->
+              <button @click="saveItem" class="btn btn-sm btn-warning mr-2" style="width:80px;">
                 등록
               </button>
-              <button @click="updateItem" class="btn btn-sm btn-success mr-2" style="width:80px;">
-                수정
-              </button>
+              <!-- 삭제 -->
               <button @click="deleteItem" class="btn btn-sm btn-danger" style="width:80px;">
                 삭제
               </button>
@@ -150,70 +159,76 @@
                 </tr>
               </thead>
               <tbody>
+                <!-- 공정 흐름 리스트 반복 -->
                 <template v-if="itemProcessFlowsList.length > 0">
-                  <tr v-for="group in itemProcessFlowsList" :key="group.sequence_order"  :class="{ selected: selectedSeq === group.sequence_order }" @click="selectProcessItemFunc(group)"  >
-                    <!-- ✅ group에 item_code가 있으면 기존 행 -->
-                    <template v-if="group?.isAdding != true">
-                      <td  >{{ group.sequence_order }}</td>
+                  <tr
+                    v-for="group in itemProcessFlowsList"
+                    :key="group.sequence_order"
+                    :class="{ selected: selectedSeq === group.sequence_order }"
+                    @click="selectProcessItemFunc(group)"
+                  >
+                  <!-- 기존 흐름 행 -->
+                    <template v-if="!group.isAdding">
+                      <td>{{ group.sequence_order }}</td>
+                      <td>{{ group.process_name }}</td>
                       <td>
-                        <div>
-                          {{ group.process_name }}
-                        </div>
-                      </td>
-                      <td>
-                        <div>                      
-                          <input
-                            v-model="group.duration"
-                            class="form-control form-control-sm text-center mb-1"
-                            :placeholder="`예: ${group.duration_min}분`"
-                          />
-                        </div>
+                        <input
+                          v-model="group.duration"
+                          class="form-control form-control-sm text-center mb-1"
+                          :placeholder="`예: ${group.duration_min}분`"
+                        />
                       </td>
                     </template>
-
-                    <!-- ❌ item_code 없으면 빈 행 보여주기 -->
+                    <!-- 새로 추가 중인 빈 행 -->
                     <template v-else>
                       <td>{{ group.sequence_order }}</td>
-                      <td >                      
-                          <select  v-model="group.process_header"  @change="handleProcessSelect(group)">
-                            <option value="">-- 선택하세요 --</option>
-                            <option v-for="item in processesListArr" :key="item.process_header" :value="item.process_header">
-                              {{ item.process_name }}
-                            </option>
-                          </select>        
-                      </td>
                       <td>
-                         
+                        <select v-model="group.process_header" @change="handleProcessSelect(group)">
+                          <option value="">-- 선택하세요 --</option>
+                          <option
+                            v-for="item in processesListArr"
+                            :key="item.process_header"
+                            :value="item.process_header"
+                          >
+                            {{ item.process_name }}
+                          </option>
+                        </select>
                       </td>
+                      <td></td>
                     </template>
                   </tr>
                 </template>
+                <!-- 공정 흐름 없을 때 -->
                 <tr v-else>
-                  <td colspan="2" class="text-center">등록된 공정이 없습니다.</td>
+                  <td colspan="3" class="text-center">등록된 공정이 없습니다.</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
+        
       </div>
     </div>
   </div>
 </template>
 
-
 <script>
-
 import axios from 'axios';
 
 export default {
   name: 'Item',
   data() {
     return {
+      // 검색 필터
       searchType: '',
       searchValue: '',
+      // 메인 데이터
       itemList: [],
+      // 선택된 품목의 공정 흐름
       itemProcessFlowsList: [],
-      processesListArr : [],
+      // 전체 공정 목록 (설렉트 옵션)
+      processesListArr: [],
+      // 현재 선택된/편집 중인 품목
       selected: {
         item_code: '',
         item_name: '',
@@ -221,11 +236,13 @@ export default {
         unit_code: '',
         spec: ''
       },
-      selectedSeq: null, 
-      selectProcessItem:{},
+      // 공정 흐름에서 선택된 행
+      selectedSeq: null,
+      selectProcessItem: {}
     };
   },
   computed: {
+    // 필터 박스 placeholder 결정
     filterPlaceholder() {
       switch (this.searchType) {
         case 'code': return '품목코드';
@@ -235,11 +252,15 @@ export default {
       }
     }
   },
+
+  // 컴포넌트 생성 시 초기 데이터 로드
   async created() {
     await this.loadItems();
-    this.processesList();
+    await this.processesList();
   },
+
   methods: {
+    // 1) 품목 리스트 조회 + 필터 적용
     async loadItems() {
       const params = {
         code: this.searchType === 'code' ? this.searchValue : '',
@@ -252,43 +273,37 @@ export default {
       } catch {
         this.itemList = [];
       } finally {
+        // 목록 갱신 후 신규 등록용 초기화
         this.clearDetail();
       }
-    },   
+    },
+
+    // 필터 초기화
     resetFilter() {
       this.searchType = '';
       this.searchValue = '';
       this.loadItems();
     },
-    async selectItem(item) {
+
+    // 리스트 행 클릭 -> 상세 데이터 바인딩 + 공정 흐름 로드
+    selectItem(item) {
       this.selected = { ...item };
-
-      
-      //let response = await axios.put(`/items/itemProcessFlowsList/${this.selected.item_code}`,'');
-      //await axios.put(`/api/items/${this.selected.item_code}`, this.selected);
-      //this.loadItems();
-      
-      // try {
-       // const response = await axios.get(`/api/items/itemProcessFlowsList/${this.selected.item_code}`,this.selected);
-        //this.itemProcessFlowsList = response.data;        
-      //} catch {
-      //  this.itemProcessFlowsList = [];
-      //}
-      
-
       this.fetchProcessFlows(item.item_code);
     },
+
+    // 신규 등록 혹은 초기화: 자동 코드 생성 포함
     clearDetail() {
-      // 자동 코드는 현재 리스트에서 최대 숫자 찾아 생성
+      // 자동 코드 생성
       let nextNum = 1;
       if (this.itemList.length) {
-        const nums = this.itemList
-          .map(i => {
-            const n = parseInt(i.item_code.replace(/^ITM/, ''), 10);
-            return isNaN(n) ? 0 : n;
-          });
+        // 기존 코드에서 숫자 부분만 추출해 최대값 구함
+        const nums = this.itemList.map(i => {
+          const n = parseInt(i.item_code.replace(/^ITM/, ''), 10);
+          return isNaN(n) ? 0 : n;
+        });
         nextNum = Math.max(...nums) + 1;
       }
+      // 'ITM' + 3자리 숫자 포맷
       const nextCode = 'ITM' + String(nextNum).padStart(3, '0');
       this.selected = {
         item_code: nextCode,
@@ -299,21 +314,22 @@ export default {
       };
       this.itemProcessFlowsList = [];
     },
+
+    // 2) 등록/수정(머지문으로 처리) 호출
     async saveItem() {
       try {
-        const exists = this.itemList.some(i => i.item_code === this.selected.item_code);
-        if (exists) {
-          await axios.put(`/api/items/${this.selected.item_code}`, this.selected);
-        } else {
-          await axios.post('/api/items', this.selected);
-        }
+        // MERGE 구문을 사용하는 POST /api/items 엔드포인트 호출
+        await axios.post('/api/items', this.selected);
+        // 저장 후 목록 갱신
         await this.loadItems();
       } catch (err) {
         console.error('saveItem error', err);
       }
     },
+
+    // 3) 품목 삭제
     async deleteItem() {
-      if (!this.selected.item_code) return;
+      if (!this.selected.item_code) return; // 삭제할 item_code가 비어 있으면 아무것도 하지 않고 함수를 빠져나감
       try {
         await axios.delete(`/api/items/${this.selected.item_code}`);
         await this.loadItems();
@@ -321,6 +337,8 @@ export default {
         console.error('deleteItem error', err);
       }
     },
+
+    // 4) 선택된 품목의 공정 흐름 조회
     async fetchProcessFlows(code) {
       try {
         const res = await axios.get(`/api/items/itemProcessFlowsList/${code}`);
@@ -329,6 +347,8 @@ export default {
         this.itemProcessFlowsList = [];
       }
     },
+
+    // 5) 공정 흐름 추가 (빈 행)
     addProcessFlow() {
       const nextSeq = this.itemProcessFlowsList.length
         ? Math.max(...this.itemProcessFlowsList.map(f => Number(f.sequence_order))) + 1
@@ -340,6 +360,8 @@ export default {
         isAdding: true
       });
     },
+
+    // 6) 공정 흐름 저장 (트랜잭션 처리)
     async saveProcessFlows() {
       try {
         await axios.post('/api/saveProcessFlows', { flows: this.itemProcessFlowsList });
@@ -348,6 +370,8 @@ export default {
         console.error('saveProcessFlows error', err);
       }
     },
+
+    // 7) 공정 흐름 행 삭제
     async deleteProcessItem() {
       if (!this.selectProcessItem.sequence_order) return;
       try {
@@ -355,6 +379,8 @@ export default {
         this.fetchProcessFlows(this.selected.item_code);
       } catch {}
     },
+
+    // 8) 전체 공정 목록 조회 (셀렉트 옵션)
     async processesList() {
       try {
         const res = await axios.get('/api/items/processesList');
@@ -363,9 +389,13 @@ export default {
         this.processesListArr = [];
       }
     },
+
+    // 공정 선택 콜백 (현재 사용 안함)
     handleProcessSelect(group) {
       // noop
     },
+
+    // 공정 흐름 테이블에서 행 선택
     selectProcessItemFunc(group) {
       this.selectedSeq = group.sequence_order;
       this.selectProcessItem = group;
