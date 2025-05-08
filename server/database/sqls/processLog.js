@@ -6,10 +6,12 @@ const selectInst =
         lot_cnt, 
         item_code, 
         iord_no, 
-        ins_stat
+        ins_stat,
+        '' as cur_cnt,
+        '' as state
   FROM inst_header h JOIN inst i
                       ON  h.inst_head = i.inst_head
-  WHERE ins_stat = 'J02'`
+  WHERE inst_stat = 'J02'`
 ;
 
 const selectProcessLog =
