@@ -27,9 +27,9 @@ import Bom from '@/views/Bom.vue';
 // import MOutboundList from '../views/MOutboundList.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
-import Material from "@/views/Material.vue";
 import MOutboundForm from '../views/MOutboundForm.vue';
 import ProductionInst from "@/views/ProductionInst.vue";
+import Process from "@/views/process.vue";
 
 
 const routes = [
@@ -202,6 +202,11 @@ const routes = [
     name: 'QCHistory',
     component: QCHistory
   },
+  {
+    path: '/process',
+    name:'process',
+    component: Process
+  }
 ];
 
 const router = createRouter({
