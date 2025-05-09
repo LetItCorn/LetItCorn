@@ -1,8 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue"; // 기본 대시보드
+
+// 영업팀 권대리
 import Login from "../views/LoginView.vue";
 import Sorder from "../views/Salesorder.vue";
-// import InsertSorder from "../views/Insertsalesorder.vue";
+import InsertSorder from "../views/Insertsalesorder.vue";
+//
+
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
 import RTL from "../views/Rtl.vue";
@@ -15,7 +19,6 @@ import MReturnForm   from '../views/MReturnForm.vue';
 import MReturnsList  from '../views/MReturnsList.vue';
 import Productionplan from "@/views/Productionplan_v2.vue";
 import Item from "@/views/Item.vue";
-import Material from "@/views/Material.vue";
 import Employee from "@/views/Employees.vue";
 import ProcessMain from "@/views/ProcessMain.vue";
 import Equipment from "@/views/Equipment.vue"; 
@@ -25,7 +28,6 @@ import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
 import MOrderForm from '../views/MOrderForm.vue';
 import MOrdersList from '../views/MOrdersList.vue';
 import Bom from '@/views/Bom.vue';
-// import MOutboundList from '../views/MOutboundList.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
 import MOutboundForm from '../views/MOutboundForm.vue';
@@ -33,7 +35,6 @@ import ProductionInst from "@/views/ProductionInst.vue";
 import Process from "@/views/process.vue";
 import SFproduct from "../views/SFproduct.vue";
 import Material from "@/views/Material.vue";
-
 
 const routes = [
   {
@@ -56,11 +57,11 @@ const routes = [
     name: "Salesorder",
     component: Sorder,
   },
-  // {
-  //   path: "/insertsalesorder",
-  //   name: "Insertsalesorder",
-  //   component: InsertSorder,
-  // },
+  {
+    path: "/insertsalesorder",
+    name: "Insertsalesorder",
+    component: InsertSorder,
+  },
   {
     path: "/tables",
     name: "Tables",
@@ -107,12 +108,12 @@ const routes = [
     name: 'Item', 
     component: Item,
   },
-  //  {
-  //    // 자재관리 페이지
-  //    path: '/materials',
-  //    name: 'Material', 
-  //    component: Material,
-  //  },
+  {
+    // 자재관리 페이지
+    path: '/materials',
+    name: 'Material', 
+    component: Material,
+  },
   {
     // BOM관리 페이지
 

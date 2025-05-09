@@ -1,5 +1,7 @@
 <template>
+  <!-- 주문서 등록 페이지 메인 컨테이너 -->
   <div class="Insertorder-container">
+    <!-- 제목 title, action button을 포함하는 컨테이너-->
     <div class="header-container">
       <div class="main-title">
         <h2>주문서 등록</h2>
@@ -11,6 +13,7 @@
       </div>
     </div>
     
+    <!-- 주문서 등록 form -->
     <div class="form-container">
       <div class="form-group">
         <label>주문번호</label>
@@ -47,16 +50,6 @@
         <input type="number" v-model.number="orderData.sorderCount" min="1">
       </div>
       
-      <!-- <div class="form-group">
-        <label>출하창고</label>
-        <select v-model="selectedWarehouse" @change="handleWarehouseChange">
-          <option value="">창고를 선택하세요</option>
-          <option v-for="warehouse in warehouses" :key="warehouse.warehouse_code" :value="warehouse">
-            {{ warehouse.warehouse_name }}
-          </option>
-        </select>
-      </div> -->
-      
       <div class="form-group">
         <label>납기일자</label>
         <input type="date" v-model="orderData.deliveryDate">
@@ -74,27 +67,25 @@ export default {
     return {
       orderData: {
         sorderCode: '',
+        clientCode: '',
         clientName: '',
         clientMgr: '',
+        itemCode: '',
         itemName: '',
-        sorderCount: 1,
-        // warehouseName: '',
+        sorderCount: 100,
         deliveryDate: this.getTodayDate(),
-        status: '대기', // 기본 상태 추가
-        empId: 'EMP01' // 현재 로그인한 사용자 ID
+        status: '대기', // 첫 주문서 등록 상태는 대기
+        empId: 'EMP02' // 로그인한 사용자 ID로 설정할 예정 (추후 수정합니다.)
       },
       selectedClient: '',
       selectedItem: '',
-      // selectedWarehouse: '',
       clients: [],
       items: [],
-      // warehouses: []
     };
   },
   created() {
     this.fetchClients();
     this.fetchItems();
-    // this.fetchWarehouses();
     this.orderData.sorderCode = this.generateOrderCode();
   },
   methods: {
@@ -113,8 +104,8 @@ export default {
     },
     // 오늘 날짜 가져오기
     getTodayDate() {
-      const now = new Date();
-      return now.toISOString().split('T')[0];
+      const now = new Date(); // 현재 날짜 date 객체 생성
+      return now.toISOString().split('T')[0]; // YYYY-MM-DDTHH:mm:ss.sssZ 형식으로 변환 날짜와 시간을 T로 구분을 하니 split을 통해 날짜만 가져옴
     },
     // 거래처 목록 조회
     async fetchClients() {
@@ -144,27 +135,15 @@ export default {
         });
       }
     },
-    // 창고 목록 조회
-    // async fetchWarehouses() {
-    //   try {
-    //     const response = await axios.get('/api/warehouses');
-    //     this.warehouses = response.data;
-    //   } catch (error) {
-    //     console.error('창고 목록을 가져오는 중 오류 발생:', error);
-    //     Swal.fire({
-    //       icon: 'error',
-    //       title: '데이터 로딩 실패',
-    //       text: '창고 목록을 불러오는데 실패했습니다.'
-    //     });
-    //   }
-    // },
     // 거래처 선택 시 담당자 정보 자동 입력
     // 거래처 선택 시 clientCode 저장
     handleClientChange() {
       if (this.selectedClient) {
+        this.orderData.clientCode = this.selectedClient.client_code;
         this.orderData.clientName = this.selectedClient.client_name;
         this.orderData.clientMgr = this.selectedClient.client_mgr;
       } else {
+        this.orderData.clientCode = '';
         this.orderData.clientName = '';
         this.orderData.clientMgr = '';
       }
@@ -172,19 +151,13 @@ export default {
     // 품목 선택 시 itemname 저장
     handleItemChange() {
       if (this.selectedItem) {
+        this.orderData.itemCode = this.selectedItem.item_code;
         this.orderData.itemName = this.selectedItem.item_name;
       } else {
+        this.orderData.itemCode = '';
         this.orderData.itemName = '';
       }
     },
-    // 창고 선택 시 창고명 설정
-    // handleWarehouseChange() {
-    //   if (this.selectedWarehouse) {
-    //     this.orderData.warehouseName = this.selectedWarehouse.warehouse_name;
-    //   } else {
-    //     this.orderData.warehouseName = '';
-    //   }
-    // },
     // 주문서 등록
     async registerSalesOrder() {
       // 필수 항목 검증
@@ -193,30 +166,37 @@ export default {
       }
 
       let obj ={
-        sorder_code:this.orderinfo.sorder_code,
-        client_name:this.orderinfo.client_name,
-        client_mgr:this.orderinfo.client_mgr,
-        item_name:this.orderinfo.item_name,
-        delivery_date:this.orderinfo.delivery_date,
-        sorder_count:this.orderinfo.sorder_count,
-        status:this.orderinfo.status,
-        emp_id:this.orderinfo.emp_id
+        sorder_code:this.orderData.sorderCode,
+        client_code:this.orderData.clientCode,
+        item_code:this.orderData.itemCode,
+        delivery_date:this.orderData.deliveryDate,
+        sorder_count:this.orderData.sorderCount,
+        status:this.orderData.status,
+        emp_id:this.orderData.empId
       }
+
+      console.log(obj);
       
       try {
-        const response = await axios.post('/api/salesorders', obj);
+        let response = await axios.post('/api/salesorders', obj);
         
         let addRes = response.data;
-        if(addRes.isSuccessed){
+        console.log(addRes);
+        if(addRes.isSuccessed) {
           Swal.fire({
             icon: 'success',
             title: '등록 완료',
             text: '주문서가 성공적으로 등록되었습니다.'
           });
+          this.goBack();
+        } else {
+          console.log("등록 실패: ", response.data);
+          Swal.fire({
+            icon: 'error',
+            title: '등록 실패',
+            text: '주문서 등록 실패'
+          });
         }
-        // 등록 성공 후 목록 페이지로 이동
-        this.goBack();
-        
       } catch (error) {
         console.error('주문서 등록 중 오류 발생:', error);
         Swal.fire({
@@ -228,7 +208,7 @@ export default {
     },
     // 폼 유효성 검사
     validateForm() {
-      if (!this.orderData.clientName) {
+      if (!this.orderData.clientCode) {
         Swal.fire({
           icon: 'warning',
           title: '입력 오류',
@@ -237,7 +217,7 @@ export default {
         return false;
       }
       
-      if (!this.orderData.itemName) {
+      if (!this.orderData.itemCode) {
         Swal.fire({
           icon: 'warning',
           title: '입력 오류',
@@ -255,15 +235,6 @@ export default {
         return false;
       }
       
-      // if (!this.orderData.warehouseName) {
-      //   Swal.fire({
-      //     icon: 'warning',
-      //     title: '입력 오류',
-      //     text: '출하창고를 선택해주세요.'
-      //   });
-      //   return false;
-      // }
-      
       if (!this.orderData.deliveryDate) {
         Swal.fire({
           icon: 'warning',
@@ -275,9 +246,9 @@ export default {
       
       return true;
     },
-    // 목록 페이지로 이동
+    // 주문서 조회 페이지로 이동
     goBack() {
-      this.$router.push({ name: 'Salesorder' });
+      this.$router.replace({ name: 'Salesorder' }); // url 이동을 하지만, push와 다른 점은 히스토리 스택을 쌓지 않는다. 단순히 현재 페이지 전환하는 역할
     }
   }
 };
@@ -324,11 +295,16 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 0 20px;
-  border-radius: 4px;
-  border: none;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: bold;
+  font-size: 16px !important;
   transition: all 0.3s ease;
+  width: 100px;
+  margin-bottom: 0 !important;
+  background-color: #000 !important;
+  color: #fff !important;
+  border-radius: 10px;
+  border: 1px solid #000 !important;
 }
 
 .btn-register {
@@ -345,6 +321,8 @@ export default {
 
 /* 폼 스타일 */
 .form-container {
+  width: 500px;
+  margin: 0 auto;
   background-color: #f9f9f9;
   border-radius: 8px;
   padding: 30px;
@@ -388,15 +366,4 @@ export default {
   font-family: inherit;
 }
 
-/* 버튼 호버 효과 */
-.btn:hover {
-  opacity: 0.9;
-}
-
-@media (min-width: 768px) {
-  .form-container {
-    max-width: 700px;
-    margin: 0 auto;
-  }
-}
 </style>

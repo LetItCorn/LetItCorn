@@ -271,7 +271,7 @@ export default {
       
       Swal.fire({
         title: '주문서를 정말 삭제하시겠어요?',
-        text: "이 작업은 되돌릴 수 없습니다!",
+        text: "이 작업은 되돌릴 수 없어요.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',

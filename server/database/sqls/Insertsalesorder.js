@@ -3,13 +3,11 @@ module.exports = {
   insertSalesOrder: 
   `INSERT INTO salesorder (
     sorder_code, 
-    client_name,
-    client_mgr,
-    item_name, 
+    client_code,
+    item_code, 
     delivery_date, 
-    sorder_count, 
+    sorder_count,
     status,
     emp_id
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-
+  ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 }
