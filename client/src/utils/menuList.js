@@ -150,32 +150,36 @@ const menuConfig = {
   },
   관리: {
     "사원": [{
-      name: "사원목록",
+      name: "사원 관리",
       path: 'employees'
     }, ],
     "품목": [{
-      name: "품목 목록",
+      name: "품목 관리",
       path: 'items'
     }, ],
     "자재": [{
-      name: "자재 목록",
+      name: "자재 관리",
       path: 'materials'
     }, ],
     "설비": [{
-      name: "설비 목록",
+      name: "설비 관리",
       path: 'equipments'
     }, ],
     "공정": [{
-      name: "공정 목록",
+      name: "공정 관리",
       path: 'processes'
     }, ],
     "불량": [{
-      name: "불량 목록",
+      name: "불량 관리",
       path: 'defects'
     }, ],
     "BOM": [{
-      name: "BOM 목록",
+      name: "BOM 관리",
       path: 'boms'
+    }, ],
+    "공통코드": [{
+      name: "공통코드 관리",
+      path: 'common_codes'
     }, ],
   }
 

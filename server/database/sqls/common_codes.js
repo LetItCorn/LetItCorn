@@ -19,7 +19,13 @@ const commonCodesList = `
 
 // 1-a) 그룹별 조회
 const commonCodesByGroup = `
-  SELECT code_group, code_rear, code_name, use_yn, comm_etc, code_values
+  SELECT
+    code_group,
+    code_rear,
+    code_name,
+    use_yn,
+    comm_etc,
+    code_values
   FROM common_codes
   WHERE code_group = ?
   ORDER BY code_rear
@@ -27,7 +33,13 @@ const commonCodesByGroup = `
 
 // 1-b) 코드 후위별 조회
 const commonCodesByRear = `
-  SELECT code_group, code_rear, code_name, use_yn, comm_etc, code_values
+  SELECT
+    code_group,
+    code_rear,
+    code_name,
+    use_yn,
+    comm_etc,
+    code_values
   FROM common_codes
   WHERE code_rear = ?
   ORDER BY code_group
@@ -35,7 +47,13 @@ const commonCodesByRear = `
 
 // 1-c) 명칭별 조회 (LIKE 검색)
 const commonCodesByName = `
-  SELECT code_group, code_rear, code_name, use_yn, comm_etc, code_values
+  SELECT
+    code_group,
+    code_rear,
+    code_name,
+    use_yn,
+    comm_etc,
+    code_values
   FROM common_codes
   WHERE code_name LIKE CONCAT('%', ?, '%')
   ORDER BY code_group, code_rear
@@ -43,7 +61,13 @@ const commonCodesByName = `
 
 // 1-d) 사용여부별 조회
 const commonCodesByUseYn = `
-  SELECT code_group, code_rear, code_name, use_yn, comm_etc, code_values
+  SELECT
+    code_group,
+    code_rear,
+    code_name,
+    use_yn,
+    comm_etc,
+    code_values
   FROM common_codes
   WHERE use_yn = ?
   ORDER BY code_group, code_rear
@@ -51,41 +75,36 @@ const commonCodesByUseYn = `
 
 // 2) 단건 조회 (code_group + code_rear 기준)
 const commonCodeInfo = `
-  SELECT code_group
-       , code_rear
-       , code_name
-       , use_yn
-       , comm_etc
-       , code_values
+  SELECT
+    code_group,
+    code_rear,
+    code_name,
+    use_yn,
+    comm_etc,
+    code_values
   FROM common_codes
   WHERE code_group = ?
     AND code_rear  = ?
 `;
 
-// 3) 등록 (INSERT)
-const commonCodeInsert = `
+// 3) 등록/수정 (INSERT ... ON DUPLICATE KEY UPDATE)
+const commonCodeUpsert = `
   INSERT INTO common_codes (
-    code_group
-  , code_rear
-  , code_name
-  , use_yn
-  , comm_etc
-  , code_values
+    code_group,
+    code_rear,
+    code_name,
+    use_yn,
+    comm_etc,
+    code_values
   ) VALUES (?, ?, ?, ?, ?, ?)
+  ON DUPLICATE KEY UPDATE
+    code_name   = VALUES(code_name),
+    use_yn      = VALUES(use_yn),
+    comm_etc    = VALUES(comm_etc),
+    code_values = VALUES(code_values)
 `;
 
-// 4) 수정 (UPDATE)
-const commonCodeUpdate = `
-  UPDATE common_codes
-     SET code_name   = ?
-       , use_yn       = ?
-       , comm_etc     = ?
-       , code_values  = ?
-   WHERE code_group = ?
-     AND code_rear  = ?
-`;
-
-// 5) 삭제 (DELETE)
+// 4) 삭제 (DELETE)
 const commonCodeDelete = `
   DELETE FROM common_codes
    WHERE code_group = ?
@@ -99,7 +118,6 @@ module.exports = {
   commonCodesByName,
   commonCodesByUseYn,
   commonCodeInfo,
-  commonCodeInsert,
-  commonCodeUpdate,
+  commonCodeUpsert,
   commonCodeDelete
 };

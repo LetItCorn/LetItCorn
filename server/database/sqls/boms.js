@@ -74,7 +74,6 @@ const bomComponentsList = `
        , spec
        , unit_code
        , quantity
-       , mater_id
   FROM bom_components
   WHERE bom_id = ?
   ORDER BY item_seq_id
@@ -90,7 +89,6 @@ const bomComponentInfo = `
        , spec
        , unit_code
        , quantity
-       , mater_id
   FROM bom_components
   WHERE item_seq_id = ?
 `;
@@ -98,8 +96,8 @@ const bomComponentInfo = `
 // 3) 등록 (INSERT)
 const bomComponentInsert = `
   INSERT INTO bom_components
-    (item_seq_id, bom_id, mater_code, mater_name, mater_type, spec, unit_code, quantity, mater_id)
-  VALUES (?,         ?,      ?,          ?,          ?,           ?,    ?,         ?,        ?)
+    (item_seq_id, bom_id, mater_code, mater_name, mater_type, spec, unit_code, quantity)
+  VALUES (?,         ?,      ?,          ?,          ?,           ?,    ?,         ?)
 `;
 
 // 4) 수정 (UPDATE)
@@ -111,7 +109,6 @@ const bomComponentUpdate = `
        , spec        = ?
        , unit_code   = ?
        , quantity    = ?
-       , mater_id    = ?
    WHERE item_seq_id = ?
 `;
 

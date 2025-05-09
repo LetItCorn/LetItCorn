@@ -12,11 +12,10 @@ const mapper = require('../database/mapper.js');
  * @returns {Promise<Array>} 공통코드 리스트
  */
 async function findCommonCodes({ group = '', rear = '', name = '', useYn = '' } = {}) {
-  // SQL에서 (? = '' OR ...) 절이 동작하도록 빈 문자열로 초기화
   const params = [
     group, group,
-    rear, rear,
-    name, name,
+    rear,  rear,
+    name,  name,
     useYn, useYn
   ];
   try {
@@ -29,7 +28,7 @@ async function findCommonCodes({ group = '', rear = '', name = '', useYn = '' } 
 
 /**
  * 1-a) 그룹별 조회
- * @param {string} group - 조회할 그룹코드
+ * @param {string} group
  */
 async function findCommonCodesByGroup(group) {
   try {
@@ -42,7 +41,7 @@ async function findCommonCodesByGroup(group) {
 
 /**
  * 1-b) 하위코드별 조회
- * @param {string} rear - 조회할 하위코드
+ * @param {string} rear
  */
 async function findCommonCodesByRear(rear) {
   try {
@@ -55,7 +54,7 @@ async function findCommonCodesByRear(rear) {
 
 /**
  * 1-c) 코드명으로 조회 (LIKE 검색)
- * @param {string} name - 조회할 코드명
+ * @param {string} name
  */
 async function findCommonCodesByName(name) {
   try {
@@ -95,9 +94,10 @@ async function findCommonCode(group, rear) {
 }
 
 /**
- * 3) 등록: 새 공통코드 추가
+ * 3/4) 저장: 신규 등록 혹은 기존 수정 (UPSERT)
+ * @param {{ code_group, code_rear, code_name, use_yn, comm_etc, code_values }} code
  */
-async function createCommonCode(code) {
+async function saveCommonCode(code) {
   const params = [
     code.code_group,
     code.code_rear,
@@ -107,35 +107,17 @@ async function createCommonCode(code) {
     code.code_values
   ];
   try {
-    return await mapper.query('commonCodeInsert', params);
+    return await mapper.query('commonCodeUpsert', params);
   } catch (err) {
-    console.error('createCommonCode error:', err);
-    throw err;
-  }
-}
-
-/**
- * 4) 수정: 기존 공통코드 업데이트
- */
-async function updateCommonCode(code) {
-  const params = [
-    code.code_name,
-    code.use_yn,
-    code.comm_etc,
-    code.code_values,
-    code.code_group,
-    code.code_rear
-  ];
-  try {
-    return await mapper.query('commonCodeUpdate', params);
-  } catch (err) {
-    console.error('updateCommonCode error:', err);
+    console.error('saveCommonCode error:', err);
     throw err;
   }
 }
 
 /**
  * 5) 삭제: 공통코드 삭제
+ * @param {string} group
+ * @param {string} rear
  */
 async function deleteCommonCode(group, rear) {
   try {
@@ -153,7 +135,6 @@ module.exports = {
   findCommonCodesByName,
   findCommonCodesByUseYn,
   findCommonCode,
-  createCommonCode,
-  updateCommonCode,
+  saveCommonCode,
   deleteCommonCode
 };
