@@ -3,7 +3,6 @@ const selectOutboundCandidatesByInstHead = `
 SELECT 
   bc.mater_code,
   m.mater_name,
-  bc.spec,
   bc.unit_code  AS unit,
   (bc.quantity * id.plans_vol) AS required qty,
   i.min_id AS lot_cnt,

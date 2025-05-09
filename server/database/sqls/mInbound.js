@@ -14,6 +14,7 @@ SELECT
   min_oqty          AS min_oqty,
   test_no           AS test_no
 FROM m_inbound
+
 ORDER BY min_date DESC
 `;
 

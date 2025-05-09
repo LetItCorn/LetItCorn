@@ -6,7 +6,6 @@ SELECT
   FALSE                      AS selected,
   m.mater_code               AS mater_code,
   m.mater_name               AS mater_name,
-  m.mater_storage            AS category_name,
   m.safe_stock               AS safe_stock,
   m.current_stock            AS total_stock
 FROM material m
@@ -36,7 +35,7 @@ WHERE mater_code = ?
 `;
 
 const insertMaterial = `
-INSERT INTO material (mater_code, mater_name, mater_unit, safe_stock, mater_storage, current_stock)
+INSERT INTO material (mater_code, mater_name, mater_unit, safe_stock, current_stock)
 VALUES (?, ?, ?, ?, ?, 0)
 `;
 
