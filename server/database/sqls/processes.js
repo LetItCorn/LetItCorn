@@ -3,7 +3,6 @@
 // 1) 전체 조회 (필터 없이 모든 공정 조회)
 const processList = `
   SELECT process_code
-       , process_header
        , process_name
        , duration_min
   FROM processes
@@ -13,7 +12,6 @@ const processList = `
 // 1-a) 코드로 조회 (LIKE 검색)
 const processListByCode = `
   SELECT process_code
-       , process_header
        , process_name
        , duration_min
   FROM processes
@@ -24,7 +22,6 @@ const processListByCode = `
 // 1-b) 이름으로 조회 (LIKE 검색)
 const processListByName = `
   SELECT process_code
-       , process_header
        , process_name
        , duration_min
   FROM processes
@@ -35,7 +32,6 @@ const processListByName = `
 // 2) 단건 조회 (정확 일치)
 const processInfo = `
   SELECT process_code
-       , process_header
        , process_name
        , duration_min
   FROM processes
@@ -46,7 +42,6 @@ const processInfo = `
 const processInsert = `
   INSERT INTO processes (
     process_code
-  , process_header
   , process_name
   , duration_min
   ) VALUES (?, ?, ?, ?)
@@ -55,8 +50,8 @@ const processInsert = `
 // 4) 수정 (UPDATE)
 const processUpdate = `
   UPDATE processes
-     SET process_header = ?
-       , process_name   = ?
+     SET 
+         process_name   = ?
        , duration_min   = ?
    WHERE process_code = ?
 `;

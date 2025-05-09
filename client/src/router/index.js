@@ -19,6 +19,7 @@ import Employee from "@/views/Employees.vue";
 import ProcessMain from "@/views/ProcessMain.vue";
 import Equipment from "@/views/Equipment.vue"; 
 import Defect from "@/views/Defect.vue";
+import CommonCode from "@/views/CommonCode.vue";
 import MInboundForm from '@/views/MInboundForm.vue';
 import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
 import MOrderForm from '../views/MOrderForm.vue';
@@ -114,13 +115,12 @@ const routes = [
    },
   {
     // BOM관리 페이지
-
     path: '/boms',
     name: 'Bom',
     component: Bom,
   },
   {  
-    // 설비 관리 
+    // 설비관리 페이지
   path: "/equipments",
     name: "Equipment",
     component: Equipment 
@@ -132,7 +132,7 @@ const routes = [
     component: ProcessMain,
   },
   {
-    // 불량 코드 관리 페이지
+    // 불량코드관리 페이지
     path: '/defects',
     name: 'Defect',
     component: Defect
@@ -142,6 +142,12 @@ const routes = [
     path: "/employees",
     name: "Employee",
     component: Employee
+  },
+  { 
+    // 공통코드관리 페이지
+    path: "/common_codes",
+    name: "CommonCode",
+    component: CommonCode
   },
   {
     path: '/plan',

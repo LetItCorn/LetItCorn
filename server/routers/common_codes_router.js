@@ -87,7 +87,9 @@ router.get('/common_codes/:group/:rear', async (req, res) => {
   const { group, rear } = req.params;
   try {
     const info = await commonService.findCommonCode(group, rear);
-    if (!info) return res.status(404).json({ error: '해당 공통 코드를 찾을 수 없습니다.' });
+    if (!info) {
+      return res.status(404).json({ error: '해당 공통 코드를 찾을 수 없습니다.' });
+    }
     res.json(info);
   } catch (err) {
     console.error(`GET /common_codes/${group}/${rear} error:`, err);
@@ -96,34 +98,17 @@ router.get('/common_codes/:group/:rear', async (req, res) => {
 });
 
 /**
- * 3) 등록
+ * 3/4) 등록 또는 수정 (UPSERT)
  *    POST /common_codes
  *    body: { code_group, code_rear, code_name, use_yn, comm_etc, code_values }
  */
 router.post('/common_codes', async (req, res) => {
   try {
-    await commonService.createCommonCode(req.body);
-    res.status(201).json({ message: '공통 코드가 등록되었습니다.' });
+    await commonService.saveCommonCode(req.body);
+    res.status(200).json({ message: '공통 코드가 저장되었습니다.' });
   } catch (err) {
     console.error('POST /common_codes error:', err);
-    res.status(500).json({ error: '등록 중 오류가 발생했습니다.' });
-  }
-});
-
-/**
- * 4) 수정
- *    PUT /common_codes/:group/:rear
- *    body: { code_name, use_yn, comm_etc, code_values }
- */
-router.put('/common_codes/:group/:rear', async (req, res) => {
-  const { group, rear } = req.params;
-  const payload = { ...req.body, code_group: group, code_rear: rear };
-  try {
-    await commonService.updateCommonCode(payload);
-    res.json({ message: '공통 코드가 수정되었습니다.' });
-  } catch (err) {
-    console.error(`PUT /common_codes/${group}/${rear} error:`, err);
-    res.status(500).json({ error: '수정 중 오류가 발생했습니다.' });
+    res.status(500).json({ error: '저장 중 오류가 발생했습니다.' });
   }
 });
 
