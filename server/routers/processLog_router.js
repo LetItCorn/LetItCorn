@@ -44,7 +44,7 @@ router.delete('/process/:p_log_no', async (req, res)=>{
  .catch(err => console.log(err));
  res.send(resInfo);
  })
- 
+ //자재입고 상태의 생산지시 정보 호출
  router.get('/proce', async(req,res)=>{
     console.log("route");
     let result = await processService.getinst()
@@ -52,6 +52,17 @@ router.delete('/process/:p_log_no', async (req, res)=>{
                                         console.log(err);
                                     })
                                     res.send(result)
+ })
+
+ // 선택한 생산지시의 품목에 알맞은 공정흐름도 호출
+ router.get('/getFlow/:data', async(req,res)=>{
+    let data = req.params.data
+    console.log(data);
+    let result = await processService.getFlow(data)
+                 .catch(err=>{
+                    console.log(err);
+                 })
+    res.send(result)
  })
 
  

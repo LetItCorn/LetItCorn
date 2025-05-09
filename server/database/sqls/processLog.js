@@ -1,18 +1,34 @@
 //table = process_log 
 // join은 self입니다 쪼
-//생산지시 자동선택
+//자재 입고 상태 생산지시 호출
 const selectInst =
 `SELECT h.inst_head, 
         lot_cnt, 
         item_code, 
         iord_no, 
         ins_stat,
-        '' as cur_cnt,
-        '' as state
+        '대기' as state,
+        '' as cur_cnt        
   FROM inst_header h JOIN inst i
                       ON  h.inst_head = i.inst_head
   WHERE inst_stat = 'J02'`
 ;
+
+// 선택한 품목의 공정흐름도 호출
+const getFlow = `
+SELECT f.sequence_order
+      ,f.item_code
+      ,i.item_name
+      ,f.process_code
+      ,p.process_name 
+FROM item_process_flows f JOIN processes p 
+						              ON f.process_code = p.process_code
+                          JOIN items i
+                          ON f.item_code = i.item_code
+WHERE f.item_code = ?
+ORDER BY ?
+`;
+
 
 const selectProcessLog =
  `SELECT pl.p_log_no,
