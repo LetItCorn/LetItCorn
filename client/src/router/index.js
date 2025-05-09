@@ -5,6 +5,7 @@ import Dashboard from "../views/Dashboard.vue"; // 기본 대시보드
 import Login from "../views/LoginView.vue";
 import Sorder from "../views/Salesorder.vue";
 import InsertSorder from "../views/Insertsalesorder.vue";
+import Client from "../views/client.vue";
 //
 
 import Tables from "../views/Tables.vue";
@@ -61,6 +62,11 @@ const routes = [
     path: "/insertsalesorder",
     name: "Insertsalesorder",
     component: InsertSorder,
+  },
+  {
+    path: "/client",
+    name: "Client",
+    component: Client,
   },
   {
     path: "/tables",

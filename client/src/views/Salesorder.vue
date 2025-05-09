@@ -8,7 +8,7 @@
       <!-- 모든 버튼에 active 효과 / action-buttons 제외 하고 색깔 변경 -->
       <div class="action-buttons">
         <button class="btn btn-select" :class="{ active: activeAction === 'search' }" @click="showSearchModal">조회</button>
-        <button class="btn btn-update" :class="{ active: activeAction === 'update' }" @click="goToAddSalesOrder">수정</button>
+        <button class="btn btn-update" :class="{ active: activeAction === 'update' }" @click="showUpdateModal">수정</button>
         <button class="btn btn-delete" :class="{ active: activeAction === 'delete' }" @click="confirmDelete">삭제</button>
         <button class="btn btn-outline" :class="{ active: activeAction === 'output' }" @click="showOutputModal">출고량 등록</button>
       </div>
@@ -98,6 +98,34 @@
         </div>
       </div>
     </div>
+
+    <!-- 수정 모달 -->
+    <div v-if="updateModalVisible" class="modal" @click="closeModalOnBackgroundClick">
+      <div class="modal-content" @click.stop>
+        <div class="search-form">
+          <div class="form-group">
+            <label>납기일자</label>
+          </div>
+          <div class="form-group">
+            <label>주문번호</label>
+            <input type="text" v-model="searchParams.orderCode" placeholder="검색">
+          </div>
+          <div class="form-group">
+            <label>거래처명</label>
+            <input type="text" v-model="searchParams.clientName" placeholder="검색">
+          </div>
+          <div class="form-group">
+            <label>담당자</label>
+            <input type="text" v-model="searchParams.clientMgr" placeholder="검색">
+          </div>
+          <div class="form-group">
+            <label>품목명</label>
+            <input type="text" v-model="searchParams.itemName" placeholder="검색">
+          </div>
+          <button class="btn btn-primary" @click="searchSalesOrders">수정</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -106,7 +134,6 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 export default {
-  name: 'SalesOrder',
   data() {
     return {
       salesOrders: [],
@@ -115,7 +142,7 @@ export default {
       activeSort: '',
       activeAction: '',
       searchModalVisible: false,
-      outputModalVisible: false,
+      updateModalVisible: false,
       selectAll: false,
       currentPage: 1,
       searchParams: {
@@ -169,7 +196,6 @@ export default {
     // 정렬 기능 (통합)
     sortBy(sortType) {
       this.activeSort = sortType; // 정렬 버튼 활성화
-      
       // localeCompare를 사용하여 문자열 정렬 -> 쿼리문으로 정렬하는게 될지 확인 후 수정 예정
       switch (sortType) {
         case 'order_code':
@@ -206,6 +232,9 @@ export default {
       this.searchModalVisible = true;
       console.log('searchModalVisible:', this.searchModalVisible); // 상태 변경 확인
     },
+    showUpdateModal() {
+      this.updateModalVisible = true;
+    },
     async searchSalesOrders() {
       try {
         // 검색 조건 구성
@@ -239,24 +268,27 @@ export default {
         });
       }
     },
-    goToAddSalesOrder() {
-      // 수정 페이지로 이동
-      const selectedOrders = this.salesOrders.filter(order => order.selected);
-      
-      if (selectedOrders.length !== 1) {
-        Swal.fire({
-          icon: 'warning',
-          title: '선택 오류',
-          text: '수정할 주문서를 하나만 선택해주세요.'
-        });
-        return;
-      }
-      
-      this.$router.push({ 
-        name: 'EditSalesOrder', 
-        params: { id: selectedOrders[0].sorder_code } 
-      });
+    async updateSalesOrders() {
+
     },
+    // goToAddSalesOrder() {
+    //   // 수정 페이지로 이동
+    //   const selectedOrders = this.salesOrders.filter(order => order.selected);
+      
+    //   if (selectedOrders.length !== 1) {
+    //     Swal.fire({
+    //       icon: 'warning',
+    //       title: '선택 오류',
+    //       text: '수정할 주문서를 하나만 선택해주세요.'
+    //     });
+    //     return;
+    //   }
+      
+    //   this.$router.push({ 
+    //     name: 'EditSalesOrder', 
+    //     params: { id: selectedOrders[0].sorder_code } 
+    //   });
+    // },
     confirmDelete() {
       const selectedOrders = this.salesOrders.filter(order => order.selected);
       
@@ -328,6 +360,7 @@ export default {
     // 배경 클릭 시에만 모달 닫기
     if (event.target.className === 'modal') {
       this.searchModalVisible = false;
+      this.updateModalVisible = false;
     }
   }
   }
@@ -487,26 +520,23 @@ td {
 }
 
 .modal {
-  position: fixed !important;
-  top: 10px !important; /* 화면 상단에서 약간 떨어지게 */
-  left: 10px !important; /* 화면 좌측에서 약간 떨어지게 */
-  width: 50vw !important; /* 화면 절반 크기 */
-  height: 50vh !important; /* 화면 절반 크기 */
-  background-color: red !important; /* 매우 눈에 띄는 색상 */
-  z-index: 99999 !important; /* 매우 높은 z-index */
+  position: fixed;
+  width: 30vw !important; /* 화면 절반 크기 */
+  height: 58vh !important; /* 화면 절반 크기 */
+  background-color: #fff !important; /* 매우 눈에 띄는 색상 */
+  z-index: 9999 !important; /* 매우 높은 z-index */
   display: flex !important; /* 강제로 flex 적용 */
   align-items: center;
   justify-content: center;
-  border: 5px solid yellow; /* 눈에 띄는 테두리 */
 }
 
 .modal-content {
   background-color: white;
-  padding: 20px;
+  padding: 30px;
   border-radius: 8px;
   max-width: 500px;
-  width: 90%; /* 내부 컨텐츠 너비 */
-  color: black; /* 내부 텍스트 색상 */
+  width: 100%;
+  color: black;
 }
 
 .form-group {

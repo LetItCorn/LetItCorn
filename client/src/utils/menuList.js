@@ -11,7 +11,7 @@ const menuConfig = {
     ],
     "거래처": [{
         name: "거래처 조회",
-        path: '#'
+        path: 'Client'
       },
       {
         name: "거래처 등록",

@@ -24,7 +24,7 @@ const addSalesOrder = async (orderinfo) => {
 
     let result = null;
 
-    if(resInfo.affectedRows > 0){
+    if(resInfo.affectedRows > 0){  //affetedRows 라고 적혀있었음 
         console.log('성공');
         result = {
             isSuccessed : true,
