@@ -1,3 +1,4 @@
+// server/database/sqls/salesorder.js
 module.exports = {
   // 주문서 전체 목록 조회
   selectSalesOrderList: `SELECT
@@ -153,18 +154,14 @@ module.exports = {
     WHERE sorder_code = ?`,
 
   selectClientList: `SELECT client_code,
-                      client_name,
-                      client_mgr,
-                      client_type
-                      FROM client`,
+    client_name,
+    client_mgr,
+    client_type
+    FROM client`,
 
   selectItemList: `SELECT item_code,
-                    item_name,
-                    item_type
-                    FROM items`,
-
-  selectWarehouseList: `SELECT warehouse_code,
-         warehouse_name,
-         warehouse_type
-  FROM warehouse`
+    item_name,
+    item_type
+    FROM items`,
+    
 };

@@ -41,6 +41,12 @@
         sidenav[0].classList.add("g-sidenav-pinned");
       }
     },
+    // mounted() {
+    //   // 브라우저 종료 시 로컬 스토리지 삭제
+    //   window.addEventListener('beforeunload', () => {
+    //     localStorage.clear();
+    //   });
+    // }
   };
 </script>
  <style lang="scss">

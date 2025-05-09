@@ -82,13 +82,6 @@ const findAllItems = async () => {
     return items;
 };
 
-// 창고 목록 조회
-const findAllWarehouses = async () => {
-    let warehouses = await mariadb.query('selectWarehouseList')
-        .catch(err => console.error(err));
-    return warehouses;
-};
-
 // 정렬 기능
 const findSalesOrdersBySort = async (sortType) => {
     let query;
@@ -126,6 +119,5 @@ module.exports = {
     removeSalesOrder,
     findAllClients,
     findAllItems,
-    findAllWarehouses,
     findSalesOrdersBySort
 };

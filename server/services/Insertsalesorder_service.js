@@ -6,9 +6,8 @@ const { convertObjToAry } = require('../utils/converts.js');
 const addSalesOrder = async (orderinfo) => {
     let insertOrder = [
         'sorder_code',
-        'client_name',
-        'client_mgr',
-        'item_name',
+        'client_code',
+        'item_code',
         'delivery_date',
         'sorder_count',
         'status',
@@ -20,20 +19,25 @@ const addSalesOrder = async (orderinfo) => {
     let resInfo = await mariadb.query('insertSalesOrder', data)
                                 .catch(err => console.log(err));
 
+    console.log('결과',resInfo);
+    console.log('결과내용',resInfo.affectedRows);
+
     let result = null;
 
-    if(resInfo > 0){
+    if(resInfo.affectedRows > 0){  //affetedRows 라고 적혀있었음 
+        console.log('성공');
         result = {
             isSuccessed : true,
+            message : '주문서가 등록되었습니다.',
         };
     } else {
+        console.log('실패');
         result = {
             isSuccessed : false,
+            message : '주문서 등록에 실패했습니다.',
         };
     }
     return result;
-    
-    //return { success: true, message: '주문서가 등록되었습니다.' };
 };
 
 module.exports = {

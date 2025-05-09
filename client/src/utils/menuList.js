@@ -9,18 +9,9 @@ const menuConfig = {
         path: 'Insertsalesorder'
       }
     ],
-    "발주서": [{
-        name: "발주서 조회",
-        path: '#'
-      },
-      {
-        name: "발주서 등록",
-        path: '#'
-      }
-    ],
     "거래처": [{
         name: "거래처 조회",
-        path: '#'
+        path: 'Client'
       },
       {
         name: "거래처 등록",
@@ -33,15 +24,6 @@ const menuConfig = {
       },
       {
         name: "완제품 등록",
-        path: '#'
-      }
-    ],
-    "반제품 입고": [{
-        name: "반제품 조회",
-        path: '#'
-      },
-      {
-        name: "반제품 등록",
         path: '#'
       }
     ],

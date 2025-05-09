@@ -1,8 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue"; // 기본 대시보드
+
+// 영업팀 권대리
 import Login from "../views/LoginView.vue";
 import Sorder from "../views/Salesorder.vue";
 import InsertSorder from "../views/Insertsalesorder.vue";
+import Client from "../views/client.vue";
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
 import RTL from "../views/Rtl.vue";
@@ -25,7 +28,6 @@ import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
 import MOrderForm from '../views/MOrderForm.vue';
 import MOrdersList from '../views/MOrdersList.vue';
 import Bom from '@/views/Bom.vue';
-// import MOutboundList from '../views/MOutboundList.vue';
 import MMovement       from '../views/MMovement.vue';
 import QCHistory from '../views/QCHistory.vue';
 import MOutboundForm from '../views/MOutboundForm.vue';
@@ -33,7 +35,6 @@ import ProductionInst from "@/views/ProductionInst.vue";
 import Process from "@/views/process.vue";
 import SFproduct from "../views/SFproduct.vue";
 import Material from "@/views/Material.vue";
-
 
 const routes = [
   {
@@ -60,6 +61,11 @@ const routes = [
     path: "/insertsalesorder",
     name: "Insertsalesorder",
     component: InsertSorder,
+  },
+  {
+    path: "/client",
+    name: "Client",
+    component: Client,
   },
   {
     path: "/tables",

@@ -1,5 +1,4 @@
 <template>
-
   <nav class="shadow-none navbar navbar-main navbar-expand-lg border-radius-xl" v-bind="$attrs" id="navbarBlur" data-scroll="true" :class="store.isAbsolute ? 'mt-4' : 'mt-0'">
     <div class="px-3 py-1 container-fluid">
       <!-- <breadcrumbs :currentPage="currentRouteName" :color="color" /> -->
@@ -67,7 +66,6 @@
 </template>
 
 <script>
-
   import MaterialInput from "@/components/MaterialInput.vue";
   import Breadcrumbs from "../Breadcrumbs.vue";
   import { useConfigStore } from "@/store/index"; // Pinia store import
@@ -75,64 +73,58 @@
   import { menuConfig } from '@/utils/menuList';
 
   export default {
-    name: "navbar",
-    data() {
-      return {
-        acvtiveMenu: null,
-        showMenu: false,
-        store: useUserStore(), // Pinia store 인스턴스 -> 로그아웃 useConfigStroe에서 useUserStore로 변경
-        // store/menuConfig
-        menuStore : useConfigStore(),
-        menuConfig,
-      };
-
-    },
-
+  name: "navbar",
+  data() {
+    return {
+      acvtiveMenu: null,
+      showMenu: false,
+      store: useUserStore(), // Pinia store 인스턴스 -> 로그아웃 useConfigStroe에서 useUserStore로 변경
+      // store/menuConfig
+      menuStore : useConfigStore(),
+      menuConfig,
+    };
+  },
   components: {
     Breadcrumbs,
     MaterialInput,
   },
-
-
-    methods: {
-      toggleSidebar() {
-        this.store.navbarMinimize(); // Pinia action 호출
-      },
-      selectedMenu(menuName) {
-        // 받아온 키값을 대응시켜 키에 일치하는 값을 store의 choiceSubMenu에 매개변수로 보낸다.
-        let subMenuConfig = this.menuConfig[menuName];
-        this.menuStore.choiceSubMenu(subMenuConfig);
-        this.acvtiveMenu = menuName;
-      },
-      logout(){
-        //this.userId = '';
-        //localStorage.removeItem('userId');
-        this.store.removeLoginId();
-        this.$router.push("/login");
-      },
+  methods: {
+    toggleSidebar() {
+      this.store.navbarMinimize(); // Pinia action 호출
     },
-    computed: {
-      userId(){
-      return this.store.userId; // Pinia store에서 userId 가져오기  
-      },
-      currentRouteName() {
-        return this.$route.name;
-      },
-      userStore() {
-      return useUserStore(); 
-      },
-      menus() {
-        //menus에 munuConfig의 키들을 리턴한다.
-        return Object.keys(this.menuConfig);
-      },
-      isLoggedIn() {
-        // 로그인 여부를 확인하는 computed property
-        return this.userId != undefined;
-      }
-
+    selectedMenu(menuName) {
+      // 받아온 키값을 대응시켜 키에 일치하는 값을 store의 choiceSubMenu에 매개변수로 보낸다.
+      let subMenuConfig = this.menuConfig[menuName];
+      this.menuStore.choiceSubMenu(subMenuConfig);
+      this.acvtiveMenu = menuName;
     },
+    logout(){
+      //this.userId = '';
+      //localStorage.removeItem('userId');
+      this.store.removeLoginId();
+      this.$router.push("/login");
+    },
+  },
+  computed: {
+    userId(){
+    return this.store.userId; // Pinia store에서 userId 가져오기  
+    },
+    currentRouteName() {
+      return this.$route.name;
+    },
+    userStore() {
+    return useUserStore(); 
+    },
+    menus() {
+      //menus에 munuConfig의 키들을 리턴한다.
+      return Object.keys(this.menuConfig);
+    },
+    isLoggedIn() {
+      // 로그인 여부를 확인하는 computed property
+      return this.userId != undefined;
+    }
+  },
 };
-
 
 </script>
 <style>
