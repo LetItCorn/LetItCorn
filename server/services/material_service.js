@@ -26,7 +26,7 @@ const findMaterialByCode = async (code) => {
 
 // 자재 등록
 const addMaterial = async (materialInfo) => {
-    const cols = ['mater_code','mater_name','mater_unit','safe_stock','mater_storage'];
+    const cols = ['mater_code','mater_name','mater_unit','safe_stock'];
     const data = convertObjToAry(materialInfo, cols);
     let res = await mariadb.query('insertMaterial', data)
     .catch(err => { console.error(err); return null; });

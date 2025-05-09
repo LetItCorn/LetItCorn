@@ -125,7 +125,6 @@ export default {
           details: this.po.details.map(d => ({
             line_no:      d.line_no,
             product_name: d.product_name,
-            spec:         d.spec,
             unit:         d.unit,
             qty:          d.qty,
             unit_price:   d.unit_price,

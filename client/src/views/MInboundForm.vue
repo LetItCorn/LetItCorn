@@ -4,19 +4,25 @@
     <h2 class="text-center mb-4">자재 입고 처리</h2>
 
     <!-- 선택된 발주서 목록 카드 -->
+    <!-- 밑의 코드는 pinia 스토어에서 가져온 품질검사 합격 발주서 목록을 보여준다.
+          inboundRows 배열이 비어 있으면 안내 문구를, 그렇지 않으면 테이블을 렌더링한다. 
+    -->
     <div class="card mb-4 shadow-sm" style="min-height:200px;">
       <div class="card-header bg-light">
         <strong>품질검사 합격 발주서 목록</strong>
       </div>
       <div class="card-body p-0 d-flex align-items-center justify-content-center">
+        <!-- inboundRows가 비어 있을 때 보여줄 메시지 -->
         <div v-if="!inboundRows.length" class="text-center w-100 text-muted">
           합격된 발주서가 없습니다.
         </div>
+        <!-- inboundRows에 데이터가 있을 때 렌더링할 테이블 -->
         <div v-else class="table-responsive w-100">
           <table class="table modern-table text-center mb-0">
             <thead>
               <tr>
                 <th style="width:1%">
+                  <!-- 전체 선택 체크박스: allSeleccted 계산 속성을 통해 체크 상태 결정, change 이벤트로 toggleAllRows -->
                   <input type="checkbox" :checked="allSelected" @change="toggleAllRows" />
                 </th>
                 <th>발주ID</th>
@@ -27,14 +33,17 @@
               </tr>
             </thead>
             <tbody>
+              <!-- inboundRows 배열을 순회하며 각 행 렌더링 -->
               <tr v-for="(row, idx) in inboundRows" :key="idx">
                 <td>
+                  <!-- 개별 행 선택 체크박스: selectedRows 배열 바인딩 -->
                   <input type="checkbox" v-model="selectedRows" :value="row" />
                 </td>
                 <td>{{ row.moder_id }}</td>
                 <td>{{ row.mater_code }}</td>
                 <td>{{ row.moder_qty }}</td>
                 <td>
+                  <!-- 입고수량 입력 필드: row.min_qty와 양방향 바인딩, 숫자만 입력 -->
                   <input v-model.number="row.min_qty" type="number" min="0" class="form-control form-control-sm" />
                 </td>
                 <td>{{ row.quality }}</td>
@@ -46,6 +55,7 @@
     </div>
 
     <!-- 입고 버튼 -->
+     <!-- 클릭시 processInbound 메서드를 호출하여 선택된 행을 서버에 전송하고 처리 -->
     <div class="d-flex justify-content-end gap-2">
       <button class="btn btn-primary" @click="processInbound">
         <i class="bi bi-box-arrow-in-down me-1"></i> 입고
@@ -61,12 +71,15 @@ import { useInboundStore } from '@/store/inbound';
 export default {
   name: 'MInboundForm',
   setup() {
+    // Pinia 스토어 인스턴스를 가져옵니다.
     const inboundStore = useInboundStore();
     return { inboundStore };
   },
   data() {
     return {
+      // 입고 처리할 발주서 목록을 담는 배열
       inboundRows: [],    // { moder_id, mater_code, moder_qty, min_qty, quality }
+      // 사용자가 체크한 행들을 담는 배열
       selectedRows: []    //체크된 행 객체 배열
     };
   },
@@ -101,12 +114,15 @@ export default {
      * 
      *  this.selectedRows = [...this.inboundRows ] 초기 선택
      */
+    // 컴포넌트 생성시점에 pinia 스토어의 pendingOrders (품질검사 pass 발주서) 가져오기
     const pending = this.inboundStore.pendingOrders;
+    // 각 발주서에 입고수량(min_qty)과 품질 상태(quality) 기본값 설정
     this.inboundRows = pending.map(o => ({
-      ...o,
-      min_qty: o.moder_qty,
-      quality: 'PASS'
+      ...o,                     // moder_id, matter_code, moder_qty 등 기존 속성
+      min_qty: o.moder_qty,      // 기본 입고 수량은 발주 수량과 동일
+      quality: 'PASS'             // 품질검사 상태를 pass로 지정
     }));
+    // 초기에는 모든 행을 선택 상태로 설정
     this.selectedRows = [...this.inboundRows];
   },
   methods: {
@@ -121,10 +137,11 @@ export default {
      *  4) this.selectedRows 변경 -> 뷰 자동 업데이트
      * 
      */
+    // 전체 선택/해제 토글 함수
     toggleAllRows(evt) {
       this.selectedRows = evt.target.checked
-        ? [...this.inboundRows]
-        : [];
+        ? [...this.inboundRows]    //체크 시 모든 행을 선택
+        : [];                      // 해제 시 빈 배열
     },
 
 
@@ -149,14 +166,17 @@ export default {
      *  
      *  9) this.$router.push -> 조회 페이지로 네비게이션
      */
+    // 입고 처리 실행 함수
     async processInbound() {
+      // 선택된 행이 없으면 경고 메시지 출력 후 종료
       if (!this.selectedRows.length) {
         return alert('선택된 행이 없습니다.');
       }
       try {
+        // 오늘 날짜를 YYYY-MM-DD 형식으로 생성
         const today = new Date().toISOString().slice(0, 10);
 
-        // 1) 실제 입고 API 호출
+        // 1) 서버에 입고 API 요청: 선택된 각 행마다 별도 POST 요청
         await Promise.all(
           this.selectedRows.map(r =>
             axios.post('/api/m_inbound', {
@@ -165,7 +185,7 @@ export default {
               mater_code:  r.mater_code,
               min_qty:     r.min_qty,
               min_date:    today,
-              min_checker: '현재사용자',
+              min_checker: '현재사용자',     //실제 로그인 사용자 정보로 대체 가능
               mater_lot:   '',
               min_edate:   null,
               min_stock:   0,
@@ -175,7 +195,7 @@ export default {
           )
         );
 
-        // 2) 성공 알림
+        // 2) 입고 완료 알림
         alert('입고가 완료되었습니다.');
 
         // 3) Pinia 스토어에 처리된 입고 로그 저장
@@ -188,12 +208,13 @@ export default {
           lot_cnt:     '',    // 필요 시 값 지정
           mater_lot:   ''     // 필요 시 값 지정
         }));
+        
         this.inboundStore.addProcessedInbounds(entries);
 
-        // 4) 대기 발주서 비우기
+        // 4) 대기 발주서 목록 초기화: pendingOrders 비우기
         this.inboundStore.clearPendingOrders();
 
-        // 5) 자재 입/출고 조회 페이지로 이동
+        // 5) 자재 입/출고 조회 페이로 네비게이션 이동
         this.$router.push({ name: 'MMovement', query: { type: 'inbound' } });
       } catch (e) {
         console.error('입고 처리 오류', e);

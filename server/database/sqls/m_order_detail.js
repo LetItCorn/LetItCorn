@@ -4,7 +4,6 @@ SELECT
   moder_id,
   mater_code,
   product_name,
-  spec,
   unit,
   qty,
   unit_price,

@@ -11,7 +11,7 @@ INSERT INTO m_order_detail
     qty,
     unit_price,
     supply_amount,
-    tax_amount
+    tax_amount,
   )
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
