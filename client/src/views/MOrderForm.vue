@@ -3,8 +3,18 @@
   <div class="container py-4">
     <h2 class="text-center mb-4">발주서 등록</h2>
 
-    <!-- 기본 정보 & 등록 정보 -->
+    <!-- 동작흐름
+      1 data()로 초기 state 설정 -> form,rows,materials 준비
+      
+      2 v-model 바인딩: 사용자 입력 즉시 form/rows 상태 업데이트
+
+      3 computed(dateFormat, totalSupply, totalTax, canSubmit) 자동 평가 -> ui 표시 제어
+
+      4 @click 이벤트 발생 -> methods 호출
+    -->
+    <!-- 기본정보 & 등록 정보 카드 렌더링 -->
     <div class="row mb-4">
+      <!-- 기본 정보 카드 (form 필드) -->
       <div class="col-md-6">
         <div class="card border-primary mb-3">
           <div class="card-header bg-primary text-white">기본 정보</div>
@@ -13,6 +23,7 @@
               <tbody>
                 <tr>
                   <th class="w-25">발주ID</th>
+                  <!-- 사용자 입력 -> v-model="form.moder_id" 적용 -> form 상태 변경 ui 업데이트 -->
                   <td><input v-model="form.moder_id" type="text" class="form-control form-control-sm" /></td>
                 </tr>
                 <tr>
@@ -25,6 +36,7 @@
                 </tr>
                 <tr>
                   <th>발주일</th>
+                  <!-- 3 computed.dateFormat으로 포맷 적용 -> vueDatePicker 렌더링 흐름 -->
                   <td>
                     <VueDatePicker
                       v-model="form.moder_date"
@@ -52,6 +64,7 @@
           </div>
         </div>
       </div>
+      <!-- 등록 정보 카드 (form 필드) 동일 흐름 반복 -->
       <div class="col-md-6">
         <div class="card border-secondary mb-3">
           <div class="card-header bg-secondary text-white">등록 정보</div>
@@ -89,7 +102,7 @@
       </div>
     </div>
 
-    <!-- 발주 품목 -->
+    <!-- 발주 품목 테이블: rows 배열 기반 렌더링 흐름 -->
     <div class="card mb-4">
       <div class="card-header">발주 품목</div>
       <div class="card-body p-0">
@@ -179,25 +192,25 @@ export default {
     return {                        // 컴포넌트 인스턴스 생성 -> data() 실행 -> 초기 state 반환
       materials: [],                // materials = [] (빈 배열)
       form: {                       // form = { moder_id:'', reciver:'', ... } (폼 필드 초기화)
-        moder_id: '',               
-        receiver: '',
-        reference: '',
-        moder_date: null,
-        due_date: null,
-        payment_term: '',
-        reg_number: '',
-        partner_name: '',
-        ceo_name: '',
-        address: '',
-        business_type: '',
-        contact: ''
+        moder_id: '',               // 발주 id 
+        receiver: '',               // 수신
+        reference: '',              // 참조
+        moder_date: null,           // 발주일 (Date 객체)
+        due_date: null,             // 납기일 (Date 객체)
+        payment_term: '',           // 지불조건
+        reg_number: '',             // 등록번호
+        partner_name: '',           // 상호 
+        ceo_name: '',               // 대표자명
+        address: '',                // 주소
+        business_type: '',          // 업태종목
+        contact: ''                 // 연락처
       },
-      rows: Array.from({ length: 3 }, () => ({
-        mater_code: '',
-        spec: '',
-        unit: '',
-        quantity: 0,
-        unit_price: 0
+      rows: Array.from({ length: 3 }, () => ({    // 발주 품목 3행 생성
+        mater_code: '',               // 자재코드
+        spec: '',                     // 규격
+        unit: '',                     // 단위
+        quantity: 0,                  // 수량
+        unit_price: 0                 // 단가
       }))
     };
   },

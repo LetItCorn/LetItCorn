@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue"; // 기본 대시보드
 import Login from "../views/LoginView.vue";
 import Sorder from "../views/Salesorder.vue";
-// import InsertSorder from "../views/Insertsalesorder.vue";
+import InsertSorder from "../views/Insertsalesorder.vue";
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
 import RTL from "../views/Rtl.vue";
@@ -56,11 +56,11 @@ const routes = [
     name: "Salesorder",
     component: Sorder,
   },
-  // {
-  //   path: "/insertsalesorder",
-  //   name: "Insertsalesorder",
-  //   component: InsertSorder,
-  // },
+  {
+    path: "/insertsalesorder",
+    name: "Insertsalesorder",
+    component: InsertSorder,
+  },
   {
     path: "/tables",
     name: "Tables",
@@ -107,8 +107,8 @@ const routes = [
     name: 'Item', 
     component: Item,
   },
-  {
-     //재관리 페이지
+   {
+     // 자재관리 페이지
      path: '/materials',
      name: 'Material', 
      component: Material,

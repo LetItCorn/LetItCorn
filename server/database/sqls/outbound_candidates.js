@@ -1,6 +1,6 @@
 // server/database/sqls/outbound_candidates.js
 
-// 입고 LOT 중 아직 출고 가능 수량이 남은 것들만 조
+// 입고 LOT 중 아직 출고 가능 수량이 남은 것들만 조회
 const selectOutboundCandidates = `
 SELECT
   i.min_id    AS lot_cnt,
