@@ -82,11 +82,7 @@
                 <tr>
                   <th>안전재고</th>
                   <td><input v-model="selected.safe_stock" type="number" class="form-control form-control-sm" /></td>
-                </tr>
-                <tr>
-                  <th>보관위치</th>
-                  <td><input v-model="selected.mater_storage" class="form-control form-control-sm" /></td>
-                </tr>
+                </tr>          
               </tbody>
             </table>
 

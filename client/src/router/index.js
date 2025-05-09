@@ -15,11 +15,11 @@ import MReturnForm   from '../views/MReturnForm.vue';
 import MReturnsList  from '../views/MReturnsList.vue';
 import Productionplan from "@/views/Productionplan_v2.vue";
 import Item from "@/views/Item.vue";
-import Material from "@/views/Material.vue";
 import Employee from "@/views/Employees.vue";
 import ProcessMain from "@/views/ProcessMain.vue";
 import Equipment from "@/views/Equipment.vue"; 
 import Defect from "@/views/Defect.vue";
+import CommonCode from "@/views/CommonCode.vue";
 import MInboundForm from '@/views/MInboundForm.vue';
 import ProductionPlanInquiry from '@/views/ProductionPlanInquiry.vue';
 import MOrderForm from '../views/MOrderForm.vue';
@@ -107,21 +107,20 @@ const routes = [
     name: 'Item', 
     component: Item,
   },
-  //  {
-  //    // 자재관리 페이지
-  //    path: '/materials',
-  //    name: 'Material', 
-  //    component: Material,
-  //  },
+  {
+     //재관리 페이지
+     path: '/materials',
+     name: 'Material', 
+     component: Material,
+   },
   {
     // BOM관리 페이지
-
     path: '/boms',
     name: 'Bom',
     component: Bom,
   },
   {  
-    // 설비 관리 
+    // 설비관리 페이지
   path: "/equipments",
     name: "Equipment",
     component: Equipment 
@@ -133,7 +132,7 @@ const routes = [
     component: ProcessMain,
   },
   {
-    // 불량 코드 관리 페이지
+    // 불량코드관리 페이지
     path: '/defects',
     name: 'Defect',
     component: Defect
@@ -143,6 +142,12 @@ const routes = [
     path: "/employees",
     name: "Employee",
     component: Employee
+  },
+  { 
+    // 공통코드관리 페이지
+    path: "/common_codes",
+    name: "CommonCode",
+    component: CommonCode
   },
   {
     path: '/plan',
