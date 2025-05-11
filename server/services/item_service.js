@@ -145,26 +145,20 @@ const processesList = async () => {
 
 // 2) 공정 흐름도 등록
 const saveProcessFlows = async (flows) => {
-  const conn = await mariaDB.getConnection();
-  await conn.beginTransaction();
-
   try {
     for (const flow of flows) {
-      const { item_code, process_header, sequence_order, duration } = flow;
 
-      await conn.query(
-        'insertProcessItem',
-        [item_code, process_header, sequence_order, duration]
-      );
+      let { item_code, process_code, sequence_order } = flow;
+
+      let result = await mariaDB
+          .query('insertProcessItem', [process_code, sequence_order, item_code ])
+          .catch(err => {
+            console.error('deleteItem error', err);
+            throw err;
+          });
     }
-
-    await conn.commit();
-    conn.release();
     return { success: true };
-  } catch (err) {
-    await conn.rollback();
-    conn.release();
-    console.error('saveProcessFlows error', err);
+  } catch (err) {    
     throw err;
   }
 };
