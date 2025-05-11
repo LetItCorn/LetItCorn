@@ -21,6 +21,28 @@ const findItems = async (filters = {}) => {
   return list;
 };
 
+// 품목구분 가져오기
+const itemCode = async () => {
+  const code = await mariaDB
+  .query('itemCode')
+  .catch(err => {
+    console.error('itemCode error', err);
+    return [];
+  });
+  return code;
+};
+
+// 단위코드 가져오기
+const unitCode = async () => {
+  const unit = await mariaDB
+  .query('unitCode')
+  .catch(err => {
+    console.error('unitCode', err);
+    return [];
+  });
+  return unit;
+};
+
 // 1-a) 품목 코드 단독 조회
 const findItemsByCode = async (code) => {
   const list = await mariaDB
@@ -72,7 +94,8 @@ const saveItem = async (item) => {
     item.item_name,
     item.item_type,
     item.unit_code,
-    item.spec
+    item.spec,
+    item.qty
   ];
   try {
     return await mariaDB.query('itemInsert', params);
@@ -162,6 +185,8 @@ const deleteProcessItem = async (req) => {
 
 module.exports = {
   findItems,
+  itemCode,
+  unitCode,
   findItemsByCode,
   findItemsByName,
   findItemsByType,
