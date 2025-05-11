@@ -336,8 +336,9 @@ export default {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  font-weight: 500;
-  color: #333;
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
 }
 
 .form-group input,
@@ -352,9 +353,9 @@ export default {
 
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #0000ff;
+  border-color: #000;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 0, 255, 0.2);
+  box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.2);
 }
 
 .form-group input[readonly] {

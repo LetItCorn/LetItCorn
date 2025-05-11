@@ -1,11 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue"; // 기본 대시보드
 
-// 영업팀 권대리
 import Login from "../views/LoginView.vue";
 import Sorder from "../views/Salesorder.vue";
 import InsertSorder from "../views/Insertsalesorder.vue";
-import Client from "../views/client.vue";
+import Client from "../views/Client.vue";
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
 import RTL from "../views/Rtl.vue";
