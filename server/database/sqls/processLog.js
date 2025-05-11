@@ -11,7 +11,8 @@ const selectInst =
         '' as cur_cnt        
   FROM inst_header h JOIN inst i
                       ON  h.inst_head = i.inst_head
-  WHERE inst_stat = 'J02'`
+  WHERE inst_stat = 'J02'
+  AND out_od = 'Y'`
 ;
 
 // 선택한 품목의 공정흐름도 호출
@@ -21,12 +22,17 @@ SELECT f.sequence_order
       ,i.item_name
       ,f.process_code
       ,p.process_name 
+      ,'' as sta_time
+      ,'' as end_time
+      ,'' as ac_cnt
+      ,'' as fault_cnt
+      ,'대기' as pr_status
 FROM item_process_flows f JOIN processes p 
 						              ON f.process_code = p.process_code
                           JOIN items i
                           ON f.item_code = i.item_code
-WHERE f.item_code = ?
-ORDER BY ?
+WHERE  f.item_code = ?
+ORDER BY 1
 `;
 
 
@@ -72,5 +78,6 @@ WHERE pl.p_log_no = ?`;
     prLogInsert,
     prLogUpdate,
     prLogDelete,
-    selectInst
+    selectInst,
+    getFlow
  };

@@ -1,21 +1,29 @@
 const convertObjToAry = (target, selected) => {
   let aray = [];
+  // selected에 변화시키고자하는 객체(tartget)의  key 값을 배열로 넣어주면
     for(let fieldName of selected){
+  // for of 문에서 배열 크기만큼 반복문을 실행하면서
+  // key값을 대괄호 표기법에 넣어 target의 일치하는 값을 변수에 담아준다
       let fieldVal = target[fieldName];
+  // 반환하는 배열에 하나씩 담아준다.    
         aray.push(fieldVal);
     }
     return aray;
 };
 
 const convertObjToQuery = (target, selected = []) => {
+  // 객체의 key 를 배열로 반환해주는 Object.keys 메소드를 이용해 필드 배열을 만든다
   let fields = Object.keys(target);
+  // where 1=1 문 아래에 :searchKeyword 의 값을 입력하기위한 AND문 작성
   let queryWhere = 'AND ';
     for(let i = 0; i < fields.length; i++){
+      // 객체의 key 와 value 를 where 절 조건문의 형식에 맞게  key = value   (AND 혹은 OR) 형식으로 만드는 for문 
         let columnName= fields[i];
         let columnValue = target[columnName];
-                     // 컬럼명        = '조건값'          AND(혹은 OR) 
+                     // 컬럼명        = '조건값'          AND(혹은 OR) selected값이 있으면 그 값, 없으면 ''을 넣겠다 
         queryWhere += `${columnName} = '${columnValue}' ${selected[i] ?? ''}`
       }
+      // 완성되 where 절의 조건을 객체 형식으로 반환.
       return { serchKeyword : queryWhere };
   }
 
@@ -30,6 +38,7 @@ const convertObjToQueryLike = (target, selected = []) => {
   for (let i = 0; i < fields.length; i++) {
       let columnName = fields[i];
       let columnValue = target[columnName];
+      // LIKE 조건을 삽입해 비슷한 값 모두를 조회
       // 컬럼명        = '조건값'          AND(혹은 OR) 
       queryWhere += `${columnName} LIKE '%${columnValue}%' ${selected[i] ?? ''}`
       // ?? : 변수의 값이 null이거나 undefined 일 경우 기본값을 설정
