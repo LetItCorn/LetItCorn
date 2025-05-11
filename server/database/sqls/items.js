@@ -161,7 +161,6 @@ const itemProcessFlowsList = `
 const processesList = `
   SELECT
     process_code,
-    process_header,
     process_name,
     duration_min
   FROM processes
@@ -169,11 +168,19 @@ const processesList = `
 
 // 7) 공정 흐름 등록/수정 MERGE
 const insertProcessItem = `
-  INSERT INTO item_process_flows (item_code, process_header, sequence_order, duration)
-  VALUES (?, ?, ?, ?)
-  ON DUPLICATE KEY UPDATE
-    process_header = VALUES(process_header),
-    duration       = VALUES(duration)
+  INSERT INTO item_process_flows (
+  process_header,
+  process_code,
+  sequence_order,
+  item_code
+)
+SELECT
+  CONCAT('PH', LPAD(IFNULL(MAX(CAST(SUBSTRING(process_header, 3) AS UNSIGNED)), 0) + 1, 3, '0')),
+  ?, ?, ?
+FROM item_process_flows
+ON DUPLICATE KEY UPDATE
+  sequence_order = VALUES(sequence_order),
+  item_code      = VALUES(item_code)
 `;
 
 // 8) 공정 흐름 삭제

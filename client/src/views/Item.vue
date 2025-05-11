@@ -203,18 +203,20 @@
                     <template v-else>
                       <td>{{ group.sequence_order }}</td>
                       <td>
-                        <select v-model="group.process_header" @change="handleProcessSelect(group)">
+                        <select v-model="group.process_code" @change="handleProcessSelect(group)">
                           <option value="">-- 선택하세요 --</option>
                           <option
                             v-for="item in processesListArr"
-                            :key="item.process_header"
-                            :value="item.process_header"
+                            :key="item.process_code"
+                            :value="item.process_code"
                           >
                             {{ item.process_name }}
                           </option>
                         </select>
                       </td>
-                      <td></td>
+                      <td>
+                       
+                      </td>
                     </template>
                   </tr>
                 </template>
@@ -404,13 +406,15 @@ export default {
         sequence_order: nextSeq,
         process_header: '',
         item_code: this.selected.item_code,
-        isAdding: true
+        isAdding: true,
+        duration_min: ''
       });
     },
 
     // 6) 공정 흐름 저장 (트랜잭션 처리)
     async saveProcessFlows() {
       try {
+        console.log(this.itemProcessFlowsList);
         await axios.post('/api/saveProcessFlows', { flows: this.itemProcessFlowsList });
         this.fetchProcessFlows(this.selected.item_code);
       } catch (err) {
