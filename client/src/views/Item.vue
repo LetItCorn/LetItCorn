@@ -57,8 +57,8 @@
                   <th>품목코드</th>
                   <th>품목명</th>
                   <th>구분</th>
+                  <th>수량</th>
                   <th>단위</th>
-                  <th>규격</th>
                 </tr>
               </thead>
               <tbody>
@@ -72,8 +72,8 @@
                 >
                   <td>{{ item.item_code }}</td>
                   <td>{{ item.item_name }}</td>
-                  <td>{{ item.item_type }}</td>
-                  <td>{{ item.unit_code }}</td>
+                  <td>{{ item.type_name }}</td>
+                  <td>{{ item.qty }}</td>
                   <td>{{ item.spec }}</td>
                 </tr>
                 <!-- 데이터 없을 때 -->
@@ -109,17 +109,37 @@
               <!-- 구분 -->
               <div class="form-group col-6">
                 <label>구분</label>
-                <input v-model="selected.item_type" class="form-control form-control-sm" />
+                  <select v-model="selected.item_type" class="form-control form-control-sm">
+                  <option disabled value="">-- 선택하세요 --</option>
+                  <option
+                    v-for="code in codeList"
+                    :key="code.code_values"
+                    :value="code.code_values"
+                  >
+                    {{ code.code_name }}
+                  </option>
+                </select>
+
+              </div>
+              <!-- 수량 -->
+              <div class="form-group col-6">
+                <label>수량</label>
+                <input v-model="selected.qty" class="form-control form-control-sm" />
               </div>
               <!-- 단위 -->
               <div class="form-group col-6">
-                <label>단위</label>
-                <input v-model="selected.unit_code" class="form-control form-control-sm" />
-              </div>
-              <!-- 규격 -->
-              <div class="form-group col-12">
-                <label>규격</label>
-                <input v-model="selected.spec" class="form-control form-control-sm" />
+                <label>구분</label>
+                  <select v-model="selected.unit_code" class="form-control form-control-sm">
+                  <option disabled value="">-- 선택하세요 --</option>
+                  <option
+                    v-for="unit in unitList"
+                    :key="unit.code_values"
+                    :value="unit.code_values"
+                  >
+                    {{ unit.code_name }}
+                  </option>
+                </select>
+
               </div>
             </div>
             <div class="mt-auto d-flex justify-content-end">
@@ -173,10 +193,10 @@
                       <td>{{ group.process_name }}</td>
                       <td>
                         <input
-                          v-model="group.duration"
-                          class="form-control form-control-sm text-center mb-1"
-                          :placeholder="`예: ${group.duration_min}분`"
-                        />
+                        :value="`${group.duration_min}분`"
+                        class="form-control form-control-sm text-center mb-1 no-gray"
+                        readonly
+                      />
                       </td>
                     </template>
                     <!-- 새로 추가 중인 빈 행 -->
@@ -224,6 +244,8 @@ export default {
       searchValue: '',
       // 메인 데이터
       itemList: [],
+      codeList: [],
+      unitList: [],
       // 선택된 품목의 공정 흐름
       itemProcessFlowsList: [],
       // 전체 공정 목록 (설렉트 옵션)
@@ -233,7 +255,7 @@ export default {
         item_code: '',
         item_name: '',
         item_type: '',
-        unit_code: '',
+        qty: '',
         spec: ''
       },
       // 공정 흐름에서 선택된 행
@@ -257,6 +279,8 @@ export default {
   async created() {
     await this.loadItems();
     await this.processesList();
+    await this.itemCode();
+    await this.unitCode();
   },
 
   methods: {
@@ -275,6 +299,28 @@ export default {
       } finally {
         // 목록 갱신 후 신규 등록용 초기화
         this.clearDetail();
+      }
+    },
+
+    // 품목구분 가져오기
+    async itemCode() {
+      try{
+        const res = await axios.get('/api/items/itemCode');
+        this.codeList = res.data;
+        console.log(this.codeList);
+      } catch {
+        this.codeList = [];
+      }
+    },
+
+    // 단위코드 가져오기
+    async unitCode() {
+      try {
+        const res = await axios.get('/api/items/unitCode');
+        this.unitList = res.data;
+        console.log(this.unitList);
+      }catch {
+        this.unitList = [];
       }
     },
 
@@ -310,7 +356,8 @@ export default {
         item_name: '',
         item_type: '',
         unit_code: '',
-        spec: ''
+        spec: '',
+        qty: ''
       };
       this.itemProcessFlowsList = [];
     },

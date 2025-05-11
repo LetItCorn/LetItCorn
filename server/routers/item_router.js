@@ -18,6 +18,28 @@ router.get('/items/processesList', async (req, res) => {
   }
 });
 
+// 품목구분 가져오기
+router.get('/items/itemCode', async (req, res) => {
+  try {
+    const code = await itemService.itemCode();
+    res.json(code);
+  }catch (err) {
+    console.error('GET /items/itemCode error:', err);
+    res.status(500).json({error: '공정 목록 조회 중 오류가 발생했습니다.'});
+  }
+});
+
+// 단위코드 가져오기
+router.get('/items/unitCode', async (req, res) => {
+  try {
+    const code = await itemService.unitCode();
+    res.json(code);
+  }catch (err) {
+    console.error('GET /items/itemCode error:', err);
+    res.status(500).json({error: '공정 목록 조회 중 오류가 발생했습니다.'});
+  }
+});
+
 /**
  * 2) 공정 흐름 저장
  *    POST /saveProcessFlows
