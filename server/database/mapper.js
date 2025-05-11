@@ -55,6 +55,7 @@
   //일반 쿼리 
   query = async (alias, values) => {
     try{
+      console.log(alias,values);
       let executeSql = queryFormat(sqlList[alias], values);
       let result = await connectionPool.query(executeSql, values);
       return result;
