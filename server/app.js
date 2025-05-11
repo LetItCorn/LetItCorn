@@ -52,10 +52,11 @@
   const qcHistoryRouter = require('./routers/qc_history_router.js');
   const mReturnsRouter = require('./routers/m_returns_router.js');
   const instHeaderAPIRouter= require('./routers/inst_header_router.js');
+  const clientsRouter = require('./routers/clients_router.js');
   //영업
   const SoRouter = require('./routers/salesorder_router.js'); // 주문서 SalesOrder
   const IsoRouter = require('./routers/Insertsalesorder_router.js'); // 주문서 등록 InsertSalesOrder
-  const ClientRouter = require('./routers/client_router.js'); // 거래처 조회 Client
+  // const ClientRouter = require('./routers/client_router.js'); // 거래처 조회 Client
   //관리
   const userRouter = require('./routers/user_router.js');
   const itemRouter = require('./routers/item_router.js');
@@ -95,7 +96,7 @@
   //영업
   app.use('/', SoRouter);
   app.use('/', IsoRouter);
-  app.use('/', ClientRouter);
+  // app.use('/', ClientRouter);
   //자재
   app.use('/', materialsRouter);
   app.use('/', lotRouter);
@@ -108,3 +109,4 @@
   app.use('/', qcHistoryRouter);
   app.use('/', mReturnsRouter);
   app.use('/', instHeaderAPIRouter);
+  app.use('/', clientsRouter);
