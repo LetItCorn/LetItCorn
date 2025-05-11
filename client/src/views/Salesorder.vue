@@ -69,6 +69,9 @@
     <!-- 조회 모달 -->
     <div v-if="searchModalVisible" class="modal" @click="closeModalOnBackgroundClick">
       <div class="modal-content" @click.stop>
+        <div class="modal-title">
+          <h3>주문서 선택조회</h3>
+        </div>
         <div class="search-form">
           <div class="form-group">
             <label>납기일자</label>
@@ -102,6 +105,9 @@
     <!-- 수정 모달 -->
     <div v-if="updateModalVisible" class="modal" @click="closeModalOnBackgroundClick">
       <div class="modal-content" @click.stop>
+        <div class="modal-title">
+          <h3>주문서 수정</h3>
+        </div>
         <div class="search-form">
           <div class="form-group">
             <label>납기일자</label>
@@ -295,8 +301,8 @@ export default {
       if (selectedOrders.length === 0) {
         Swal.fire({
           icon: 'warning',
-          title: '선택 오류',
-          text: '삭제할 주문서를 선택해주세요.'
+          title: '삭제할 주문서 체크가 빠진 것 같아요.',
+          text: '삭제할 주문서를 하나만 선택해주세요.'
         });
         return;
       }
@@ -345,7 +351,7 @@ export default {
       if (selectedOrders.length !== 1) {
         Swal.fire({
           icon: 'warning',
-          title: '선택 오류',
+          title: '출고량을 등록할 주문서 체크가 빠진 것 같아요.',
           text: '출고량을 등록할 주문서를 하나만 선택해주세요.'
         });
         return;
@@ -521,11 +527,10 @@ td {
 
 .modal {
   position: fixed;
-  width: 30vw !important; /* 화면 절반 크기 */
-  height: 58vh !important; /* 화면 절반 크기 */
-  background-color: #fff !important; /* 매우 눈에 띄는 색상 */
-  z-index: 9999 !important; /* 매우 높은 z-index */
-  display: flex !important; /* 강제로 flex 적용 */
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 9999 !important;
+  display: flex !important;
   align-items: center;
   justify-content: center;
 }
@@ -537,6 +542,10 @@ td {
   max-width: 500px;
   width: 100%;
   color: black;
+}
+
+.modal-title h3 {
+  color: #000;
 }
 
 .form-group {
