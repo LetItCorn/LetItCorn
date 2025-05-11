@@ -3,9 +3,11 @@
     <div class="row mb-3">
       <div class="col-md-6">
         <div class="card">
-          <div class="card-header row">
+          <div class="card-header">
+            <div class="row">
             <span class="col">생산지시</span>
             <div class="col">{{ instHead }}</div>
+          </div>
           </div>
           <div class="card-body">
             <!-- 생산지시의 LOT 별 정보-->
@@ -25,7 +27,12 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
-          <div class="card-header">{{ instData.item_name }}<span> 공정</span></div>
+          <div class="card-header">
+            <div class="row">
+            <span class="col-10">{{ instData.item_name }} 공정</span>
+            <button class="col-1 btn btn-danger">초기화</button>
+          </div>
+          </div>
           <div class="card-body">
             <!-- 공정흐름도의 각 공정 진행 정보-->
             <Grid :rowData="flowData" :columnDefs="flowCol" />
@@ -42,9 +49,7 @@ export default {
   data() {
     return {
       // Lot, item_code, od_cnt, item_name
-      instData : {},
-      // item_name
-      
+      instData : {},      
       // 생산지시 data grid
       // 그리드에 들어갈 정보의 배열
       rowData : [],
@@ -56,7 +61,7 @@ export default {
         { field : 'state', headerName : '진행상태', flex : 1},
         { field : 'cur_cnt', headerName : '현생산량', flex : 1},
       ],
-      // 
+      // 생산지시 헤더 번호
       instHead : '',
       flowData : [],
       flowCol : [
@@ -102,9 +107,9 @@ export default {
   },
   watch :{
     // 품목정보에 대응하는 공정흐름도 호출
-    async instData(){
+    // async instData(){
       
-    },
+    // },
   }
 };
 </script>
