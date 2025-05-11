@@ -54,6 +54,7 @@ router.get('/processes/:process_code', async (req, res) => {
  *    - 요청 바디에 공정 정보(process_code, process_header, process_name, duration_min) 포함
  */
 router.post('/processes', async (req, res) => {
+  
   const payload = req.body;  // 새 공정 데이터
   try {
     const result = await processService.createProcess(payload);

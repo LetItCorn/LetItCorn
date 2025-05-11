@@ -58,6 +58,7 @@
                   v-model="detail.process_code"
                   type="text"
                   class="form-control"
+                  readonly
                 />
               </div>
               <!-- 공정명 수정 가능 -->
@@ -95,18 +96,12 @@
                   class="btn btn-success flex-grow-1"
                 >
                   등록
-                </button>
-                <button
-                  type="button"
-                  @click="onUpdate"
-                  class="btn btn-warning flex-grow-1"
-                >
-                  수정
-                </button>
+                </button>                
                 <button
                   type="button"
                   @click="onDelete"
                   class="btn btn-danger flex-grow-1"
+                   :disabled="detail.mode != 'reg'"
                 >
                   삭제
                 </button>
@@ -133,7 +128,8 @@ export default {
     const detail = ref({                  // 상세 조회 바인딩 객체
       process_code: '',
       process_name: '',
-      duration_min: null
+      duration_min: null,
+      mode:"",
     })
 
     // 필터 입력값
@@ -198,7 +194,7 @@ export default {
      * 리스트 행 클릭 시 상세 데이터 셋팅
      */
     const selectRow = (proc) => {
-      detail.value = { ...proc }
+      detail.value = { ...proc, mode: 'reg' };
     }
 
     /**
@@ -216,14 +212,27 @@ export default {
      * 신규 공정 등록
      */
     const onCreate = async () => {
-      try {
-        await axios.post('/processes', detail.value)
-        await fetchAllProcesses()
-        onReset()
-      } catch (err) {
-        console.error('onCreate error', err)
-      }
-    }
+    const { process_code, process_name, duration_min } = detail.value;
+
+  
+  if (!process_name) {
+    alert('공정명을 입력하세요.');
+    return;
+  }
+  if (!duration_min) {
+    alert('소요 시간을 입력하세요.');
+    return;
+  }
+
+  try {
+    await axios.post('/api/processes', detail.value);
+    await fetchAllProcesses();
+    onReset();
+  } catch (err) {
+    console.error('onCreate error', err);
+  }
+};
+
 
     /**
      * 공정 정보 수정
@@ -243,7 +252,7 @@ export default {
      */
     const onDelete = async () => {
       try {
-        await axios.delete(`/processes/${detail.value.process_code}`)
+        await axios.delete(`/api/processes/${detail.value.process_code}`)
         await fetchAllProcesses()
         onReset()
       } catch (err) {

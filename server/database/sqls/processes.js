@@ -41,10 +41,13 @@ const processInfo = `
 // 3) 등록 (INSERT)
 const processInsert = `
   INSERT INTO processes (
-    process_code
-  , process_name
-  , duration_min
-  ) VALUES (?, ?, ?, ?)
+  process_code,
+  process_name,
+  duration_min
+) VALUES (?, ?, ?)
+ON DUPLICATE KEY UPDATE
+  process_name  = VALUES(process_name),
+  duration_min  = VALUES(duration_min)
 `;
 
 // 4) 수정 (UPDATE)
@@ -62,6 +65,13 @@ const processDelete = `
    WHERE process_code = ?
 `;
 
+
+const selectPrecessProcessCode = `
+    SELECT
+  CONCAT('PC', LPAD(IFNULL(MAX(CAST(SUBSTRING(process_code, 4) AS UNSIGNED)), 0) + 1, 3, '0')) AS next_process_code
+FROM processes;
+`;
+
 module.exports = {
   processList,
   processListByCode,
@@ -70,4 +80,5 @@ module.exports = {
   processInsert,
   processUpdate,
   processDelete,
+  selectPrecessProcessCode,
 };

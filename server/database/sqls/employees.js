@@ -9,12 +9,12 @@ const employeesList = `
        , user_phone
        , user_addr
        , user_email
-       , user_birth
+       , DATE_FORMAT(user_birth, '%Y-%m-%d') AS user_birth
        , user_gender
        , role_code
        , status_code
-       , hire_date
-       , retire_date
+       , DATE_FORMAT( hire_date , '%Y-%m-%d') AS hire_date
+       , DATE_FORMAT( retire_date , '%Y-%m-%d') AS retire_date
   FROM employees
   WHERE 1=1
     AND (? = '' OR emp_id    LIKE CONCAT('%', ?, '%'))
@@ -105,20 +105,37 @@ const employeeInfo = `
 // 3) 등록 (INSERT)
 const employeeInsert = `
   INSERT INTO employees (
-      emp_id
-    , emp_name
-    , user_id
-    , user_passd
-    , user_phone
-    , user_addr
-    , user_email
-    , user_birth
-    , user_gender
-    , role_code
-    , status_code
-    , hire_date
-    , retire_date
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    emp_id,
+    emp_name,
+    user_id,
+    user_passd,
+    user_phone,
+    user_addr,
+    user_email,
+    user_birth,
+    user_gender,
+    role_code,
+    status_code,
+    hire_date,
+    retire_date
+)
+VALUES (
+    ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+)
+ON DUPLICATE KEY UPDATE
+    emp_name     = VALUES(emp_name),
+    user_id      = VALUES(user_id),
+    user_passd   = VALUES(user_passd),
+    user_phone   = VALUES(user_phone),
+    user_addr    = VALUES(user_addr),
+    user_email   = VALUES(user_email),
+    user_birth   = VALUES(user_birth),
+    user_gender  = VALUES(user_gender),
+    role_code    = VALUES(role_code),
+    status_code  = VALUES(status_code),
+    hire_date    = VALUES(hire_date),
+    retire_date  = VALUES(retire_date);
+
 `;
 
 // 4) 수정 (UPDATE)
@@ -145,6 +162,21 @@ const employeeDelete = `
    WHERE emp_id = ?
 `;
 
+
+const userCode = `
+    SELECT * FROM common_codes WHERE CODE_GROUP = 'AA'
+`;
+const workCode = `
+    SELECT * FROM common_codes WHERE CODE_GROUP = 'BB'
+`;
+
+const selectEmployeeEmpId = `
+    SELECT
+  CONCAT('EMP', LPAD(IFNULL(MAX(CAST(SUBSTRING(emp_id, 4) AS UNSIGNED)), 0) + 1, 3, '0')) AS next_emp_id
+FROM employees;
+`;
+
+
 module.exports = {
   employeesList,
   employeesById,
@@ -153,5 +185,8 @@ module.exports = {
   employeeInfo,
   employeeInsert,
   employeeUpdate,
-  employeeDelete
+  employeeDelete,
+  userCode,
+  workCode,
+  selectEmployeeEmpId,
 };

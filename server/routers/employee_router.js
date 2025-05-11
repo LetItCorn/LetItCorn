@@ -4,6 +4,30 @@ const express = require('express');
 const router = express.Router();
 const employeeService = require('../services/employee_service.js');
 
+
+
+router.get('/employees/userCode', async (req, res) => {
+  
+  try {    
+    const list = await employeeService.findUserCode();
+    res.json(list);
+  } catch (err) {
+    console.error('GET /employees error:', err);
+    res.status(500).json({ error: '직원 목록 조회 중 오류가 발생했습니다.' });
+  }
+});
+
+router.get('/employees/workCode', async (req, res) => {
+  
+  try {    
+    const list = await employeeService.findWorkCode();
+    res.json(list);
+  } catch (err) {
+    console.error('GET /employees error:', err);
+    res.status(500).json({ error: '직원 목록 조회 중 오류가 발생했습니다.' });
+  }
+});
+
 /**
  * 1) 전체조회 + 필터검색
  *    GET /employees?id=EMP01&name=홍길동&role=A01
