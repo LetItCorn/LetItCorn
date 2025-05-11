@@ -62,12 +62,17 @@ const findProcess = async (processCode) => {
  * @param {object} process - 등록할 공정 데이터
  */
 const createProcess = async (process) => {
-  const params = [
+  let params = [
     process.process_code,
-    process.process_header,
     process.process_name,
     process.duration_min
   ];
+
+    const process_code = await mariaDB.query('selectPrecessProcessCode');    
+    if(process.process_code == undefined || process.process_code == "" ){
+      params[0] = process_code[0].next_process_code;
+    }    
+
   const result = await mariaDB
     .query('processInsert', params)
     .catch(err => {

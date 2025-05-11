@@ -100,7 +100,7 @@
                     <input
                       v-model="selected.emp_id"
                       class="form-control form-control-sm"
-                      :readonly="!!selected.emp_id"
+                      readonly
                       placeholder="ID 입력"
                     />
                   </td>
@@ -151,11 +151,25 @@
                 </tr>
                 <tr>
                   <th>권한코드</th>
-                  <td><input v-model="selected.role_code" class="form-control form-control-sm" /></td>
+                  <td>                      
+                       <select v-model="selected.role_code" class="form-select form-select-sm">
+                        <option value="">선택</option>
+                        <option v-for="code in codeList" :key="code.code_values" :value="code.code_values">
+                          {{ code.code_name }}
+                        </option>
+                      </select>
+                  </td>
                 </tr>
                 <tr>
                   <th>근무상태코드</th>
-                  <td><input v-model="selected.status_code" class="form-control form-control-sm" /></td>
+                  <td>
+                    <select v-model="selected.status_code" class="form-select form-select-sm">
+                        <option value="">선택</option>
+                        <option v-for="code in workList" :key="code.code_values" :value="code.code_values">
+                          {{ code.code_name }}
+                        </option>
+                      </select>
+                  </td>
                 </tr>
                 <tr>
                   <th>입사일</th>
@@ -188,21 +202,15 @@
               <button
                 class="btn btn-success flex-grow-1"
                 @click="onCreate"
-                :disabled="!selected.emp_id"
+                
               >
                 등록
               </button>
-              <button
-                class="btn btn-warning flex-grow-1"
-                @click="onUpdate"
-                :disabled="!selected.emp_id"
-              >
-                수정
-              </button>
+              
               <button
                 class="btn btn-danger flex-grow-1"
                 @click="onDelete"
-                :disabled="!selected.emp_id"
+                :disabled="!selected.emp_id || selected.mode == 'reg'"
               >
                 삭제
               </button>
@@ -224,7 +232,9 @@ export default {
       searchType: '',
       searchValue: '',
       employeeList: [],
-      selected: {}
+      selected: {},
+      codeList:[],
+      workList:[],
     };
   },
   computed: {
@@ -257,10 +267,30 @@ export default {
         const res = await axios.get('/api/employees', { params });
         this.employeeList = res.data;
         this.clearDetail();
+
+        
       } catch (err) {
         console.error('loadEmployees error', err);
         this.employeeList = [];
       }
+
+      try{
+        const codeList = await axios.get('/api/employees/userCode');        
+        this.codeList = codeList.data;
+      }catch(err){
+        console.error('loadEmployees error', err);
+        this.codeList = [];
+      }
+
+      try{
+        const workList = await axios.get('/api/employees/workCode');        
+        this.workList = workList.data;        
+      }catch(err){
+        console.error('loadEmployees error', err);
+        this.codeList = [];
+      }
+
+
     },
     // 필터 초기화
     resetFilter() {
@@ -274,11 +304,38 @@ export default {
     },
     // 상세 초기화
     clearDetail() {
-      this.selected = {};
+      this.selected = {mode:'reg'};
     },
     // 등록
     async onCreate() {
       try {
+        const emp = this.selected;
+
+        if (!emp.emp_name) {
+          alert('이름을 입력하세요.');
+          return;
+        }
+        if (!emp.user_id) {
+          alert('사용자 ID를 입력하세요.');
+          return;
+        }
+        if (!emp.user_passd) {
+          alert('비밀번호를 입력하세요.');
+          return;
+        }
+        if (!emp.role_code) {
+          alert('권한 코드를 선택하세요.');
+          return;
+        }
+        if (!emp.status_code) {
+          alert('상태 코드를 선택하세요.');
+          return;
+        }
+        if (!emp.hire_date) {
+          alert('입사일을 선택하세요.');
+          return;
+        }
+
         await axios.post('/api/employees', this.selected);
         await this.loadEmployees();
       } catch (err) {

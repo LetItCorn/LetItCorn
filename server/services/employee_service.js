@@ -38,7 +38,10 @@ const findEmployee = async (empId) => {
  * 3) 등록: 새 직원 추가
  */
 const createEmployee = async (emp) => {
-  const params = [
+
+  
+
+  let params = [
     emp.emp_id,
     emp.emp_name,
     emp.user_id,
@@ -54,6 +57,13 @@ const createEmployee = async (emp) => {
     emp.retire_date
   ];
   try {
+    const emp_id = await mariaDB.query('selectEmployeeEmpId');
+  
+    if(emp.emp_id == undefined){
+      params[0] = emp_id[0].next_emp_id;
+    }
+    
+      
     return await mariaDB.query('employeeInsert', params);
   } catch (err) {
     console.error('createEmployee error', err);
@@ -100,10 +110,29 @@ const deleteEmployee = async (empId) => {
   }
 };
 
+const findUserCode =  async () => {
+  try {
+    return await mariaDB.query('userCode');
+  } catch (err) {
+    console.error('findEmployees error', err);
+    return [];
+  }
+};
+const findWorkCode =  async () => {
+  try {
+    return await mariaDB.query('workCode');
+  } catch (err) {
+    console.error('findEmployees error', err);
+    return [];
+  }
+};
+
 module.exports = {
   findEmployees,
   findEmployee,
   createEmployee,
   updateEmployee,
-  deleteEmployee
+  deleteEmployee,
+  findUserCode,
+  findWorkCode,
 };

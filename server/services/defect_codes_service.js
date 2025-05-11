@@ -84,6 +84,14 @@ async function createDefectCode(defect) {
     defect.created_date
   ];
   try {
+
+     const defectCode = await mapper.query('selectdefectCode');
+      
+    if(defect.defect_code == undefined || defect.defect_code == ""){
+      params[0] = defectCode[0].next_defect_code;
+    }
+
+
     return await mapper.query('defectCodeInsert', params);
   } catch (err) {
     console.error('createDefectCode error:', err);

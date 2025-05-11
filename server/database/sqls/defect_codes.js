@@ -5,7 +5,7 @@ const defectCodesList = `
   SELECT defect_code
        , defect_type
        , is_used
-       , created_date
+      , DATE_FORMAT( created_date , '%Y-%m-%d') AS created_date
   FROM defect_codes
   WHERE 1=1
     AND (? = '' OR defect_code LIKE CONCAT('%', ?, '%'))
@@ -50,8 +50,16 @@ const defectCodeInfo = `
 
 // 3) 등록 (INSERT)
 const defectCodeInsert = `
-  INSERT INTO defect_codes (defect_code, defect_type, is_used, created_date)
-  VALUES (?, ?, ?, ?)
+    INSERT INTO defect_codes (
+    defect_code,
+    defect_type,
+    is_used,
+    created_date
+  ) VALUES (?, ?, ?, ?)
+  ON DUPLICATE KEY UPDATE
+    defect_type   = VALUES(defect_type),
+    is_used       = VALUES(is_used),
+    created_date  = VALUES(created_date);
 `;
 
 // 4) 수정 (UPDATE)
@@ -69,6 +77,25 @@ const defectCodeDelete = `
    WHERE defect_code = ?
 `;
 
+
+const selectdefectCode = `
+    SELECT
+  CONCAT(
+    'DC',
+    DATE_FORMAT(CURDATE(), '%y%m%d'),
+    LPAD(
+      IFNULL(
+        MAX(CAST(SUBSTRING(defect_code, 9, 3) AS UNSIGNED)),
+        0
+      ) + 1,
+      3,
+      '0'
+    )
+  ) AS next_defect_code
+FROM defect_codes;
+`;
+
+
 module.exports = {
   defectCodesList,
   defectCodesByCode,
@@ -77,5 +104,6 @@ module.exports = {
   defectCodeInfo,
   defectCodeInsert,
   defectCodeUpdate,
-  defectCodeDelete
+  defectCodeDelete,
+  selectdefectCode
 };

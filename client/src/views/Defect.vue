@@ -94,7 +94,7 @@
               <!-- 신규 등록 시 입력, 수정 시 읽기전용 -->
               <input
                 v-model="selected.defect_code"
-                :readonly="!!selected.defect_code"
+                readonly
                 class="form-control form-control-sm"
               />
             </div>
@@ -133,15 +133,8 @@
               <!-- 등록 -->
               <button
                 @click="onCreate"
-                class="btn btn-success flex-grow-1"
-                :disabled="!selected.defect_code"
-              >등록</button>
-              <!-- 수정 -->
-              <button
-                @click="onUpdate"
-                class="btn btn-warning flex-grow-1"
-                :disabled="!hasSelection"
-              >수정</button>
+                class="btn btn-success flex-grow-1"                
+              >등록</button>              
               <!-- 삭제 -->
               <button
                 @click="onDelete"
@@ -230,12 +223,30 @@ export default {
         defect_code: '',
         defect_type: '',
         is_used: 'Y',
-        created_date: ''
+        created_date: '',
+        mode:'reg',
       };
     },
     /** 신규 등록 */
     async onCreate() {
       try {
+
+         const { defect_type, is_used , created_date} = this.selected;
+
+        if (!defect_type || defect_type.trim() === '') {
+          alert('불량 유형을 입력하세요.');
+          return;
+        }
+
+        if (!is_used || !['Y', 'N'].includes(is_used)) {
+          alert('사용 여부를 선택하세요. (Y 또는 N)');
+          return;
+        }
+        if (!created_date) {
+          alert('생성일자를 선택하세요.');
+          return false;
+        }
+
         await axios.post('/api/defect_codes', this.selected);
         await this.loadDefects();
       } catch (err) {

@@ -1,5 +1,5 @@
 <template>
-  <AgGridVue class="ag-theme-alpine" style="height: 30vh;" :rowData="rowData" :columnDefs="columnDefs"
+  <AgGridVue class="ag-theme-alpine" style="height: 35vh;" :rowData="rowData" :columnDefs="columnDefs"
    :defaultColDef="defaultColDef"  @cell-clicked="onCellClicked"  />
 </template>
 <script>
