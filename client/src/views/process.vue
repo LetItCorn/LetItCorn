@@ -17,10 +17,8 @@
       </div>
       <div class="col-md-6">
         <div class="card">
-          <div class="card-header"><span>공정시작</span></div>
-          <div class="card-body">
-            상단 오른쪽 카드 내용
-          </div>
+          
+          <proController />
         </div>
       </div>
     </div>
@@ -45,6 +43,7 @@
 <script>
 import Grid from '@/components/Grid.vue';
 import axios from 'axios';
+import proController from '@/components/proController.vue';
 import { useProcess } from '@/store/processStat';
 export default {
   data() {
@@ -79,7 +78,8 @@ export default {
     };
   },
   components : {
-    Grid
+    Grid,
+    proController
   },
   created() {
     // console.log('created');
