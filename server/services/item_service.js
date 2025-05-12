@@ -89,13 +89,27 @@ const findByItem = async (itemCode) => {
 
 // 3) 품목 등록/수정 (MERGE)
 const saveItem = async (item) => {
+  let getItem  = await mariaDB.query('itemCode');
+  for( som of getItem ){
+    if(som.code_values === item.item_type){
+      item.type_name = som.code_name
+    }
+  }
+  let getUnit = await mariaDB.query('unitCode');
+  for( any of getUnit ){
+    if( any.code_values === item.unit_code){
+      item.spec = any.code_name
+    }
+  } 
+  console.log(item);
   const params = [
     item.item_code,
     item.item_name,
     item.item_type,
     item.unit_code,
     item.spec,
-    item.qty
+    item.qty,
+    item.type_name
   ];
   try {
     return await mariaDB.query('itemInsert', params);
