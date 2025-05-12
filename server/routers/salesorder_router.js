@@ -62,9 +62,9 @@ router.get('/salesorders/sort/:type', async (req, res) => {
 // 주문서 수정
 router.put('/salesorders/:id', async (req, res) => {
     try {
-        const orderCode = req.params.id;
+        const sorderCode = req.params.id;
         const updateData = req.body;
-        const result = await soService.updateSalesOrderInfo(orderCode, updateData);
+        const result = await soService.updateSalesOrderInfo(sorderCode, updateData);
         res.send(result);
     } catch (err) {
         res.status(500).send({ error: '주문서 수정에 실패했습니다.' });

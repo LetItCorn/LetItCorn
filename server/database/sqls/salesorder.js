@@ -1,7 +1,8 @@
 // server/database/sqls/salesorder.js
 module.exports = {
   // 주문서 전체 목록 조회
-  selectSalesOrderList: `SELECT
+  selectSalesOrderList: 
+  `SELECT
     so.sorder_code,
     c.client_name,
     c.client_mgr,
@@ -22,7 +23,8 @@ module.exports = {
   ORDER BY so.sorder_code DESC`,
 
   // 주문서 조건 목록 조회
-  selectSalesOrderOne: `SELECT
+  selectSalesOrderOne: 
+  `SELECT
     so.sorder_code,
     c.client_name,
     c.client_mgr,
@@ -44,7 +46,8 @@ module.exports = {
   ORDER BY so.sorder_code DESC`,
 
   // filter 주문번호에 의한 조회
-  selectSalesOrderBySorderCode: `SELECT
+  selectSalesOrderBySorderCode: 
+  `SELECT
     so.sorder_code,
     c.client_name,
     c.client_mgr,
@@ -65,7 +68,8 @@ module.exports = {
   ORDER BY so.sorder_code DESC`,
 
   // filter 납기일자에 의한 조회
-  selectSalesOrderByDeliveryDate: `SELECT
+  selectSalesOrderByDeliveryDate: 
+  `SELECT
     so.sorder_code,
     c.client_name,
     c.client_mgr,
@@ -86,7 +90,8 @@ module.exports = {
   ORDER BY so.delivery_date DESC`,
 
   // filter 거래처명에 의한 조회
-  selectSalesOrderByClientName: `SELECT
+  selectSalesOrderByClientName: 
+  `SELECT
     so.sorder_code,
     c.client_name,
     c.client_mgr,
@@ -107,7 +112,8 @@ module.exports = {
   ORDER BY c.client_name DESC`,
 
   // filter 품목명에 의한 조회
-  selectSalesOrderByItemName: `SELECT
+  selectSalesOrderByItemName: 
+  `SELECT
     so.sorder_code,
     c.client_name,
     c.client_mgr,
@@ -128,7 +134,8 @@ module.exports = {
   ORDER BY i.item_name DESC`,
 
   // filter 거래처 담당자에 의한 조회
-  selectSalesOrderByClientMgr: `SELECT
+  selectSalesOrderByClientMgr: 
+  `SELECT
     so.sorder_code,
     c.client_name,
     c.client_mgr,
@@ -149,30 +156,27 @@ module.exports = {
   ORDER BY c.client_mgr DESC`,
 
   // 주문서 수정
-  updateSalesOrder: `UPDATE salesorder AS so
-  JOIN client AS c 
-    ON so.client_code = c.client_code
-  JOIN items AS i
-    ON so.item_code = i.item_code
+  updateSalesOrder: 
+  `UPDATE salesorder 
   SET
-    c.client_name    = ?,
-    i.item_name      = ?,
-    so.delivery_date = ?,
-    so.sorder_count  = ?,
+    ?
   WHERE
-    so.sorder_code   = ?`,
+    sorder_code = ?`,
 
   // 주문서 삭제
-  deleteSalesOrder: `DELETE FROM salesorder
+  deleteSalesOrder: 
+  `DELETE FROM salesorder
     WHERE sorder_code = ?`,
 
-  selectClientList: `SELECT client_code,
+  selectClientList: 
+  `SELECT client_code,
     client_name,
     client_mgr,
     client_type
     FROM client`,
 
-  selectItemList: `SELECT item_code,
+  selectItemList: 
+  `SELECT item_code,
     item_name,
     item_type
     FROM items`,

@@ -34,28 +34,33 @@ const findSalesOrdersByCondition = async (conditions) => {
 };
 
 // 주문서 수정
-const updateSalesOrderInfo = async (orderCode, updateData) => {
-    const { 
-        clientName, 
-        itemName, 
-        deliveryDate, 
-        sorderCount, 
-        status
-    } = updateData;
+const updateSalesOrderInfo = async (sorderCode, updateData) => {
+    let data = [updateData, sorderCode]
     
-    await mariadb.query('updateSalesOrder', [
-        clientName, 
-        itemName, 
-        deliveryDate, 
-        sorderCount, 
-        status, 
-        orderCode
-    ]).catch(err => {
-        console.error(err);
-        throw err;
+    let resInfo = await mariadb.query('updateSalesOrder', data).catch(err => {
+                    console.error(err);
+                    throw err;
     });
+
+    result = null;
+
+    if (resInfo.affectedRows > 0) {
+        updateData.sordercode = sorderCode;
+        console.log('성공');
+        result = {
+            isUpdated: true,
+            message: '주문서가 수정되었습니다.',
+            updateData,
+        };
+    } else {
+        console.log('실패');
+        result = {
+            isUpdated: false,
+            message: '주문서 수정에 실패했습니다.',
+        };
+    }
     
-    return { success: true, message: '주문서가 수정되었습니다.' };
+    return result;
 };
 
 // 주문서 삭제
