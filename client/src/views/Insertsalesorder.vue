@@ -47,7 +47,7 @@
       
       <div class="form-group">
         <label>주문수량</label>
-        <input type="number" v-model.number="orderData.sorderCount" min="1">
+        <input type="number" v-model.number="orderData.sorderCount" min="100">
       </div>
       
       <div class="form-group">
@@ -74,7 +74,7 @@ export default {
         itemName: '',
         sorderCount: 100,
         deliveryDate: this.getTodayDate(),
-        status: '대기', // 첫 주문서 등록 상태는 대기
+        codeValues: 'K01',
         empId: 'EMP02' // 로그인한 사용자 ID로 설정할 예정 (추후 수정합니다.)
       },
       selectedClient: '',
@@ -171,7 +171,7 @@ export default {
         item_code:this.orderData.itemCode,
         delivery_date:this.orderData.deliveryDate,
         sorder_count:this.orderData.sorderCount,
-        status:this.orderData.status,
+        code_values:this.orderData.codeValues,
         emp_id:this.orderData.empId
       }
 

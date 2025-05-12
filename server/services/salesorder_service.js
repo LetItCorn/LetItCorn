@@ -18,16 +18,17 @@ const findSalesOrderByCode = async (orderCode) => {
 
 // 주문서 검색 조건별 조회
 const findSalesOrdersByCondition = async (conditions) => {
-    let { deliveryDate, orderCode, clientName, itemName, clientMgr } = conditions;
+    let { sorderCode, clientName, clientMgr, itemName, sorderCount, deliveryDate } = conditions;
     
     // 기본값 처리
-    deliveryDate = deliveryDate || '';
-    orderCode = orderCode || '';
+    sorderCode = sorderCode || '';
     clientName = clientName || '';
-    itemName = itemName || '';
     clientMgr = clientMgr || '';
+    itemName = itemName || '';
+    sorderCount = sorderCount || '';
+    deliveryDate = deliveryDate || '';
     
-    let orders = await mariadb.query('selectSalesOrderOne', [deliveryDate, orderCode, clientName, itemName, clientMgr])
+    let orders = await mariadb.query('selectSalesOrderOne', [sorderCode, clientName, clientMgr, itemName, sorderCount, deliveryDate])
         .catch(err => console.error(err));
     return orders;
 };

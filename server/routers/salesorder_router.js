@@ -17,11 +17,12 @@ router.get('/salesorders', async (req, res) => {
 router.get('/salesorders/search', async (req, res) => {
     try {
         const conditions = {
-            deliveryDate: req.query.deliveryDate,
-            orderCode: req.query.orderCode,
+            sorderCode: req.query.sorderCode,
             clientName: req.query.clientName,
+            clientMgr: req.query.clientMgr,
             itemName: req.query.itemName,
-            clientMgr: req.query.clientMgr
+            sorderCount : req.query.sorderCount,
+            deliveryDate: req.query.deliveryDate
         };
         
         const salesOrders = await soService.findSalesOrdersByCondition(conditions);

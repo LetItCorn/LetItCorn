@@ -7,7 +7,7 @@ module.exports = {
     item_code, 
     delivery_date, 
     sorder_count,
-    status,
+    code_values,
     emp_id
   ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
 }
