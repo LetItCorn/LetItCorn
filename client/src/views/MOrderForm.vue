@@ -319,10 +319,13 @@ export default {
     }
   },
   async created() {
-    // 발주ID 및 등록번호 자동 생성
+    // 발주ID 및 등록번호 자동 생성(매번 고유하도록 날짜+타임스탬프 사용)
     const prefix = 'MORD';
-    const date = useDates.dateFormat(new Date(), 'yyMMdd');
-    const code = `${prefix}${date}000`;
+    // 'yyMMdd' 포맷을 사용하여 연월일 생성
+    const date = useDates.dateFormat(new Date(), 'yyyyMMdd');
+    // 밀리초 단위 타임스태프로 고유값 생성
+    const timestamp = Date.now();
+    const code = `${prefix}${date}${timestamp}`;
     this.form.moder_id = code;
     this.form.reg_number = code;
 
