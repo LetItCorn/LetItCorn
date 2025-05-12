@@ -43,5 +43,7 @@ WHERE mout_id = ?
 
 module.exports = {
   selectOutboundList,
-  insertOutbound
+  insertOutbound,
+  selectOutboundOne,
+  deleteOutbound
 };

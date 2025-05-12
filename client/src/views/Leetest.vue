@@ -1,7 +1,6 @@
 <template>
   <div class="container-fluid py-4">
     <h2 class="text-center mb-4">자재 조회</h2>
-
     <div class="card shadow-sm">
       <!-- 필터 영역: 검색어 입력, 재고 부족 체크박스, 초기화 버튼 -->
       <div class="card-header bg-light">
@@ -55,9 +54,8 @@
                 </th>
                 <th>자재 코드</th>
                 <th>자재명</th>
-                <th>자재구분</th>
                 <th>안전재고</th>
-                <th>전체재고</th>
+                <th>현재재고</th>
               </tr>
             </thead>
             <tbody>
@@ -76,7 +74,6 @@
                 </td>
                 <td>{{ mat.mater_code }}</td>
                 <td>{{ mat.mater_name }}</td>
-                <td>{{ mat.category_name }}</td>
                 <td>{{ mat.safe_stock }}</td>
                 <td>{{ mat.total_stock }}</td>
               </tr>
@@ -132,7 +129,7 @@ export default {
   methods: {
     async fetchInventory() {
       try {
-        const res = await axios.get('/api/materials');
+        const res = await axios.get('/api/materials/stock');
         // 서버에서 넘어오는 필드: mater_code, mater_name, category_name, safe_stock, total_stock
         this.inventoryList = res.data;
         this.applyFilters();
@@ -144,10 +141,12 @@ export default {
     applyFilters() {
       const q = this.searchQuery.trim().toLowerCase();
       this.filteredList = this.inventoryList.filter(item => {
+
+        const code = item.mater_code?.toLowerCase() || '';
+        const name = item.mater_name?.toLowerCase() || '';
+
         const matchesQuery = q
-          ? item.mater_code.toLowerCase().includes(q) ||
-            item.mater_name.toLowerCase().includes(q) ||
-            item.category_name.toLowerCase().includes(q)
+          ? code.includes(q) || name.includes(q)
           : true;
         const matchesLowStock = this.lowStockOnly
           ? item.total_stock < item.safe_stock
