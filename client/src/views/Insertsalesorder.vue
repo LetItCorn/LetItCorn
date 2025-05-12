@@ -290,33 +290,26 @@ export default {
 }
 
 .btn {
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 20px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 16px !important;
-  transition: all 0.3s ease;
-  width: 100px;
   margin-bottom: 0 !important;
+  width: 100%;
   background-color: #000 !important;
   color: #fff !important;
   border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px !important;
   border: 1px solid #000 !important;
 }
 
 .btn-register {
-  background-color: #0000ff !important;
-  color: #fff !important;
-  min-width: 100px;
+  background-color: #fbff00 !important;
+  color: #000 !important;
+  width: 100px;
 }
 
 .btn-cancel {
-  background-color: #6c757d !important;
+  background-color: #000 !important;
   color: #fff !important;
-  min-width: 100px;
+  width: 100px;
 }
 
 /* 폼 스타일 */

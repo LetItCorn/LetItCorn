@@ -7,10 +7,10 @@
       </div>
       <!-- 모든 버튼에 active 효과 / action-buttons 제외 하고 색깔 변경 -->
       <div class="action-buttons">
-        <button class="btn btn-select" :class="{ active: activeAction === 'search' }" @click="showSearchModal">조회</button>
-        <button class="btn btn-update" :class="{ active: activeAction === 'update' }" @click="showUpdateModal">수정</button>
+        <button class="btn btn-select" :class="{ active: activeAction === 'search' }" @click="showSearchModal">조회</button> <!-- 조회 modal -->
+        <button class="btn btn-update" :class="{ active: activeAction === 'update' }" @click="confirmUpdate">수정</button> <!-- 수정 modal // confirmUpdate => showUpdateModal => searchSalesOrders -->
         <button class="btn btn-delete" :class="{ active: activeAction === 'delete' }" @click="confirmDelete">삭제</button>
-        <button class="btn btn-outline" :class="{ active: activeAction === 'output' }" @click="showOutputModal">출고량 등록</button>
+        <button class="btn btn-outline" :class="{ active: activeAction === 'output' }" @click="insertSqt">출고량 등록</button> <!-- shipment quantity 출고량 -->
       </div>
     </div>
     
@@ -156,6 +156,7 @@ export default {
       updateModalVisible: false,
       selectAll: false,
       currentPage: 1,
+      selectedOrder: null,
       searchParams : {
         sorderCode: '',
         clientName: '',
@@ -172,14 +173,6 @@ export default {
         sorderCount: '',
         deliveryDate: ''
       },
-      // resetSearchParams : {
-      //   sorderCode: '',
-      //   clientName: '',
-      //   clientMgr: '',
-      //   itemName: '',
-      //   sorderCount: '',
-      //   deliveryDate: ''
-      // }
     };
   },
   computed: {
@@ -260,7 +253,19 @@ export default {
       console.log('searchModalVisible:', this.searchModalVisible); // 상태 변경 확인
     },
     showUpdateModal() {
+      console.log('updateModalVisible called'); // 호출 확인
       this.updateModalVisible = true;
+      console.log('updateModalVisible:', this.updateModalVisible); // 상태 변경 확인
+    },
+    resetSearchParams() { // 조회 검색 조건 초기화
+      this.searchParams = {
+        sorderCode: '',
+        clientName: '',
+        clientMgr: '',
+        itemName: '',
+        sorderCount: '',
+        deliveryDate: ''
+      };
     },
     async searchSalesOrders() {
       try {
@@ -282,7 +287,7 @@ export default {
         }));
         
         this.searchModalVisible = false;
-        //this.resetSearchParams();
+        this.resetSearchParams();
         this.currentPage = 1; // 검색 결과 첫 페이지로 이동
       } catch (error) {
         console.error('주문서 검색 중 오류 발생:', error);
@@ -293,27 +298,86 @@ export default {
         });
       }
     },
-    async updateSalesOrders() {
+    confirmUpdate() {
+      const selectedOrders = this.salesOrders.filter(order => order.selected);
+    
+      if (selectedOrders.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: '수정할 주문서 체크가 빠진 것 같아요.',
+          text: '수정할 주문서를 하나만 선택해주세요.'
+        });
+        return;
+      }
 
+      if (selectedOrders.length > 1) {
+        Swal.fire({
+          icon: 'warning',
+          title: '수정할 주문서는 하나만 선택해주세요.',
+          text: '수정할 주문서를 하나만 선택해주세요.'
+        });
+        return;
+      }
+      
+      this.selectedOrder = selectedOrders[0];
+      // 수정할 데이터 구성
+      const updateParams = {
+        sorderCode: this.selectedOrder.sorder_code,
+        clientName: this.selectedOrder.client_name,
+        clientMgr: this.selectedOrder.client_mgr,
+        itemName: this.selectedOrder.item_name,
+        sorderCount: this.selectedOrder.sorder_count,
+        deliveryDate: this.selectedOrder.delivery_date
+      };
+      this.showUpdateModal();
     },
-    // goToAddSalesOrder() {
-    //   // 수정 페이지로 이동
-    //   const selectedOrders = this.salesOrders.filter(order => order.selected);
-      
-    //   if (selectedOrders.length !== 1) {
-    //     Swal.fire({
-    //       icon: 'warning',
-    //       title: '선택 오류',
-    //       text: '수정할 주문서를 하나만 선택해주세요.'
-    //     });
-    //     return;
-    //   }
-      
-    //   this.$router.push({ 
-    //     name: 'EditSalesOrder', 
-    //     params: { id: selectedOrders[0].sorder_code } 
-    //   });
-    // },
+    async updateSalesOrders() {
+      try{
+        if (!this.selectedOrder) {
+          Swal.fire({
+            icon: 'error',
+            title: '수정할 주문서를 선택해주세요.',
+            text: '주문서를 선택해주세요.'
+          });
+          return;
+        }
+
+        const updatedOrder = {
+          sorder_count: parseInt(this.updateParams.sorderCount, 10),
+          delivery_date: this.updateParams.deliveryDate
+        }
+
+        await axios.put(`/api/salesorders/${this.selectedOrder.sorder_code}`, updatedOrder);
+
+        Swal.fire({
+          icon: 'success',
+          title: '수정 완료',
+          text: '주문서가 수정되었습니다.'
+        });
+
+        this.updateModalVisible = false;
+        this.selectedOrder = null; // 선택된 주문서 초기화
+
+        this.fetchAllSalesOrders();
+      } catch (error) {
+        console.error('주문서 수정 중 오류 발생:', error);
+        Swal.fire({
+          icon: 'error',
+          title: '수정 실패',
+          text: '주문서 수정에 실패했습니다.'
+        });
+      }
+    },
+    resetUpdateParams() {
+      this.updateParams = {
+        sorderCode: '',
+        clientName: '',
+        clientMgr: '',
+        itemName: '',
+        sorderCount: '',
+        deliveryDate: ''
+      };
+    },
     confirmDelete() {
       const selectedOrders = this.salesOrders.filter(order => order.selected);
       
@@ -364,7 +428,7 @@ export default {
         });
       }
     },
-    showOutputModal() {
+    insertSqt() {
       const selectedOrders = this.salesOrders.filter(order => order.selected);
       
       if (selectedOrders.length !== 1) {
@@ -381,18 +445,19 @@ export default {
         params: { id: selectedOrders[0].sorder_code } 
       });
     },
-    closeModalOnBackgroundClick(event) {
     // 배경 클릭 시에만 모달 닫기
+    closeModalOnBackgroundClick(event) {
     if (event.target.className === 'modal') {
-      // if (this.searchModalVisible) {
-      //   this.resetSearchParams();
-      // }
-      this.searchModalVisible = false;
-      this.updateModalVisible = false;
-
-    }
-  },
-
+        if (this.searchModalVisible) {
+          this.resetSearchParams();
+        }
+        if (this.updateModalVisible) {
+          this.resetUpdateParams();
+        }
+        this.searchModalVisible = false;
+        this.updateModalVisible = false;
+      }
+    },
   }
 };
 </script>
@@ -553,7 +618,7 @@ td {
   position: fixed;
   width: 100% !important;
   height: 100% !important;
-  z-index: 9999 !important;
+  z-index: 99 !important;
   display: flex !important;
   align-items: center;
   justify-content: center;
