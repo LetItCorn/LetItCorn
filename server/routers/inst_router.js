@@ -10,9 +10,11 @@ router.get('/inst/:inst_head', async (req,res)=>{
   res.send(instInfo);
 })
 //등록
-router.post('/register', async (req, res) => {
+router.post('/inst/register', async (req, res) => {
   try {
+    console.log(req.body);
     let result = await instService.registerInst(req.body);
+    console.log(result);
     res.json(result);
   } catch (err) {
     console.error("등록 실패:", err);

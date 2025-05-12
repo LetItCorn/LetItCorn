@@ -76,7 +76,7 @@ const menuConfig = {
     ],
     "생산지시": [{
       name: "조회",
-      path: '#'
+      path: 'insts'
     }, {
       name: "작성",
       path: 'inst'

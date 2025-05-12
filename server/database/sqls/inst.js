@@ -2,9 +2,7 @@
 
 const selectInst = 
 `SELECT
-  i.inst_no,
   p.plan_no,
-  i.lot_cnt,
   it.item_name,
   p.plans_vol,
   i.iord_no,
@@ -16,9 +14,7 @@ const selectInst =
     WHEN 'Z01' THEN '완공정'
     WHEN 'X01' THEN '반공정'
   END AS process_header,
-  CASE i.out_od
-    WHEN 'Y' THEN 'O'
-    WHEN 'N' THEN 'X'
+     i.out_od,
     ELSE NULL
   END AS out_od
 FROM inst i
