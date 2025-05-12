@@ -60,7 +60,7 @@ const registerInst = async ({ header, details }) => {
         instHead,
         details[0].plan_start,
         details[0].plan_end,
-        "J01", // 지시 상태코드 (J01 = 작성됨)
+        "J01", // 지시 상태코드 (J01 = 대기)
         header.plans_head,
         header.inster || "관리자",
       ]
@@ -87,7 +87,7 @@ const registerInst = async ({ header, details }) => {
         ]
       );
 
-      // 3-2. 해당 계획(plan_header) 상태를 "지시됨(J01)"로 변경
+      // 3-2. 해당 계획(plan_header) 상태를 "대기(J01)"로 변경
       await conn.query(
         `UPDATE plan_header SET plan_stat = 'J01' WHERE plans_head = ?`,
         [header.plans_head]

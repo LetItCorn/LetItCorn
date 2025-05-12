@@ -13,8 +13,8 @@ const selectInst =
   ph.plan_end,
   ph.plan_start,
   CASE i.process_header
-    WHEN 'A01' THEN '완공정'
-    WHEN 'B01' THEN '반공정'
+    WHEN 'Z01' THEN '완공정'
+    WHEN 'X01' THEN '반공정'
   END AS process_header,
   CASE i.out_od
     WHEN 'Y' THEN 'O'

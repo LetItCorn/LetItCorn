@@ -20,7 +20,7 @@ router.get("/plans/list", async (req, res) => {
 router.get('/plans/detail/:plansHead', async (req, res) => {
   try {
     const result = await plansService.findByPlans(req.params.plansHead);
-    console.log('📦 디테일 조회 결과:', result);
+    console.log('디테일 조회 결과:', result);
     res.send(result);
   } catch (err) {
     console.error('상세 조회 실패:', err);
