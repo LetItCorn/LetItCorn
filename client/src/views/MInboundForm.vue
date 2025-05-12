@@ -2,7 +2,6 @@
 <template>
   <div class="container py-4">
     <h2 class="text-center mb-4">자재 입고 처리</h2>
-
     <!-- 선택된 발주서 목록 카드 -->
     <!-- 밑의 코드는 pinia 스토어에서 가져온 품질검사 합격 발주서 목록을 보여준다.
           inboundRows 배열이 비어 있으면 안내 문구를, 그렇지 않으면 테이블을 렌더링한다. 

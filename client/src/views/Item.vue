@@ -309,7 +309,7 @@ export default {
       try{
         const res = await axios.get('/api/items/itemCode');
         this.codeList = res.data;
-        console.log(this.codeList);
+        //console.log(this.codeList);
       } catch {
         this.codeList = [];
       }
@@ -320,7 +320,7 @@ export default {
       try {
         const res = await axios.get('/api/items/unitCode');
         this.unitList = res.data;
-        console.log(this.unitList);
+        //console.log(this.unitList);
       }catch {
         this.unitList = [];
       }
@@ -365,9 +365,10 @@ export default {
     },
 
     // 2) 등록/수정(머지문으로 처리) 호출
-    async saveItem() {
+     async saveItem() {
       try {
         // MERGE 구문을 사용하는 POST /api/items 엔드포인트 호출
+        console.log(this.selected)
         await axios.post('/api/items', this.selected);
         // 저장 후 목록 갱신
         await this.loadItems();
@@ -426,6 +427,7 @@ export default {
     async deleteProcessItem() {
       if (!this.selectProcessItem.sequence_order) return;
       try {
+         console.log(this.selectProcessItem.sequence_order);
         await axios.post('/api/items/deleteProcessItem', this.selectProcessItem);
         this.fetchProcessFlows(this.selected.item_code);
       } catch {}

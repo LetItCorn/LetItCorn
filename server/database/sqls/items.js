@@ -112,14 +112,15 @@ const itemInfo = `
 
 // 3) 등록/수정 MERGE
 const itemInsert = `
-  INSERT INTO items (item_code, item_name, item_type, unit_code, spec, qty)
-  VALUES (?, ?, ?, ?, ?, ?)
+  INSERT INTO items (item_code, item_name, item_type, unit_code, spec, qty, type_name)
+  VALUES (?, ?, ?, ?, ?, ?, ?)
   ON DUPLICATE KEY UPDATE
     item_name = VALUES(item_name),
     item_type = VALUES(item_type),
     unit_code = VALUES(unit_code),
     spec      = VALUES(spec),
-    qty       = VALUES(qty)
+    qty       = VALUES(qty),
+    type_name = VALUES(type_name)
 `;
 
 // 4) 삭제

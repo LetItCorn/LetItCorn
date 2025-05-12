@@ -14,7 +14,6 @@ SELECT
   min_oqty          AS min_oqty,
   test_no           AS test_no
 FROM m_inbound
-
 ORDER BY min_date DESC
 `;
 
@@ -27,8 +26,16 @@ INSERT INTO m_inbound (
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
+// 자재 현재고 누적 갱신용 sql
+const updateMaterialStock = `
+update material
+set current_stock = current_stock + ?
+where mater_code = ?
+`;
+
 
 module.exports = {
   selectInboundList,
-  insertInbound
+  insertInbound,
+  updateMaterialStock
 };

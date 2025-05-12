@@ -8,7 +8,7 @@ module.exports = {
     i.item_name,
     so.delivery_date,
     so.sorder_count,
-    so.status,
+    com.code_name,
     e.emp_name
   FROM salesorder AS so
   JOIN client AS c
@@ -17,6 +17,8 @@ module.exports = {
     ON so.item_code = i.item_code
   JOIN employees AS e
     ON so.emp_id = e.emp_id
+  JOIN common_codes AS com
+    ON so.code_values = com.code_values
   ORDER BY so.sorder_code DESC`,
 
   // 주문서 조건 목록 조회
@@ -27,7 +29,7 @@ module.exports = {
     i.item_name,
     so.delivery_date,
     so.sorder_count,
-    so.status,
+    com.code_name,
     e.emp_id
   FROM salesorder AS so
   JOIN client     AS c
@@ -36,7 +38,9 @@ module.exports = {
     ON so.item_code = i.item_code
   JOIN employees  AS e
     ON so.emp_id = e.emp_id
-  WHERE so.delivery_date = ? or so.sorder_code = ? or c.client_name = ? or i.item_name = ? or c.client_mgr = ?
+  JOIN common_codes AS com
+    ON so.code_values = com.code_values
+  WHERE so.sorder_code = ? or c.client_name = ? or c.client_mgr = ? or i.item_name = ? or so.sorder_count = ? or so.delivery_date = ?
   ORDER BY so.sorder_code DESC`,
 
   // filter 주문번호에 의한 조회
@@ -47,7 +51,7 @@ module.exports = {
     i.item_name,
     so.delivery_date,
     so.sorder_count,
-    so.status,
+    com.code_name,
     e.emp_id
   FROM salesorder AS so
   JOIN client     AS c
@@ -56,6 +60,8 @@ module.exports = {
     ON so.item_code = i.item_code
   JOIN employees  AS e
     ON so.emp_id = e.emp_id
+  JOIN common_codes AS com
+    ON so.code_values = com.code_values
   ORDER BY so.sorder_code DESC`,
 
   // filter 납기일자에 의한 조회
@@ -66,7 +72,7 @@ module.exports = {
     i.item_name,
     so.delivery_date,
     so.sorder_count,
-    so.status,
+    com.code_name,
     e.emp_id
   FROM salesorder AS so
   JOIN client     AS c
@@ -75,6 +81,8 @@ module.exports = {
     ON so.item_code = i.item_code
   JOIN employees  AS e
     ON so.emp_id = e.emp_id
+  JOIN common_codes AS com
+    ON so.code_values = com.code_values    
   ORDER BY so.delivery_date DESC`,
 
   // filter 거래처명에 의한 조회
@@ -85,7 +93,7 @@ module.exports = {
     i.item_name,
     so.delivery_date,
     so.sorder_count,
-    so.status,
+    com.code_name,
     e.emp_id
   FROM salesorder AS so
   JOIN client     AS c
@@ -94,6 +102,8 @@ module.exports = {
     ON so.item_code = i.item_code
   JOIN employees  AS e
     ON so.emp_id = e.emp_id
+  JOIN common_codes AS com
+    ON so.code_values = com.code_values 
   ORDER BY c.client_name DESC`,
 
   // filter 품목명에 의한 조회
@@ -104,7 +114,7 @@ module.exports = {
     i.item_name,
     so.delivery_date,
     so.sorder_count,
-    so.status,
+    com.code_name,
     e.emp_id
   FROM salesorder AS so
   JOIN client     AS c
@@ -113,6 +123,8 @@ module.exports = {
     ON so.item_code = i.item_code
   JOIN employees  AS e
     ON so.emp_id = e.emp_id
+  JOIN common_codes AS com
+    ON so.code_values = com.code_values 
   ORDER BY i.item_name DESC`,
 
   // filter 거래처 담당자에 의한 조회
@@ -123,7 +135,7 @@ module.exports = {
     i.item_name,
     so.delivery_date,
     so.sorder_count,
-    so.status,
+    com.code_name,
     e.emp_id
   FROM salesorder AS so
   JOIN client     AS c
@@ -132,6 +144,8 @@ module.exports = {
     ON so.item_code = i.item_code
   JOIN employees  AS e
     ON so.emp_id = e.emp_id
+  JOIN common_codes AS com
+    ON so.code_values = com.code_values
   ORDER BY c.client_mgr DESC`,
 
   // 주문서 수정
@@ -145,7 +159,6 @@ module.exports = {
     i.item_name      = ?,
     so.delivery_date = ?,
     so.sorder_count  = ?,
-    so.status        = ?
   WHERE
     so.sorder_code   = ?`,
 
