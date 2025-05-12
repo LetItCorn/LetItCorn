@@ -36,12 +36,10 @@ export const useInstStore = defineStore('inst', {
     },
     async registerInstData(data) {
       try {
-        await axios.post('/api/inst/register', data);
-        alert('등록 완료');
+        await axios.post('/api/inst/register', data);        
         this.resetAll();
       } catch (err) {
         console.error(err);
-        alert('등록 실패');
       }
     },
   },

@@ -34,6 +34,7 @@ import ProductionInst from "@/views/ProductionInst.vue";
 import Process from "@/views/process.vue";
 import SFproduct from "../views/SFproduct.vue";
 import Material from "@/views/Material.vue";
+import ProductionInstInquiry from "@/views/ProductionInstInquiry.vue";
 
 const routes = [
   {
@@ -168,6 +169,11 @@ const routes = [
     path: '/inst',
     name: 'ProductionInst',
     component: ProductionInst,
+  },
+  {
+    path: '/insts',
+    name: 'ProductionInstInquiry',
+    component: ProductionInstInquiry,
   },
   { 
 

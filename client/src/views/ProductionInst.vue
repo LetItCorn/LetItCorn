@@ -26,12 +26,13 @@
 import { storeToRefs } from "pinia";
 import { AgGridVue } from "ag-grid-vue3";
 import "ag-grid-community/styles/ag-grid.css";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useInstStore } from "@/store/inst";
 import PlanSelectModal from "@/examples/ModalsExaple/InstModal.vue";
 
 const productionInstStore = useInstStore();
 const gridRef = ref(null);
+const gridApi = ref(null);
 const { selectedPlans, isPlanModalOpen } = storeToRefs(productionInstStore);
 
 // 등록 시 header에 담을 정보 (plans_head만 전달됨)
@@ -50,7 +51,7 @@ function resetAll() {
   productionInstStore.resetAll();
 }
 function onGridReady(params) {
-  gridRef.value = params.api;
+  gridApi.value = params.api;
 }
 
 const columnDefs = ref([
@@ -61,10 +62,8 @@ const columnDefs = ref([
     pinned: "left",
     width: 50,
   },
-  { field: "inst_no", headerName: "생산지시번호", flex: 2 },
   { field: "plan_no", headerName: "생산계획번호", flex: 2 },
-  { field: "lot_cnt", headerName: "LOT번호", flex: 2 },
-  { field: "item_name", headerName: "품목명", flex: 1 },
+  { field: "item_name", headerName: "품목명", flex: 2 },
   { field: "plans_vol", headerName: "생산계획량", flex: 1 },
   {
     field: "iord_no",
@@ -118,7 +117,7 @@ const columnDefs = ref([
     editable: true,
     cellEditor: "agSelectCellEditor",
     cellEditorParams: {
-      values: ["O", "X"],
+      values: ["Y", "N"],
     },
     flex: 1,
   },
@@ -126,20 +125,21 @@ const columnDefs = ref([
 
 // 등록 로직
 async function registerInst() {
-  if (!gridRef.value || !gridRef.value.api) {
+  if (!gridApi.value) {
     console.error("gridRef is not ready");
     alert("그리드가 아직 초기화되지 않았습니다.");
-    return;
-  }
-  const rowData = [];
-  const rowCount = gridRef.value.api.getDisplayedRowCount();
+  return;
+}
 
-  for (let i = 0; i < rowCount; i++) {
-    const rowNode = gridRef.value.api.getDisplayedRowAtIndex(i);
-    if (rowNode && rowNode.data) {
-      rowData.push(rowNode.data);
-    }
+const rowData = [];
+const rowCount = gridApi.value.getDisplayedRowCount();
+
+for (let i = 0; i < rowCount; i++) {
+  const rowNode = gridApi.value.getDisplayedRowAtIndex(i);
+  if (rowNode && rowNode.data) {
+    rowData.push(rowNode.data);
   }
+}
   if (rowData.length === 0) {
     alert("등록할 항목이 없습니다.");
     return;

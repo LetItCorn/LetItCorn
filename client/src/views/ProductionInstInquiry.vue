@@ -1,5 +1,6 @@
 <template>
   <!--생산 지시 조회-->
+  <div class="inquiry-header">
   <div class="date-wrapper">
   <div class="date-range">
   <label>일자</label>
@@ -16,6 +17,8 @@
 <!--생산지시정보-->
   <ag-grid-vue
   class="ag-theme-alpine"
+  style="width: 100%; height: 500px"
+  ref="mainGridRef"
   :columnDefs="instColumnDefs"
   :rowData="List"
   rowSelection="multiple"
@@ -24,10 +27,12 @@
   <!--상세정보-->
   <ag-grid-vue
   class="ag-theme-alpine"
-  ref="gridRef"
+  style="width: 100%; height: 500px"
+  ref="detailGridRef"
   :columnDefs="detailColumnDefs"
   :rowData="rowData"
   rowSelection="single" />
+</div>
 </template>
 <script setup>
 //composition api 해보겠습니다이
@@ -94,3 +99,38 @@ for (const plan of selectedPlan.value) {
 }
 }
 </script>
+
+<style scoped>
+.inquiry-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.date-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+}
+
+.button-group {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  display: flex;
+  gap: 8px;
+}
+
+.date-range {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.date-range label {
+  font-weight: bold;
+  white-space: nowrap;
+  margin-bottom: 0;
+}
+</style>

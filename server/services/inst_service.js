@@ -50,31 +50,32 @@ const registerInst = async ({ header, details }) => {
 
     // 1. 지시 헤더번호 생성
     let instHead = await getNextInstHead(conn);
-    let today = new Date().toISOString().slice(0, 10); // yyyy-MM-dd
+    const startDate = new Date(details[0].plan_start).toISOString().slice(0, 10);
+    //const endDate = new Date(details[0].plan_end).toISOString().slice(0, 10);
 
     // 2. 지시 헤더 등록
     await conn.query(
-      `INSERT INTO inst_header (inst_head, inst_start, inst_end, inst_stat, plans_head, inster)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO inst_header (inst_head, inst_start, inst_stat, plans_head, inster)
+       VALUES (?, ?, ?, ?, ?)`,
       [
         instHead,
-        details[0].plan_start,
-        details[0].plan_end,
+        startDate,
         "J01", // 지시 상태코드 (J01 = 대기)
         header.plans_head,
         header.inster || "관리자",
       ]
     );
+    console.log(mariadb.query);
 
     // 3. 선택된 plan 상세 목록 루프
     for (let row of details) {
       let instNo = await getNextInstNo(conn);
       let lotNo = await getNextLotNo(conn);
-
+      console.log(mariadb.query)
       // 3-1. 지시 디테일 등록
       await conn.query(
-        `INSERT INTO inst (inst_no, lot_cnt, plans_vol, iord_no, process_header, out_od, inst_head, item_code)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO inst (inst_no, lot_cnt, plans_vol, iord_no, process_header, out_od, inst_head, item_code, ins_stat)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           instNo,
           lotNo,
@@ -84,14 +85,17 @@ const registerInst = async ({ header, details }) => {
           row.out_od,
           instHead,
           row.item_code,
+          "J01"
         ]
       );
+      console.log(mariadb.query);
 
-      // 3-2. 해당 계획(plan_header) 상태를 "대기(J01)"로 변경
+      // 3-2. 해당 계획(plan_header) 상태를 "진행중(K02)"로 변경
       await conn.query(
-        `UPDATE plan_header SET plan_stat = 'J01' WHERE plans_head = ?`,
+        `UPDATE plan_header SET plan_stat = 'K02' WHERE plans_head = ?`,
         [header.plans_head]
       );
+      console.log(mariadb.query);
     }
 
     await conn.commit(); // 정상 수행 시 커밋

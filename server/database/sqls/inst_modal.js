@@ -9,6 +9,7 @@ const selectPlanList =
   ph.plan_start,
   ph.plan_end,
   ph.plan_stat,
+  ph.plans_head,
   CASE ph.plan_stat
     WHEN 'K01' THEN '대기'
     WHEN 'K02' THEN '진행중'
