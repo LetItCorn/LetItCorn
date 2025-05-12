@@ -16,7 +16,7 @@
         </div>  
       </div>
       <div class="col-md-6">
-        <div class="card">
+        <div class="card h-100">
           
           <proController />
         </div>
@@ -33,7 +33,7 @@
           </div>
           <div class="card-body">
             <!-- 공정흐름도의 각 공정 진행 정보-->
-            <Grid :rowData="flowData" :columnDefs="flowCol" />
+            <Grid :rowData="flowData" :columnDefs="flowCol" @setController="onFlowClicked" />
           </div>
         </div>
       </div>
@@ -45,6 +45,7 @@ import Grid from '@/components/Grid.vue';
 import axios from 'axios';
 import proController from '@/components/proController.vue';
 import { useProcess } from '@/store/processStat';
+import { mapActions } from 'pinia';
 export default {
   data() {
     return {
@@ -87,6 +88,7 @@ export default {
     this.getInst()
   },
   methods : {
+    ...mapActions(useProcess, ['setProCode','setOrderQty']),
     // 생산지시 조회 쿼리 실행 함수
     async getInst() {
       let res = await axios.get(`api/proce`)
@@ -99,13 +101,21 @@ export default {
     },
     // 선택한 생산지시의 품목정보 업뎃
     async getInstData(data){
+      this.setOrderQty('')
       this.instData = data
       let procFlow = this.instData.item_code
       let res = await axios.get(`api/getFlow/${procFlow}`)
       this.instData.item_name = res.data[0].item_name
       this.flowData = res.data
-    }
+    },
+    // 라벨용 pinia
+    onFlowClicked(e) {
+    console.log(e);
+    this.setProCode(e); // 공정 정보 저장
+    this.setOrderQty(this.instData.iord_no); // 지시량 저장
   },
+  },
+  
   watch :{
     
   }

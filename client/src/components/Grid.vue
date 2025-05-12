@@ -41,7 +41,7 @@
       };
     },
     methods: {
-      ...mapActions(useProcess, ['setProCode']),
+      
       onCellClicked(e) {
         // console.log(e.data);
         console.log(e.data.hasOwnProperty('lot_cnt'));
@@ -51,7 +51,9 @@
         }
         // 공정 클릭일 경우
         else if (e.data.hasOwnProperty('process_code')) {
-          this.setProCode(e.data); // Pinia에 저장
+          console.log(e.data);
+          // 공정진행 순서 강제 pinia 에 seq정보 저장, 현재 메소드에서 검사,
+          this.$emit('setController',e.data)
         }
       },
 
