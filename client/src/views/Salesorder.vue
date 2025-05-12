@@ -59,7 +59,7 @@
             <td>{{ order.item_name }}</td>
             <td>{{ formatDate(order.delivery_date) }}</td>
             <td>{{ order.sorder_count }}</td>
-            <td>{{ order.status }}</td>
+            <td>{{ order.code_name }}</td>
             <td>{{ order.emp_name }}</td>
           </tr>
         </tbody>
@@ -70,20 +70,12 @@
     <div v-if="searchModalVisible" class="modal" @click="closeModalOnBackgroundClick">
       <div class="modal-content" @click.stop>
         <div class="modal-title">
-          <h3>주문서 선택조회</h3>
+          <h3>주문서 조회</h3>
         </div>
         <div class="search-form">
           <div class="form-group">
-            <label>납기일자</label>
-            <div class="date-range">
-              <input type="date" v-model="searchParams.startDate">
-              <span>~</span>
-              <input type="date" v-model="searchParams.endDate">
-            </div>
-          </div>
-          <div class="form-group">
             <label>주문번호</label>
-            <input type="text" v-model="searchParams.orderCode" placeholder="검색">
+            <input type="text" v-model="searchParams.sorderCode" placeholder="검색">
           </div>
           <div class="form-group">
             <label>거래처명</label>
@@ -97,7 +89,15 @@
             <label>품목명</label>
             <input type="text" v-model="searchParams.itemName" placeholder="검색">
           </div>
-          <button class="btn btn-primary" @click="searchSalesOrders">조회</button>
+          <div class="form-group">
+            <label>주문수량</label>
+            <input type="number" v-model="searchParams.sorderCount" placeholder="수량">
+          </div>
+          <div class="form-group">
+            <label>납기일자</label>
+            <input type="date" v-model="searchParams.deliveryDate">
+          </div>
+          <button class="btn btn-primary" @click="searchSalesOrders" id="modal-select-btn">조회</button>
         </div>
       </div>
     </div>
@@ -110,25 +110,30 @@
         </div>
         <div class="search-form">
           <div class="form-group">
-            <label>납기일자</label>
-          </div>
-          <div class="form-group">
             <label>주문번호</label>
-            <input type="text" v-model="searchParams.orderCode" placeholder="검색">
+            <input type="text" v-model="updateParams.sorderCode">
           </div>
           <div class="form-group">
             <label>거래처명</label>
-            <input type="text" v-model="searchParams.clientName" placeholder="검색">
+            <input type="text" v-model="updateParams.clientName">
           </div>
           <div class="form-group">
             <label>담당자</label>
-            <input type="text" v-model="searchParams.clientMgr" placeholder="검색">
+            <input type="text" v-model="updateParams.clientMgr">
           </div>
           <div class="form-group">
             <label>품목명</label>
-            <input type="text" v-model="searchParams.itemName" placeholder="검색">
+            <input type="text" v-model="updateParams.itemName">
           </div>
-          <button class="btn btn-primary" @click="searchSalesOrders">수정</button>
+          <div class="form-group">
+            <label>주문수량</label>
+            <input type="number" v-model="updateParams.sorderCount">
+          </div>
+          <div class="form-group">
+            <label>납기일자</label>
+            <input type="date" v-model="updateParams.deliveryDate">
+          </div>
+          <button class="btn btn-primary" @click="updateSalesOrders" id="modal-update-btn">수정</button>
         </div>
       </div>
     </div>
@@ -151,14 +156,30 @@ export default {
       updateModalVisible: false,
       selectAll: false,
       currentPage: 1,
-      searchParams: {
-        startDate: '',
-        endDate: '',
-        orderCode: '',
+      searchParams : {
+        sorderCode: '',
         clientName: '',
         clientMgr: '',
-        itemName: ''
-      }
+        itemName: '',
+        sorderCount: '',
+        deliveryDate: ''
+      },
+      updateParams : {
+        sorderCode: '',
+        clientName: '',
+        clientMgr: '',
+        itemName: '',
+        sorderCount: '',
+        deliveryDate: ''
+      },
+      // resetSearchParams : {
+      //   sorderCode: '',
+      //   clientName: '',
+      //   clientMgr: '',
+      //   itemName: '',
+      //   sorderCount: '',
+      //   deliveryDate: ''
+      // }
     };
   },
   computed: {
@@ -191,11 +212,11 @@ export default {
       if (filter === 'all') {
         this.salesOrders = [...this.originalSalesOrders];
       } else if (filter === 'planned') {
-        this.salesOrders = this.originalSalesOrders.filter(order => order.status === '대기');
+        this.salesOrders = this.originalSalesOrders.filter(order => order.code_name === '대기');
       } else if (filter === 'progress') {
-        this.salesOrders = this.originalSalesOrders.filter(order => order.status === '진행중');
+        this.salesOrders = this.originalSalesOrders.filter(order => order.code_name === '진행중');
       } else if (filter === 'complete') {
-        this.salesOrders = this.originalSalesOrders.filter(order => order.status === '완료');
+        this.salesOrders = this.originalSalesOrders.filter(order => order.code_name === '완료');
       }
       this.currentPage = 1; // 필터 변경 시 첫 페이지로 이동
     },
@@ -246,15 +267,12 @@ export default {
         // 검색 조건 구성
         const params = {};
         
-        if (this.searchParams.startDate && this.searchParams.endDate) {
-          params.startDate = this.searchParams.startDate;
-          params.endDate = this.searchParams.endDate;
-        }
-        
-        if (this.searchParams.orderCode) params.orderCode = this.searchParams.orderCode;
+        if (this.searchParams.sorderCode) params.sorderCode = this.searchParams.sorderCode;
         if (this.searchParams.clientName) params.clientName = this.searchParams.clientName;
         if (this.searchParams.clientMgr) params.clientMgr = this.searchParams.clientMgr;
         if (this.searchParams.itemName) params.itemName = this.searchParams.itemName;
+        if (this.searchParams.sorderCount) params.sorderCount = this.searchParams.sorderCount;
+        if (this.searchParams.deliveryDate) params.deliveryDate = this.searchParams.deliveryDate;
         
         const response = await axios.get('/api/salesorders/search', { params });
         
@@ -264,6 +282,7 @@ export default {
         }));
         
         this.searchModalVisible = false;
+        //this.resetSearchParams();
         this.currentPage = 1; // 검색 결과 첫 페이지로 이동
       } catch (error) {
         console.error('주문서 검색 중 오류 발생:', error);
@@ -365,10 +384,15 @@ export default {
     closeModalOnBackgroundClick(event) {
     // 배경 클릭 시에만 모달 닫기
     if (event.target.className === 'modal') {
+      // if (this.searchModalVisible) {
+      //   this.resetSearchParams();
+      // }
       this.searchModalVisible = false;
       this.updateModalVisible = false;
+
     }
-  }
+  },
+
   }
 };
 </script>
