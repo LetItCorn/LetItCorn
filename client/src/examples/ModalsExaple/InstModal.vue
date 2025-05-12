@@ -116,17 +116,7 @@ async function handleSelect() {
   console.log("선택된 항목:", selected);
   if (!selected.length) return alert("선택된 항목이 없습니다.");
 
-// 지시번호 및 LOT 번호 생성 요청
-const res = await axios.post("/api/generate-numbers", { count: selected.length });
-const { inst_nos, lot_nos } = res.data;
-
-const enriched = selected.map((item, idx) => ({
-  ...item,
-  inst_no: inst_nos[idx],
-  lot_cnt: lot_nos[idx],
-}));
-
-instStore.setSelectedPlans(enriched);
+instStore.setSelectedPlans(selected);
 instStore.closeModal();
 }
 </script>
