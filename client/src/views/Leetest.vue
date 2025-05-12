@@ -75,7 +75,7 @@
                 <td>{{ mat.mater_code }}</td>
                 <td>{{ mat.mater_name }}</td>
                 <td>{{ mat.safe_stock }}</td>
-                <td>{{ mat.total_stock }}</td>
+                <td>{{ mat.current_stock }}</td>
               </tr>
               <tr v-if="!filteredList.length">
                 <td colspan="6" class="text-muted py-4">
@@ -130,7 +130,7 @@ export default {
     async fetchInventory() {
       try {
         const res = await axios.get('/api/materials/stock');
-        // 서버에서 넘어오는 필드: mater_code, mater_name, category_name, safe_stock, total_stock
+        // 서버에서 넘어오는 필드: mater_code, mater_name, category_name, safe_stock, current_stock
         this.inventoryList = res.data;
         this.applyFilters();
       } catch (e) {

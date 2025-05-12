@@ -30,7 +30,7 @@ router.get('/materials/stock', async (req, res) => {
   try {
     const list = await materialService.findMaterialStock();
     res.json(list);
-  } catch (err) {
+  } catch (err) { 
     console.error('[Router] GET /materials/stock 오류:', err);
     res.status(500).json({ error: '재고 현황 조회 중 오류' });
   }
