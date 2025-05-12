@@ -45,6 +45,7 @@
 <script>
 import Grid from '@/components/Grid.vue';
 import axios from 'axios';
+import { useProcess } from '@/store/processStat';
 export default {
   data() {
     return {
@@ -106,10 +107,7 @@ export default {
     }
   },
   watch :{
-    // 품목정보에 대응하는 공정흐름도 호출
-    // async instData(){
-      
-    // },
+    
   }
 };
 </script>
