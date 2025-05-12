@@ -18,52 +18,59 @@ router.get('/items/processesList', async (req, res) => {
   }
 });
 
-// 품목구분 가져오기
+/**
+ * 2) 품목구분(공통코드 CC) 조회
+ *    GET /items/itemCode
+ */
 router.get('/items/itemCode', async (req, res) => {
   try {
-    const code = await itemService.itemCode();
-    res.json(code);
-  }catch (err) {
+    const codeList = await itemService.itemCode();
+    res.json(codeList);
+  } catch (err) {
     console.error('GET /items/itemCode error:', err);
-    res.status(500).json({error: '공정 목록 조회 중 오류가 발생했습니다.'});
-  }
-});
-
-// 단위코드 가져오기
-router.get('/items/unitCode', async (req, res) => {
-  try {
-    const code = await itemService.unitCode();
-    res.json(code);
-  }catch (err) {
-    console.error('GET /items/itemCode error:', err);
-    res.status(500).json({error: '공정 목록 조회 중 오류가 발생했습니다.'});
+    res.status(500).json({ error: '품목구분 조회 중 오류가 발생했습니다.' });
   }
 });
 
 /**
- * 2) 공정 흐름 저장
- *    POST /saveProcessFlows
- *    body: { flows: Array<{ item_code, process_header, sequence_order, duration }> }
+ * 3) 단위코드(공통코드 UU) 조회
+ *    GET /items/unitCode
  */
-router.post('/saveProcessFlows', async (req, res) => {
+router.get('/items/unitCode', async (req, res) => {
+  try {
+    const unitList = await itemService.unitCode();
+    res.json(unitList);
+  } catch (err) {
+    console.error('GET /items/unitCode error:', err);
+    res.status(500).json({ error: '단위코드 조회 중 오류가 발생했습니다.' });
+  }
+});
+
+/**
+ * 4) 공정 흐름 저장
+ *    POST /items/saveProcessFlows
+ *    body: { flows: Array<{ process_code, sequence_order, item_code }> }
+ */
+router.post('/items/saveProcessFlows', async (req, res) => {
   try {
     const flows = req.body.flows;
     const result = await itemService.saveProcessFlows(flows);
     res.json(result);
   } catch (err) {
-    console.error('POST /saveProcessFlows error:', err);
+    console.error('POST /items/saveProcessFlows error:', err);
     res.status(500).json({ error: '공정 흐름 저장 중 오류가 발생했습니다.' });
   }
 });
 
 /**
- * 3) 공정 흐름 삭제
+ * 5) 공정 흐름 삭제
  *    POST /items/deleteProcessItem
- *    body: { item_code, process_header, sequence_order }
+ *    body: { process_header, item_code, sequence_order }
  */
 router.post('/items/deleteProcessItem', async (req, res) => {
   try {
-    const result = await itemService.deleteProcessItem(req.body);
+    const payload = req.body;
+    const result = await itemService.deleteProcessItem(payload);
     res.json(result);
   } catch (err) {
     console.error('POST /items/deleteProcessItem error:', err);
@@ -72,7 +79,7 @@ router.post('/items/deleteProcessItem', async (req, res) => {
 });
 
 /**
- * 4) 품목 전체조회 + 조건검색
+ * 6) 품목 전체조회 + 조건검색
  *    GET /items?code=xxx&name=yyy&type=zzz
  */
 router.get('/items', async (req, res) => {
@@ -87,7 +94,7 @@ router.get('/items', async (req, res) => {
 });
 
 /**
- * 5) 품목 단건조회
+ * 7) 품목 단건조회
  *    GET /items/:item_code
  */
 router.get('/items/:item_code', async (req, res) => {
@@ -105,13 +112,14 @@ router.get('/items/:item_code', async (req, res) => {
 });
 
 /**
- * 6) 품목 등록/수정 (MERGE)
+ * 8) 품목 등록/수정 (MERGE)
  *    POST /items
  *    body: { item_code, item_name, item_type, unit_code, spec, qty }
  */
 router.post('/items', async (req, res) => {
   try {
-    const result = await itemService.saveItem(req.body);
+    const payload = req.body;
+    const result = await itemService.saveItem(payload);
     res.json(result);
   } catch (err) {
     console.error('POST /items error:', err);
@@ -120,7 +128,7 @@ router.post('/items', async (req, res) => {
 });
 
 /**
- * 7) 품목 삭제
+ * 9) 품목 삭제
  *    DELETE /items/:item_code
  */
 router.delete('/items/:item_code', async (req, res) => {
@@ -135,8 +143,8 @@ router.delete('/items/:item_code', async (req, res) => {
 });
 
 /**
- * 8) 특정 품목의 공정 흐름 조회
- *    GET /items/itemProcessFlowsList/:item_code
+ * 10) 특정 품목의 공정 흐름 조회
+ *     GET /items/itemProcessFlowsList/:item_code
  */
 router.get('/items/itemProcessFlowsList/:item_code', async (req, res) => {
   try {

@@ -11,7 +11,7 @@ const mapper = require('../database/mapper.js');
  * @param {object} [filter]
  * @param {string} [filter.bomId]     // BOM_ID로 필터링
  * @param {string} [filter.itemCode]  // 완제품 코드로 필터링
- * @returns {Promise<Array>} bom 리스트
+ * @returns {Promise<Array>}
  */
 async function findBoms({ bomId = '', itemCode = '' } = {}) {
   try {
@@ -42,12 +42,11 @@ async function findBomById(bomId) {
 
 /**
  * 새 BOM 등록
- * @param {{ item_code:string, item_name:string }} bom
- *   - SQL에서 bom_id와 registered_date는 자동 생성됩니다.
+ * @param {{ item_code: string, item_name: string }} bom
+ * @returns {Promise<*>}
  */
 async function createBom({ item_code, item_name }) {
   try {
-    // bomInsert : CONCAT('BOM' + 오늘날짜 + 일련번호) + NOW()
     return await mapper.query('bomInsert', [
       item_code,
       item_name
@@ -60,7 +59,8 @@ async function createBom({ item_code, item_name }) {
 
 /**
  * BOM 수정
- * @param {{ bom_id:string, item_code:string, item_name:string, registered_date:string }} bom
+ * @param {{ bom_id: string, item_code: string, item_name: string, registered_date: string }} bom
+ * @returns {Promise<*>}
  */
 async function updateBom({ bom_id, item_code, item_name, registered_date }) {
   try {
@@ -79,6 +79,7 @@ async function updateBom({ bom_id, item_code, item_name, registered_date }) {
 /**
  * BOM 삭제
  * @param {string} bomId
+ * @returns {Promise<*>}
  */
 async function deleteBom(bomId) {
   try {
@@ -96,7 +97,7 @@ async function deleteBom(bomId) {
 /**
  * 특정 BOM 의 모든 구성품 조회
  * @param {string} bomId
- * @returns {Promise<Array>} 구성품 리스트
+ * @returns {Promise<Array>}
  */
 async function findComponentsByBom(bomId) {
   try {
@@ -124,28 +125,16 @@ async function findComponentById(seqId) {
 
 /**
  * BOM 구성품 등록
- * @param {object} comp
- * @param {string|number} comp.item_seq_id
- * @param {string} comp.bom_id
- * @param {string} comp.mater_code
- * @param {string} comp.mater_name
- * @param {string} comp.mater_type
- * @param {string} comp.spec
- * @param {string} comp.unit_code
- * @param {number} comp.quantity
- * @param {string} comp.mater_id
+ * material 테이블에서 mater_code로 나머지 정보를 조회 후 INSERT
+ * @param {{ item_seq_id: number|string, bom_id: string, mater_code: string, quantity: number }} comp
+ * @returns {Promise<*>}
  */
-async function createComponent(comp) {
+async function createComponent({ item_seq_id, bom_id, mater_code, quantity }) {
   const params = [
-    comp.item_seq_id,
-    comp.bom_id,
-    comp.mater_code,
-    comp.mater_name,
-    comp.mater_type,
-    comp.spec,
-    comp.unit_code,
-    comp.quantity,
-    comp.mater_id
+    item_seq_id,
+    bom_id,
+    quantity,
+    mater_code
   ];
   try {
     return await mapper.query('bomComponentInsert', params);
@@ -157,26 +146,15 @@ async function createComponent(comp) {
 
 /**
  * BOM 구성품 수정
- * @param {object} comp
- * @param {string|number} comp.item_seq_id
- * @param {string} comp.mater_code
- * @param {string} comp.mater_name
- * @param {string} comp.mater_type
- * @param {string} comp.spec
- * @param {string} comp.unit_code
- * @param {number} comp.quantity
- * @param {string} comp.mater_id
+ * material 테이블에서 mater_code로 최신 정보를 조회 후 UPDATE
+ * @param {{ item_seq_id: number|string, mater_code: string, quantity: number }} comp
+ * @returns {Promise<*>}
  */
-async function updateComponent(comp) {
+async function updateComponent({ item_seq_id, mater_code, quantity }) {
   const params = [
-    comp.mater_code,
-    comp.mater_name,
-    comp.mater_type,
-    comp.spec,
-    comp.unit_code,
-    comp.quantity,
-    comp.mater_id,
-    comp.item_seq_id
+    mater_code,
+    quantity,
+    item_seq_id
   ];
   try {
     return await mapper.query('bomComponentUpdate', params);
@@ -189,6 +167,7 @@ async function updateComponent(comp) {
 /**
  * BOM 구성품 삭제
  * @param {string|number} seqId
+ * @returns {Promise<*>}
  */
 async function deleteComponent(seqId) {
   try {
@@ -204,8 +183,8 @@ async function deleteComponent(seqId) {
 //
 
 /**
- * 완제품(item_type='01') 목록 조회
- * @returns {Promise<Array>} item_code, item_name, unit_code, spec
+ * 완제품(item_type='C01') 목록 조회
+ * @returns {Promise<Array>}
  */
 async function bomitemsList() {
   try {
