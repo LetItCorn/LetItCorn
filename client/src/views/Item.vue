@@ -109,7 +109,7 @@
               <!-- 구분 -->
               <div class="form-group col-6">
                 <label>구분</label>
-                  <select v-model="selected.item_type" class="form-control form-control-sm">
+                <select v-model="selected.item_type" class="form-control form-control-sm">
                   <option disabled value="">-- 선택하세요 --</option>
                   <option
                     v-for="code in codeList"
@@ -119,7 +119,6 @@
                     {{ code.code_name }}
                   </option>
                 </select>
-
               </div>
               <!-- 수량 -->
               <div class="form-group col-6">
@@ -128,8 +127,8 @@
               </div>
               <!-- 단위 -->
               <div class="form-group col-6">
-                <label>구분</label>
-                  <select v-model="selected.unit_code" class="form-control form-control-sm">
+                <label>단위</label>
+                <select v-model="selected.unit_code" class="form-control form-control-sm">
                   <option disabled value="">-- 선택하세요 --</option>
                   <option
                     v-for="unit in unitList"
@@ -139,7 +138,6 @@
                     {{ unit.code_name }}
                   </option>
                 </select>
-
               </div>
             </div>
             <div class="mt-auto d-flex justify-content-end">
@@ -147,7 +145,7 @@
               <button @click="clearDetail" class="btn btn-sm btn-outline-secondary mr-2" style="width:80px;">
                 초기화
               </button>
-              <!-- 등록/수정 병합 버튼 (머지문 사용) -->
+              <!-- 등록/수정 병합 버튼 -->
               <button @click="saveItem" class="btn btn-sm btn-warning mr-2" style="width:80px;">
                 등록
               </button>
@@ -187,16 +185,16 @@
                     :class="{ selected: selectedSeq === group.sequence_order }"
                     @click="selectProcessItemFunc(group)"
                   >
-                  <!-- 기존 흐름 행 -->
+                    <!-- 기존 흐름 행 -->
                     <template v-if="!group.isAdding">
                       <td>{{ group.sequence_order }}</td>
                       <td>{{ group.process_name }}</td>
                       <td>
                         <input
-                        :value="`${group.duration_min}분`"
-                        class="form-control form-control-sm text-center mb-1 no-gray"
-                        readonly
-                      />
+                          :value="`${group.duration_min}분`"
+                          class="form-control form-control-sm text-center mb-1 no-gray"
+                          readonly
+                        />
                       </td>
                     </template>
                     <!-- 새로 추가 중인 빈 행 -->
@@ -214,9 +212,7 @@
                           </option>
                         </select>
                       </td>
-                      <td>
-                       
-                      </td>
+                      <td></td>
                     </template>
                   </tr>
                 </template>
@@ -228,7 +224,7 @@
             </table>
           </div>
         </div>
-        
+
       </div>
     </div>
   </div>
@@ -250,7 +246,7 @@ export default {
       unitList: [],
       // 선택된 품목의 공정 흐름
       itemProcessFlowsList: [],
-      // 전체 공정 목록 (설렉트 옵션)
+      // 전체 공정 목록 (셀렉트 옵션)
       processesListArr: [],
       // 현재 선택된/편집 중인 품목
       selected: {
@@ -279,10 +275,10 @@ export default {
 
   // 컴포넌트 생성 시 초기 데이터 로드
   async created() {
-    await this.loadItems();
-    await this.processesList();
-    await this.itemCode();
-    await this.unitCode();
+    await this.loadItems();          
+    await this.processesList();      
+    await this.itemCode();           
+    await this.unitCode();           
   },
 
   methods: {
@@ -296,162 +292,177 @@ export default {
       try {
         const res = await axios.get('/api/items', { params });
         this.itemList = res.data;
-      } catch {
+      } catch (err) {
+        console.error('loadItems error', err);
         this.itemList = [];
       } finally {
-        // 목록 갱신 후 신규 등록용 초기화
-        this.clearDetail();
+        this.clearDetail(); // 목록 갱신 후 상세 초기화
       }
     },
 
-    // 품목구분 가져오기
+    // 2) 품목구분(공통코드 CC) 가져오기
     async itemCode() {
-      try{
+      try {
         const res = await axios.get('/api/items/itemCode');
         this.codeList = res.data;
-        //console.log(this.codeList);
-      } catch {
+      } catch (err) {
+        console.error('itemCode error', err);
         this.codeList = [];
       }
     },
 
-    // 단위코드 가져오기
+    // 3) 단위코드(공통코드 UU) 가져오기
     async unitCode() {
       try {
         const res = await axios.get('/api/items/unitCode');
         this.unitList = res.data;
-        //console.log(this.unitList);
-      }catch {
+      } catch (err) {
+        console.error('unitCode error', err);
         this.unitList = [];
       }
     },
 
-    // 필터 초기화
+    // 4) 필터 초기화
     resetFilter() {
       this.searchType = '';
       this.searchValue = '';
       this.loadItems();
     },
 
-    // 리스트 행 클릭 -> 상세 데이터 바인딩 + 공정 흐름 로드
+    // 5) 품목 선택 -> 상세 바인딩 + 공정 흐름 로드
     selectItem(item) {
-      this.selected = { ...item };
-      this.fetchProcessFlows(item.item_code);
+      this.selected = { ...item };                      // 선택된 품목 전체 복사
+      this.fetchProcessFlows(item.item_code);           // 공정 흐름 가져오기
     },
 
-    // 신규 등록 혹은 초기화: 자동 코드 생성 포함
+    // 6) 신규 등록 혹은 초기화 (item + processFlows 초기화)
     clearDetail() {
-      // 자동 코드 생성
+      // 자동 품목코드 생성
       let nextNum = 1;
       if (this.itemList.length) {
-        // 기존 코드에서 숫자 부분만 추출해 최대값 구함
-        const nums = this.itemList.map(i => {
-          const n = parseInt(i.item_code.replace(/^ITM/, ''), 10);
-          return isNaN(n) ? 0 : n;
-        });
+        const nums = this.itemList.map(i =>
+          parseInt(i.item_code.replace(/^ITM/, ''), 10) || 0
+        );
         nextNum = Math.max(...nums) + 1;
       }
-      // 'ITM' + 3자리 숫자 포맷
-      const nextCode = 'ITM' + String(nextNum).padStart(3, '0');
       this.selected = {
-        item_code: nextCode,
+        item_code: 'ITM' + String(nextNum).padStart(3, '0'),
         item_name: '',
         item_type: '',
-        unit_code: '',
-        spec: '',
-        qty: ''
+        qty: '',
+        spec: ''
       };
       this.itemProcessFlowsList = [];
+      this.selectedSeq = null;
+      this.selectProcessItem = {};
     },
 
-    // 2) 등록/수정(머지문으로 처리) 호출
-     async saveItem() {
+    // 7) 품목 등록/수정 MERGE
+    async saveItem() {
       try {
-        // MERGE 구문을 사용하는 POST /api/items 엔드포인트 호출
-        console.log(this.selected)
-        await axios.post('/api/items', this.selected);
-        // 저장 후 목록 갱신
-        await this.loadItems();
+        await axios.post('/api/items', this.selected);   // POST /items
+        await this.loadItems();                         // 저장 후 목록 갱신
       } catch (err) {
         console.error('saveItem error', err);
       }
     },
 
-    // 3) 품목 삭제
+    // 8) 품목 삭제
     async deleteItem() {
-      if (!this.selected.item_code) return; // 삭제할 item_code가 비어 있으면 아무것도 하지 않고 함수를 빠져나감
+      if (!this.selected.item_code) return;
       try {
-        await axios.delete(`/api/items/${this.selected.item_code}`);
+        await axios.delete(`/api/items/${this.selected.item_code}`);  // DELETE /items/:code
         await this.loadItems();
       } catch (err) {
         console.error('deleteItem error', err);
       }
     },
 
-    // 4) 선택된 품목의 공정 흐름 조회
+    // 9) 특정 품목의 공정 흐름 조회
     async fetchProcessFlows(code) {
       try {
         const res = await axios.get(`/api/items/itemProcessFlowsList/${code}`);
         this.itemProcessFlowsList = res.data;
-      } catch {
+      } catch (err) {
+        console.error('fetchProcessFlows error', err);
         this.itemProcessFlowsList = [];
       }
     },
 
-    // 5) 공정 흐름 추가 (빈 행)
+    // 10) 공정 흐름 추가 (빈 행)
     addProcessFlow() {
       const nextSeq = this.itemProcessFlowsList.length
-        ? Math.max(...this.itemProcessFlowsList.map(f => Number(f.sequence_order))) + 1
+        ? Math.max(...this.itemProcessFlowsList.map(f => +f.sequence_order)) + 1
         : 1;
       this.itemProcessFlowsList.push({
+        process_header: '',                // 서버에서 저장 시 생성
+        process_code: '',
         sequence_order: nextSeq,
-        process_header: '',
         item_code: this.selected.item_code,
         isAdding: true,
         duration_min: ''
       });
     },
 
-    // 6) 공정 흐름 저장 (트랜잭션 처리)
+    // 11) 공정 흐름 저장 (트랜잭션 처리)
     async saveProcessFlows() {
       try {
-        console.log(this.itemProcessFlowsList);
-        await axios.post('/api/saveProcessFlows', { flows: this.itemProcessFlowsList });
-        this.fetchProcessFlows(this.selected.item_code);
+        // POST /items/saveProcessFlows
+        const res = await axios.post('/api/items/saveProcessFlows', {
+          flows: this.itemProcessFlowsList.map(f => ({
+            process_code: f.process_code,
+            sequence_order: f.sequence_order,
+            item_code: f.item_code
+          }))
+        });
+        const { process_header } = res.data;      // 서버에서 발급된 header
+        // 모든 flow 객체에 header 주입
+        this.itemProcessFlowsList = this.itemProcessFlowsList.map(f => ({
+          ...f,
+          process_header
+        }));
+        // 갱신된 흐름 다시 조회
+        await this.fetchProcessFlows(this.selected.item_code);
       } catch (err) {
         console.error('saveProcessFlows error', err);
       }
     },
 
-    // 7) 공정 흐름 행 삭제
+    // 12) 공정 흐름 삭제
     async deleteProcessItem() {
       if (!this.selectProcessItem.sequence_order) return;
       try {
-         console.log(this.selectProcessItem.sequence_order);
-        await axios.post('/api/items/deleteProcessItem', this.selectProcessItem);
-        this.fetchProcessFlows(this.selected.item_code);
-      } catch {}
+        await axios.post('/api/items/deleteProcessItem', {
+          process_header: this.selectProcessItem.process_header,
+          item_code: this.selectProcessItem.item_code,
+          sequence_order: this.selectProcessItem.sequence_order
+        });
+        await this.fetchProcessFlows(this.selected.item_code);
+      } catch (err) {
+        console.error('deleteProcessItem error', err);
+      }
     },
 
-    // 8) 전체 공정 목록 조회 (셀렉트 옵션)
+    // 13) 전체 공정 목록 조회 (셀렉트 옵션)
     async processesList() {
       try {
         const res = await axios.get('/api/items/processesList');
         this.processesListArr = res.data;
-      } catch {
+      } catch (err) {
+        console.error('processesList error', err);
         this.processesListArr = [];
       }
     },
 
-    // 공정 선택 콜백 (현재 사용 안함)
+    // 14) 공정 선택 콜백
     handleProcessSelect(group) {
       // noop
     },
 
-    // 공정 흐름 테이블에서 행 선택
+    // 15) 공정 흐름 테이블에서 행 선택
     selectProcessItemFunc(group) {
-      this.selectedSeq = group.sequence_order;
-      this.selectProcessItem = group;
+      this.selectedSeq = group.sequence_order;       // 하이라이트용
+      this.selectProcessItem = { ...group };         // 삭제 시 payload
     }
   }
 };

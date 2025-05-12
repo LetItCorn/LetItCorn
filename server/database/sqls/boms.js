@@ -10,7 +10,7 @@ const bomList = `
   FROM boms AS b
   JOIN items AS i
     ON b.item_code = i.item_code
-  WHERE i.item_type = '01'               -- 완제품만
+  WHERE i.item_type = 'C01'               -- 완제품만
     AND (? = '' OR b.bom_id    = ?)
     AND (? = '' OR b.item_code = ?)
   ORDER BY b.bom_id
@@ -63,6 +63,7 @@ const bomDelete = `
    WHERE bom_id = ?
 `;
 
+
 // ── BOM 구성품 ───────────────────────────────
 // 1) 목록조회 (특정 BOM_ID 의 구성품 전체)
 const bomComponentsList = `
@@ -93,23 +94,35 @@ const bomComponentInfo = `
   WHERE item_seq_id = ?
 `;
 
-// 3) 등록 (INSERT)
+// 3) 등록 (INSERT) – material 테이블에서 정보 가져오기
 const bomComponentInsert = `
   INSERT INTO bom_components
     (item_seq_id, bom_id, mater_code, mater_name, mater_type, spec, unit_code, quantity)
-  VALUES (?,         ?,      ?,          ?,          ?,           ?,    ?,         ?)
+  SELECT
+    ?,            -- item_seq_id
+    ?,            -- bom_id
+    m.mater_code,
+    m.mater_name,
+    m.mater_type,
+    m.spec,
+    m.unit_code,
+    ?             -- quantity
+  FROM material AS m
+  WHERE m.mater_code = ?
 `;
 
-// 4) 수정 (UPDATE)
+// 4) 수정 (UPDATE) – material 테이블에서 정보 갱신
 const bomComponentUpdate = `
-  UPDATE bom_components
-     SET mater_code  = ?
-       , mater_name  = ?
-       , mater_type  = ?
-       , spec        = ?
-       , unit_code   = ?
-       , quantity    = ?
-   WHERE item_seq_id = ?
+  UPDATE bom_components AS bc
+  JOIN material AS m
+    ON m.mater_code = ?
+  SET bc.mater_code  = m.mater_code
+    , bc.mater_name  = m.mater_name
+    , bc.mater_type  = m.mater_type
+    , bc.spec        = m.spec
+    , bc.unit_code   = m.unit_code
+    , bc.quantity    = ?
+  WHERE bc.item_seq_id = ?
 `;
 
 // 5) 삭제 (DELETE)
@@ -118,8 +131,9 @@ const bomComponentDelete = `
    WHERE item_seq_id = ?
 `;
 
+
 // ── 완제품 목록 (BOM 등록 모달용) ─────────────────
-//  완제품(item_type='01')만 조회, 코드 순 정렬
+//  완제품(item_type='C01')만 조회, 코드 순 정렬
 const bomitemsList = `
   SELECT
       item_code
@@ -127,7 +141,7 @@ const bomitemsList = `
     , unit_code
     , spec
   FROM items
-  WHERE item_type = '01'
+  WHERE item_type = 'C01'
   ORDER BY item_code
 `;
 

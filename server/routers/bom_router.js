@@ -7,7 +7,7 @@ const bomService = require('../services/bom_service.js');
 /**
  * ── BOM 등록용 완제품 목록 조회 ─────────────────────
  * GET  /boms/bomitemsList
- *   - 등록 모달에서 ‘완제품(item_type=01)’만 골라 보여주기 위해 사용
+ *   - 등록 모달에서 ‘완제품(item_type=C01)’만 골라 보여주기 위해 사용
  */
 router.get('/boms/bomitemsList', async (req, res) => {
   try {
@@ -139,7 +139,7 @@ router.get('/boms/:bomId/components/:seqId', async (req, res) => {
     }
     res.json(comp);
   } catch (err) {
-    console.error(`GET /boms/components/${seqId} error:`, err);
+    console.error(`GET /boms/${req.params.bomId}/components/${seqId} error:`, err);
     res.status(500).json({ error: '구성품 단건 조회 중 오류가 발생했습니다.' });
   }
 });
@@ -147,18 +147,16 @@ router.get('/boms/:bomId/components/:seqId', async (req, res) => {
 /**
  * 8) 구성품 등록
  *    POST /boms/:bomId/components
- *    body: { item_seq_id, mater_code, mater_name, mater_type, spec, unit_code, quantity, mater_id }
+ *    body: { item_seq_id, mater_code, quantity }
  */
 router.post('/boms/:bomId/components', async (req, res) => {
-  const comp = {
-    ...req.body,
-    bom_id: req.params.bomId
-  };
+  const { item_seq_id, mater_code, quantity } = req.body;
+  const bom_id = req.params.bomId;
   try {
-    await bomService.createComponent(comp);
+    await bomService.createComponent({ item_seq_id, bom_id, mater_code, quantity });
     res.status(201).json({ message: '구성품이 등록되었습니다.' });
   } catch (err) {
-    console.error(`POST /boms/${comp.bom_id}/components error:`, err);
+    console.error(`POST /boms/${bom_id}/components error:`, err);
     res.status(500).json({ error: '구성품 등록 중 오류가 발생했습니다.' });
   }
 });
@@ -166,18 +164,16 @@ router.post('/boms/:bomId/components', async (req, res) => {
 /**
  * 9) 구성품 수정
  *    PUT  /boms/:bomId/components/:seqId
- *    body: { mater_code, mater_name, mater_type, spec, unit_code, quantity, mater_id }
+ *    body: { mater_code, quantity }
  */
 router.put('/boms/:bomId/components/:seqId', async (req, res) => {
-  const comp = {
-    ...req.body,
-    item_seq_id: req.params.seqId
-  };
+  const { mater_code, quantity } = req.body;
+  const item_seq_id = req.params.seqId;
   try {
-    await bomService.updateComponent(comp);
+    await bomService.updateComponent({ item_seq_id, mater_code, quantity });
     res.json({ message: '구성품이 수정되었습니다.' });
   } catch (err) {
-    console.error(`PUT /boms/components/${comp.item_seq_id} error:`, err);
+    console.error(`PUT /boms/${req.params.bomId}/components/${item_seq_id} error:`, err);
     res.status(500).json({ error: '구성품 수정 중 오류가 발생했습니다.' });
   }
 });
@@ -192,7 +188,7 @@ router.delete('/boms/:bomId/components/:seqId', async (req, res) => {
     await bomService.deleteComponent(seqId);
     res.json({ message: '구성품이 삭제되었습니다.' });
   } catch (err) {
-    console.error(`DELETE /boms/components/${seqId} error:`, err);
+    console.error(`DELETE /boms/${req.params.bomId}/components/${seqId} error:`, err);
     res.status(500).json({ error: '구성품 삭제 중 오류가 발생했습니다.' });
   }
 });

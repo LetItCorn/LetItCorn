@@ -10,7 +10,7 @@
               class="position-absolute top-0 end-0 d-flex align-items-center"
               style="margin:0.5rem; z-index:1000;"
             >
-              완제품코드
+              <label class="me-2 mb-0">완제품코드</label>
               <input
                 v-model="searchItemCode"
                 placeholder="코드입력"
@@ -132,7 +132,6 @@
               </table>
             </div>
 
-            <!-- 수정 버튼 제거 후, 등록/수정을 하나의 버튼으로 합침 -->
             <div class="mt-2 d-flex justify-content-end">
               <button
                 @click="openCompModal(selectedComp)"
@@ -151,7 +150,6 @@
                 삭제
               </button>
             </div>
-
           </div>
         </div>
       </div>
@@ -204,7 +202,7 @@
       <div class="modal-box">
         <h5>구성품 {{ editComp ? '수정' : '등록' }}</h5>
         <div class="mb-2">
-          <label>자재선택</label>
+          <label class="form-label mb-1">자재선택</label>
           <select v-model="compForm.mater_code" class="form-select form-select-sm">
             <option value="">-- 선택 --</option>
             <option v-for="m in materialsList" :key="m.mater_code" :value="m.mater_code">
@@ -213,14 +211,19 @@
           </select>
         </div>
         <div class="mb-2">
-          <label>수량</label>
-          <input v-model.number="compForm.quantity" type="number" class="form-control form-control-sm" />
+          <label class="form-label mb-1">수량</label>
+          <input
+            v-model.number="compForm.quantity"
+            type="number"
+            class="form-control form-control-sm"
+            min="1"
+          />
         </div>
         <div class="d-flex justify-content-end">
           <button
             class="btn btn-sm btn-primary me-2"
             @click="saveComp"
-            :disabled="!compForm.mater_code || !compForm.quantity"
+            :disabled="!compForm.mater_code || compForm.quantity < 1"
           >
             {{ editComp ? '수정' : '등록' }}
           </button>
@@ -235,6 +238,7 @@
 
 <script>
 import axios from 'axios';
+
 export default {
   name: 'Bom',
   data() {
@@ -242,8 +246,8 @@ export default {
       searchItemCode: '',
       bomList: [],
       compList: [],
-      bomItemsList: [],   // 완제품 목록
-      materialsList: [],  // 자재 목록
+      bomItemsList: [],
+      materialsList: [],
       selectedBom: null,
       selectedComp: null,
       selectedBomItem: null,
@@ -258,11 +262,11 @@ export default {
     this.loadMaterials();
   },
   methods: {
-    // BOM 목록 조회 (완제품만)
     async loadBoms() {
-      const params = { itemCode: this.searchItemCode.trim() };
-      const res = await axios.get('/api/boms', { params });
-      this.bomList = res.data;
+      const { data } = await axios.get('/api/boms', {
+        params: { itemCode: this.searchItemCode.trim() }
+      });
+      this.bomList = data;
       this.compList = [];
       this.selectedBom = this.selectedComp = null;
     },
@@ -274,23 +278,20 @@ export default {
       this.selectedBom = bom;
       this.loadComps(bom.bom_id);
     },
-    // 구성품 목록 조회
     async loadComps(bomId) {
-      const res = await axios.get(`/api/boms/${bomId}/components`);
-      this.compList = res.data;
+      const { data } = await axios.get(`/api/boms/${bomId}/components`);
+      this.compList = data;
       this.selectedComp = null;
     },
     selectComp(comp) {
       this.selectedComp = comp;
     },
-    // 완제품 등록 모달 열기
     async openBomModal() {
-      const res = await axios.get('/api/boms/bomitemsList');
-      this.bomItemsList = res.data;
+      const { data } = await axios.get('/api/boms/bomitemsList');
+      this.bomItemsList = data;
       this.selectedBomItem = null;
       this.showBomModal = true;
     },
-    // BOM 등록
     async registerBom() {
       await axios.post('/api/boms', {
         item_code: this.selectedBomItem.item_code,
@@ -300,15 +301,14 @@ export default {
       this.loadBoms();
     },
     deleteBom() {
+      if (!this.selectedBom) return;
       axios.delete(`/api/boms/${this.selectedBom.bom_id}`)
-        .then(this.loadBoms);
+        .then(() => this.loadBoms());
     },
-    // 자재 목록 로드
     async loadMaterials() {
-      const res = await axios.get('/api/materials');
-      this.materialsList = res.data;
+      const { data } = await axios.get('/api/materials');
+      this.materialsList = data;
     },
-    // 구성품 Modal 열기 (등록/수정 공통)
     openCompModal(comp = null) {
       this.editComp = !!comp;
       this.compForm = comp
@@ -316,26 +316,35 @@ export default {
         : { mater_code: '', quantity: 1 };
       this.showCompModal = true;
     },
-    // 구성품 등록/수정
     async saveComp() {
+      const bomId = this.selectedBom.bom_id;
       if (this.editComp) {
+        // 수정
         await axios.put(
-          `/api/boms/${this.selectedBom.bom_id}/components/${this.selectedComp.item_seq_id}`,
+          `/api/boms/${bomId}/components/${this.selectedComp.item_seq_id}`,
           this.compForm
         );
       } else {
+        // 신규: item_seq_id 생성 (BC + 3자리 순번)
+        const maxSeq = this.compList
+          .map(c => parseInt(c.item_seq_id.slice(2)))
+          .reduce((max, cur) => Math.max(max, cur), 0);
+        const nextSeq = (maxSeq + 1).toString().padStart(3, '0');
+        const item_seq_id = `BC${nextSeq}`;
         await axios.post(
-          `/api/boms/${this.selectedBom.bom_id}/components`,
-          this.compForm
+          `/api/boms/${bomId}/components`,
+          { ...this.compForm, item_seq_id }
         );
       }
       this.showCompModal = false;
-      this.loadComps(this.selectedBom.bom_id);
+      this.loadComps(bomId);
     },
     deleteComp() {
+      if (!this.selectedComp) return;
+      const bomId = this.selectedBom.bom_id;
       axios.delete(
-        `/api/boms/${this.selectedBom.bom_id}/components/${this.selectedComp.item_seq_id}`
-      ).then(() => this.loadComps(this.selectedBom.bom_id));
+        `/api/boms/${bomId}/components/${this.selectedComp.item_seq_id}`
+      ).then(() => this.loadComps(bomId));
     }
   }
 };
@@ -351,11 +360,17 @@ export default {
   z-index: 2000;
 }
 .modal-box {
-  background: #fff; padding: 1.5rem; border-radius: 8px;
-  width: 600px; max-width: 90vw;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 600px;
+  max-width: 90vw;
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
 .sticky-top th {
-  position: sticky; top: 0; background: white; z-index: 10;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
 }
 </style>
