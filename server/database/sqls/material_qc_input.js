@@ -6,3 +6,4 @@ VALUES
   (?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 module.exports = { insertMaterialQC };
+

@@ -1,5 +1,4 @@
-const mariadb = require('../database/mapper.js');
-
+const { query, getConnection, selectedQuery } = require('../database/mapper.js');
 // 객체를 배열로 변환하는 유틸
 const { convertObjToAry } = require('../utils/converts.js'); 
 
@@ -12,41 +11,34 @@ async function findAllInbounds() {
 }
 
 // 단건 입고 등록
-// @param {Object} inbound - 입고 정보 객체
-// @returns {Object} 처리 결과 {isSuccess: boolean}
 async function addInbound(inboundInfo) {
-  // sql에 바인딩할 컬럼 순서를 정의 하는 변수
-  const cols = [
-    'min_id','mater_code','min_qty','min_date','min_checker',
-    'mater_lot','min_edate','min_stock','min_oqty','test_no'
-  ];
-
-  // inboundInfo 객체를 cols 순서대로 배열로 변환
-  const data = convertObjToAry(inboundInfo, cols);
-
-  // mapper.query로 insertInbound 쿼리 실행 
-  const res = await mariadb.query('insertInbound', data);
-
-  // 영향 받은 행이 1이상이면 성공으로 간주
-  return { isSuccess: res && res.affectedRows > 0 };
-}
-/**
- * 위의 코드의 정확한 흐름
- * 1. 클라이언트로부터 inboundInfo 객체 수신
- * 
- * 2. sql 바인딩 순서(cols) 정의
- * 
- * 3. convertObjToAry(inboundInfo, cols) 호출 -> data 배열 생성
- * 
- * 4. mariadb.query('insertInbound', data) 호출 -> insert 실행
- * 
- * 5. insert 결과(res) 수신
- * 
- * 6. res.affectedRows > 0 판단 -> isSuccess 결정
- * 
- * 7. {isSuccess} 객체 반환
- */
-
+    /**
+    * 1단계) m_inbound INSERT
+    * 2단계) INSERT 가 성공(affectedRows > 0)하면
+     *        material.current_stock 을 누적 갱신
+     */
+  
+    // insertInbound 에 들어갈 파라미터 순서 정의
+    const cols = [
+      'min_id','mater_code','min_qty','min_date','min_checker',
+      'mater_lot','min_edate','min_stock','min_oqty','test_no'
+    ];
+    const data = convertObjToAry(inboundInfo, cols);
+  
+    // 1) 입고 기록 저장
+    const ins = await mariadb.query('insertInbound', data);
+    if (!(ins && ins.affectedRows > 0)) {
+      return { isSuccess: false };
+    }
+  
+    // 2) 자재 current_stock 누적 갱신
+    await mariadb.query(
+      'updateMaterialStock',
+      [ inboundInfo.min_qty, inboundInfo.mater_code ]
+    );
+  
+    return { isSuccess: true };
+  }
 
 module.exports = {
   findAllInbounds,

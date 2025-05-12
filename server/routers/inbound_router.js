@@ -11,7 +11,7 @@ router.get('/m_inbound', async (req, res) => {
     console.error(err);
     res.status(500).send({ error: '입고 이력 조회 중 오류.' });
   }
-});
+}); 
 /**
  * 위의 코드 흐름
  * 

@@ -46,7 +46,7 @@
                   <input v-model.number="row.min_qty" type="number" min="0" class="form-control form-control-sm" />
                 </td>
                 <td>{{ row.quality }}</td>
-              </tr>
+              </tr> 
             </tbody>
           </table>
         </div>
