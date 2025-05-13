@@ -70,7 +70,6 @@ import { useInboundStore } from '@/store/inbound';
 export default {
   name: 'MInboundForm',
   setup() {
-    // Pinia 스토어 인스턴스를 가져옵니다.
     const inboundStore = useInboundStore();
     return { inboundStore };
   },
@@ -83,14 +82,6 @@ export default {
     };
   },
   computed: {
-    // allSelected 계산 속성 프로세스 흐름:
-    // 1. 전체 선택 체크박스 렌더링 시 호출
-    // 
-    // 2. 데이터 존재 여부 확인: this.inboundRows.length > 0
-    //
-    // 3. 배열 검사: this.inboundRows.every(r => selectRows.includes(r))
-    //
-    // 4. 결과 반환 -> 체크박스에 반영
     allSelected() {
       return (
         this.inboundRows.length > 0 &&
@@ -99,83 +90,27 @@ export default {
     }
   },
   created() {
-    // Pinia store 에서 가져온 PASS 발주서
-    /**
-     *  created() 훅 프로세스 흐름:
-     * 
-     *  컴포넌트 생성 완료 -> created() 호출
-     * 
-     *  this.inboundStore.pendingOrders 호출 -> pending 배열 수신
-     * 
-     *  pending.map 각 개체에 min_qty, quality 추가
-     * 
-     *  this.inboundRows에 매핑 결과 할당
-     * 
-     *  this.selectedRows = [...this.inboundRows ] 초기 선택
-     */
-    // 컴포넌트 생성시점에 pinia 스토어의 pendingOrders (품질검사 pass 발주서) 가져오기
     const pending = this.inboundStore.pendingOrders;
-    // 각 발주서에 입고수량(min_qty)과 품질 상태(quality) 기본값 설정
     this.inboundRows = pending.map(o => ({
-      ...o,                     // moder_id, matter_code, moder_qty 등 기존 속성
-      min_qty: o.moder_qty,      // 기본 입고 수량은 발주 수량과 동일
-      quality: 'PASS'             // 품질검사 상태를 pass로 지정
+      ...o,                     
+      min_qty: o.moder_qty,      
+      quality: 'PASS'             
     }));
-    // 초기에는 모든 행을 선택 상태로 설정
     this.selectedRows = [...this.inboundRows];
   },
   methods: {
-    /**
-     * toggleAllRows 메서드 프로세스 흐름:
-     *  1) 사용자가 전체 선택 체크박스 클릭 -> change 이벤트 발생
-     * 
-     *  2) toggleAllRows(evt) 호출 -> evt.target.checked 확인
-     * 
-     *  3) evt.target.checked === true ? 전체 행 복사 : 빈 배열 할당
-     * 
-     *  4) this.selectedRows 변경 -> 뷰 자동 업데이트
-     * 
-     */
-    // 전체 선택/해제 토글 함수
     toggleAllRows(evt) {
       this.selectedRows = evt.target.checked
-        ? [...this.inboundRows]    //체크 시 모든 행을 선택
-        : [];                      // 해제 시 빈 배열
+        ? [...this.inboundRows]   
+        : [];                     
     },
-
-
-
-    /**
-     *  processInbound 메서드 프로세스 흐름:
-     *  1) 사용자가 입고 버튼 클릭 -> click 이벤트 발생
-     * 
-     *  2) processInbound() 호출 -> selectedRows.length 확인
-     * 
-     *  3) 선택된 행 없으면 alert & 함수 종료 
-     * 
-     *  4) today 생성 (new Date -> toISOString -> slice)
-     * 
-     *  5) Promise.all 실행 -> axios.post('/api/m_inbound') 호출 (병렬)
-     * 
-     *  6) 모든 POST 요청 완료 시 alert('입고 완료')
-     * 
-     *  7) entries 배열 생성 -> processedInbounds 스토어 저장
-     * 
-     *  8) pendingOrders 초기화 
-     *  
-     *  9) this.$router.push -> 조회 페이지로 네비게이션
-     */
-    // 입고 처리 실행 함수
     async processInbound() {
-      // 선택된 행이 없으면 경고 메시지 출력 후 종료
       if (!this.selectedRows.length) {
         return alert('선택된 행이 없습니다.');
       }
       try {
-        // 오늘 날짜를 YYYY-MM-DD 형식으로 생성
         const today = new Date().toISOString().slice(0, 10);
 
-        // 1) 서버에 입고 API 요청: 선택된 각 행마다 별도 POST 요청
         await Promise.all(
           this.selectedRows.map(r =>
             axios.post('/api/m_inbound', {
@@ -184,7 +119,7 @@ export default {
               mater_code:  r.mater_code,
               min_qty:     r.min_qty,
               min_date:    today,
-              min_checker: '현재사용자',     //실제 로그인 사용자 정보로 대체 가능
+              min_checker: '현재사용자',    
               mater_lot:   '',
               min_edate:   null,
               min_stock:   0,
@@ -194,26 +129,22 @@ export default {
           )
         );
 
-        // 2) 입고 완료 알림
         alert('입고가 완료되었습니다.');
 
-        // 3) Pinia 스토어에 처리된 입고 로그 저장
         const entries = this.selectedRows.map(r => ({
           min_id:      `${r.moder_id}-${Date.now()}`,
           mater_code:  r.mater_code,
           min_qty:     r.min_qty,
           min_date:    today,
           min_checker: '현재사용자',
-          lot_cnt:     '',    // 필요 시 값 지정
-          mater_lot:   ''     // 필요 시 값 지정
+          lot_cnt:     '',    
+          mater_lot:   ''     
         }));
         
         this.inboundStore.addProcessedInbounds(entries);
 
-        // 4) 대기 발주서 목록 초기화: pendingOrders 비우기
         this.inboundStore.clearPendingOrders();
 
-        // 5) 자재 입/출고 조회 페이로 네비게이션 이동
         this.$router.push({ name: 'MMovement', query: { type: 'inbound' } });
       } catch (e) {
         console.error('입고 처리 오류', e);

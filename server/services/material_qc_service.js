@@ -1,3 +1,4 @@
+// server/services/,aterial_qc_service.js
 const db = require('../database/mapper.js');
 const { convertObjToAry } = require('../utils/converts.js');
 

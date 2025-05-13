@@ -1,3 +1,4 @@
+// server/database/sqls/mInbound.js
 // 전체 입고 이력 조회를 위한 sql 쿼리 문자열
 // m_inbound 테이블에서 주요 컬럼을 선택하고, 날짜 포맷을 'YYYY-mm-DD'로 변환
 // 최신 입고 순으로 정렬 (내림차순)
@@ -17,13 +18,21 @@ FROM m_inbound
 ORDER BY min_date DESC
 `;
 
-// 입고 등록을 위한 insert sql 쿼리 문자열
-// m_inbound 테이블에 필요한 모들 컬럼을 순서대로 삽입
+/* 자재 입고 INSERT */
 const insertInbound = `
 INSERT INTO m_inbound (
-  min_id, mater_code, min_qty, min_date, min_checker,
-  mater_lot, min_edate, min_stock, min_oqty, test_no
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  min_id,
+  moder_id,          
+  mater_code,
+  min_qty,
+  min_date,
+  min_checker,
+  mater_lot,
+  min_edate,
+  min_stock,
+  min_oqty,
+  test_no
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
 // 자재 현재고 누적 갱신용 sql

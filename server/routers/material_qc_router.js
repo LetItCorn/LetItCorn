@@ -1,3 +1,4 @@
+// server/routers/material_qc_router.js
 const express = require('express');
 const router  = express.Router();
 const svc     = require('../services/material_qc_service.js');
