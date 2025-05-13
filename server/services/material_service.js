@@ -1,6 +1,6 @@
 // ==== services/material_service.js ==== 
 
-const mariaDB = require('../database/mapper.js');
+const mariadb = require('../database/mapper.js');
 const { convertObjToAry } = require('../utils/converts.js');
 
 /** 
