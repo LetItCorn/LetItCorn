@@ -1,33 +1,26 @@
 // ==== services/material_service.js ==== 
 
-/**
- * 1) 자재 전체조회 + 조건검색
- *    filters: { code: string, name: string, unit: string }
- *    - mater_code, mater_name, unit_code 필터가 빈 문자열이면 전체조회
- *    - SQL: materialList
- */
-const findMaterials = async (filters = {}) => {
-  // 필터 기본값 설정
-  const code = filters.code || '';
-  const name = filters.name || '';
-  const unit = filters.unit || '';
-  // materialList SQL의 (?,?),(?,?),(?,?) 순서에 맞춰 파라미터 배열을 구성
-  const params = [ code, code, name, name, unit, unit ];
+const mariaDB = require('../database/mapper.js');
+const { convertObjToAry } = require('../utils/converts.js');
 
+/** 
+ * 1) 전체 조회 + 조건별 검색
+ * @param {object} filters - { code: string, name: string }
+ */
+const findMaterials = async ({ code = '', name = '' }) => {
+  // SQL: materialList
+  // WHERE (? = '' OR mater_code LIKE …) AND (? = '' OR mater_name LIKE …)
+  const params = [code, code, name, name];
   try {
-    // materialList 쿼리 실행 후 결과 반환
-    return await mariaDB.query('materialList', params);
+    const list = await mariaDB.query('materialList', params);
+    return list;
   } catch (err) {
     console.error('findMaterials error', err);
     return [];
   }
 };
 
-/**
- * 2) 단위코드(공통코드 UU) 조회
- *    - SQL: unitCode
- *    - 자재 spec 설정을 위해 사용
- */
+// 2) 단위코드(공통코드 UU) 조회
 const unitCode = async () => {
   try {
     return await mariaDB.query('unitCode');
@@ -38,44 +31,73 @@ const unitCode = async () => {
 };
 
 /**
- * 3) 자재 단건조회 (mater_code 기준)
- *    mater_code에 해당하는 한 건 조회
- *    - SQL: materialInfo
+ * 3) 코드별 조회 (정확 일치)
+ * @param {string} code - 조회할 mater_code
  */
-const findByMaterial = async (materCode) => {
+const MaterialByCode = async (code) => {
+  // SQL: materialByCode
   try {
-    const rows = await mariaDB.query('materialInfo', [ materCode ]);
-    // 조회된 행이 있으면 첫 번째, 없으면 null
+    const rows = await mariaDB.query('materialByCode', [code]);
     return rows[0] || null;
   } catch (err) {
-    console.error('findByMaterial error', err);
+    console.error('MaterialByCode error', err);
     return null;
   }
 };
 
 /**
- * 4) 자재 등록/수정 (MERGE)
- *    - INSERT 시 PK 충돌하면 UPDATE 수행
- *    - SQL: materialInsert
+ * 4) 명칭별 조회 (LIKE 검색)
+ * @param {string} name - 조회할 mater_name 일부
+ */
+const findMaterialsByName = async (name) => {
+  // SQL: materialByName
+  try {
+    const list = await mariaDB.query('materialByName', [name]);
+    return list;
+  } catch (err) {
+    console.error('findMaterialsByName error', err);
+    return [];
+  }
+};
+
+/**
+ * 5) 등록 / 수정  (INSERT … ON DUPLICATE KEY UPDATE …)
  */
 const saveMaterial = async (material) => {
-  // unitCode 목록에서 unit_code와 매칭되는 code_name을 spec에 세팅
-  const units = await unitCode();
-  material.spec = (units.find(u => u.code_values === material.unit_code) || {}).code_name || '';
+  /* ─────────────────────────────────────────────
+   * 1. 단위코드 → 단위명(spec) 매핑
+   * ───────────────────────────────────────────── */
+  let unit_name = '';
+  if (material.unit_code) {
+    const units = await unitCode();  // UU 공통코드 전체
+    unit_name =
+      (units.find(u => u.code_values === material.unit_code) || {}).code_name || '';
+  }
 
-  // materialInsert 쿼리 파라미터 순서에 맞춰 배열 구성
+  /* ─────────────────────────────────────────────
+   * 2. mater_code 가 비어 있으면 새 코드 생성
+   * ───────────────────────────────────────────── */
+  let newCode = material.mater_code;
+  if (!newCode) {
+    const rows = await mariaDB.query('selectMaterialMaterCode'); // ← 새 코드!
+    newCode = rows[0]?.next_mater_code;
+  }
+
+  /* ─────────────────────────────────────────────
+   * 3. 파라미터 구성 후 저장
+   * ───────────────────────────────────────────── */
   const params = [
-    material.mater_code,    // 자재 코드
-    material.mater_name,    // 자재 명칭
-    material.safe_stock,    // 안전 재고량
-    material.current_stock, // 현재 재고량
-    material.m_price,       // 자재 단가
-    material.spec,          // 규격 (code_name)
-    material.unit_code      // 단위 코드
+    newCode,
+    material.mater_name || '',
+    material.safe_stock ?? 0,
+    material.current_stock ?? 0,
+    material.m_price ?? 0,
+    unit_name,                // spec 자리에 ‘kg’, ‘L’ 같은 단위명
+    material.unit_code || ''  // 마지막은 단위 “코드”
   ];
 
   try {
-    return await mariaDB.query('materialInsert', params);
+    return await mariaDB.query('materialSave', params);
   } catch (err) {
     console.error('saveMaterial error', err);
     throw err;
@@ -83,12 +105,14 @@ const saveMaterial = async (material) => {
 };
 
 /**
- * 5) 자재 삭제 (mater_code 기준)
- *    - SQL: materialDelete
+ * 6) 삭제 (mater_code 기준)
+ * @param {string} code - 삭제할 mater_code
  */
-const deleteMaterial = async (materCode) => {
+const deleteMaterial = async (code) => {
+  // SQL: materialDelete
   try {
-    return await mariaDB.query('materialDelete', [ materCode ]);
+    const result = await mariaDB.query('materialDelete', [code]);
+    return result;
   } catch (err) {
     console.error('deleteMaterial error', err);
     throw err;
@@ -96,8 +120,6 @@ const deleteMaterial = async (materCode) => {
 };
 
 // ============================================================================
-const mariadb = require('../database/mapper.js');
-const { convertObjToAry } = require('../utils/converts.js');
 
 // 전체 자재 목록 조회
 const findAllMaterials = async () => {
@@ -151,6 +173,13 @@ async function findMaterialStock() {
 };
 
 module.exports = {
+    findMaterials,
+    unitCode,
+    MaterialByCode,
+    findMaterialsByName,
+    saveMaterial,
+    deleteMaterial,
+
     findAllMaterials,
     findMaterialByCode,
     addMaterial,

@@ -1,42 +1,61 @@
-<!-- src/views/ProcessMain.vue -->
+<!-- src/views/Process.vue -->
 <template>
-  <!-- 전체 컨테이너: 상단 조회 영역 + 하단 리스트/상세 영역 -->
-  <div class="container-fluid vh-100 d-flex flex-column p-3">
-    
+  <!-- 전체 컨테이너 ---------------------------------------------------------->
+  <div class="container-fluid vh-100 py-3 d-flex flex-column">
 
-    <!-- 2) 하단 메인 영역: 좌측 리스트(3/5), 우측 상세(2/5) -->
+    <!-- 1) 상단 : 검색/필터 바 --------------------------------------------->
+    <div class="row mb-3">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body d-flex align-items-center">
+            <div class="ms-auto d-flex align-items-center">
+              <!-- 필터 타입 선택 -->
+              <select v-model="searchType"
+                      class="form-select form-select-sm me-2" style="width:140px">
+                <option value="">[선택 없음]</option>
+                <option value="code">공정코드</option>
+                <option value="name">공정명</option>
+              </select>
+              <!-- 검색어 -->
+              <input v-model="searchValue" :placeholder="filterPlaceholder"
+                     class="form-control form-control-sm me-2" style="width:200px">
+              <!-- 버튼 -->
+              <button class="btn btn-sm btn-primary me-2" style="width:80px"
+                      @click="loadProcesses">조회</button>
+              <button class="btn btn-sm btn-outline-secondary" style="width:80px"
+                      @click="resetFilter">초기화</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2) 리스트 / 상세 ----------------------------------------------------->
     <div class="row flex-grow-1 gx-3">
-      <!-- 2-1) 좌측 리스트 영역 -->
-      <div class="col-md-7">
+
+      <!-- 2‑1) 공정 리스트 --------------------------------------------------->
+      <div class="col-md-7 h-100">
         <div class="card h-100">
           <div class="card-header">공정 리스트</div>
-          <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-              <thead class="table-light">
+          <div class="card-body p-0 overflow-auto">
+            <table class="table table-hover table-sm mb-0">
+              <thead class="thead-light sticky-top">
                 <tr>
-                  <th>공정코드</th>
-                  <th>공정명</th>
-                  <th>소요시간</th>
+                  <th>공정코드</th><th>공정명</th><th>시간(분)</th><th>단위</th>
                 </tr>
               </thead>
               <tbody>
-                <!-- 리스트 행 클릭 시 상세 표시 -->
-                <tr
-                  v-for="proc in processList"
-                  :key="proc.process_code"
-                  @click="selectRow(proc)"
-                  style="cursor:pointer"
-                  :class="{ 'table-active': proc.process_code === detail.process_code }"
-                >
-                  <td>{{ proc.process_code }}</td>
-                  <td>{{ proc.process_name }}</td>
-                  <td>{{ proc.duration_min }}</td>
+                <tr v-for="p in processList" :key="p.process_code"
+                    @click="selectProcess(p)"
+                    :class="{ 'table-active': p.process_code === selected.process_code }"
+                    style="cursor:pointer">
+                  <td>{{ p.process_code }}</td>
+                  <td>{{ p.process_name }}</td>
+                  <td>{{ p.duration_min }}</td>
+                  <td>{{ p.spec }}</td>
                 </tr>
-                <!-- 데이터 없을 때 안내문 -->
                 <tr v-if="processList.length === 0">
-                  <td colspan="3" class="text-center py-4">
-                    조회된 데이터가 없습니다.
-                  </td>
+                  <td colspan="5" class="text-center py-4">데이터가 없습니다.</td>
                 </tr>
               </tbody>
             </table>
@@ -44,243 +63,168 @@
         </div>
       </div>
 
-      <!-- 2-2) 우측 상세 영역 -->
-      <div class="col-md-5">
+      <!-- 2‑2) 상세 입력 폼 --------------------------------------------------->
+      <div class="col-md-5 h-100">
         <div class="card h-100">
-          <div class="card-header">공정 상세</div>
-          <div class="card-body">
+          <div class="card-header">공정 상세 정보</div>
+          <div class="card-body overflow-auto">
             <form @submit.prevent class="d-flex flex-column gap-3">
               <!-- 공정코드 -->
-              <div class="mb-2">
-                <label for="detailCode" class="form-label">공정코드</label>
-                <input
-                  id="detailCode"
-                  v-model="detail.process_code"
-                  type="text"
-                  class="form-control"
-                  readonly
-                />
+              <div>
+                <label class="form-label">공정코드</label>
+                <input v-model="selected.process_code" class="form-control form-control-sm"
+                       readonly>
               </div>
-              <!-- 공정명 수정 가능 -->
-              <div class="mb-2">
-                <label for="detailName" class="form-label">공정명</label>
-                <input
-                  id="detailName"
-                  v-model="detail.process_name"
-                  type="text"
-                  class="form-control"
-                />
+              <!-- 공정명 -->
+              <div>
+                <label class="form-label">공정명</label>
+                <input v-model="selected.process_name" class="form-control form-control-sm">
               </div>
-              <!-- 소요시간 수정 가능 -->
-              <div class="mb-2">
-                <label for="detailDuration" class="form-label">소요시간(분)</label>
-                <input
-                  id="detailDuration"
-                  v-model.number="detail.duration_min"
-                  type="number"
-                  class="form-control"
-                />
+              <!-- 소요시간 -->
+              <div>
+                <label class="form-label">소요시간(분)</label>
+                <input v-model.number="selected.duration_min" type="number" min="0"
+                       class="form-control form-control-sm">
               </div>
-              <!-- 액션 버튼 그룹: 등록/수정/삭제/초기화 -->
+              <!-- 단위코드 선택 -->
+              <div>
+                <label class="form-label">단위</label>
+                <select v-model="selected.unit_code" class="form-select form-select-sm">
+                  <option value="">선택</option>
+                  <option v-for="u in unitList" :key="u.code_values" :value="u.code_values">
+                    {{ u.code_name }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- 액션 버튼 -->
               <div class="mt-auto d-flex gap-2">
-                <button
-                  type="button"
-                  @click="onDetailReset"
-                  class="btn btn-outline-secondary flex-grow-1"
-                >
-                  초기화
-                </button>
-                <button
-                  type="button"
-                  @click="onCreate"
-                  class="btn btn-success flex-grow-1"
-                >
-                  등록
-                </button>                
-                <button
-                  type="button"
-                  @click="onDelete"
-                  class="btn btn-danger flex-grow-1"
-                   :disabled="detail.mode != 'reg'"
-                >
-                  삭제
-                </button>
+                <button type="button" class="btn btn-outline-secondary flex-grow-1"
+                        @click="clearDetail">초기화</button>
+                <button type="button" class="btn btn-success flex-grow-1"
+                        @click="onSave">등록</button>
+                <button type="button" class="btn btn-danger flex-grow-1"
+                        :disabled="!selected.process_code"
+                        @click="onDelete">삭제</button>
               </div>
             </form>
           </div>
         </div>
       </div>
-    </div>
+
+    </div> <!-- /row -->
   </div>
 </template>
 
 <script>
-// ProcessMain.vue (Vue 3 Composition API)
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import axios from 'axios';
 
 export default {
-  name: 'ProcessMain',
-  setup() {
-    // 상태 변수 선언
-    const dropdownProcesses = ref([])      // 드롭다운용 전체 공정 목록
-    const processList = ref([])           // 실제 조회된 리스트
-    const detail = ref({                  // 상세 조회 바인딩 객체
-      process_code: '',
-      process_name: '',
-      duration_min: null,
-      mode:"",
-    })
-
-    // 필터 입력값
-    const codeSelect = ref('')            // 드롭다운 선택값
-    const codeInput = ref('')             // 직접 입력값
-    const nameSelect = ref('')
-    const nameInput = ref('')
-
-    // 컴포넌트 마운트 시 초기 데이터 로드
-    onMounted(async () => {
-      await fetchAllProcesses()          // 드롭다운용 전체 목록 가져오기
-      processList.value = dropdownProcesses.value  // 초기 리스트 표시
-    })
-
-    /**
-     * 전체 공정 목록 조회
-     * GET /processes (파라미터 없이 호출)
-     */
-    const fetchAllProcesses = async () => {
-      try {
-        const { data } = await axios.get('api/processes')
-        dropdownProcesses.value = data
-      } catch (err) {
-        console.error('fetchAllProcesses error', err)
-      }
-    }
-
-    /**
-     * 조회 버튼 클릭 핸들러
-     * codeInput 또는 codeSelect 우선 사용
-     * nameInput 또는 nameSelect 다음 사용
-     */
-    const onSearch = async () => {
-      const code = codeInput.value || codeSelect.value
-      const name = nameInput.value || nameSelect.value
-      const params = {}
-      if (code) params.code = code
-      else if (name) params.name = name
-
-      try {
-        const { data } = await axios.get('api/processes', { params })
-        processList.value = data
-      } catch (err) {
-        console.error('onSearch error', err)
-      }
-      onDetailReset()  // 검색 후 상세 초기화
-    }
-
-    /**
-     * 필터 초기화 및 리스트/상세 초기화
-     */
-    const onReset = () => {
-      codeSelect.value = ''
-      codeInput.value = ''
-      nameSelect.value = ''
-      nameInput.value = ''
-      processList.value = dropdownProcesses.value
-      onDetailReset()
-    }
-
-    /**
-     * 리스트 행 클릭 시 상세 데이터 셋팅
-     */
-    const selectRow = (proc) => {
-      detail.value = { ...proc, mode: 'reg' };
-    }
-
-    /**
-     * 상세 영역 초기화
-     */
-    const onDetailReset = () => {
-      detail.value = {
+  name: 'Process',
+  data() {
+    return {
+      /* ----- 검색 상태 ---------------------------------------------------- */
+      searchType: '', searchValue: '',
+      /* ----- 데이터 ------------------------------------------------------- */
+      processList: [],        // 공정 목록
+      unitList: [],           // UU 공통코드
+      selected: {             // 선택/편집 중인 공정
         process_code: '',
         process_name: '',
-        duration_min: null
+        duration_min: null,
+        unit_code: '',
+        spec: ''
+      }
+    };
+  },
+  computed: {
+    filterPlaceholder() {
+      return this.searchType === 'code' ? '공정코드'
+           : this.searchType === 'name' ? '공정명' : '';
+    }
+  },
+  created() {
+    this.loadProcesses();
+    this.loadUnitCodes();
+  },
+  watch: {
+    /* 단위코드가 변경되면 spec(단위 “이름”) 자동 반영 --------------------- */
+    'selected.unit_code'(val) {
+      const unit = this.unitList.find(u => u.code_values === val);
+      this.selected.spec = unit ? unit.code_name : '';
+    }
+  },
+  methods: {
+    /* ============================== 조회 ============================== */
+    async loadProcesses() {
+      const params = {};
+      if (this.searchType === 'code') params.code = this.searchValue;
+      if (this.searchType === 'name') params.name = this.searchValue;
+
+      try {
+        const { data } = await axios.get('/api/processes', { params });
+        this.processList = data;
+        this.clearDetail();
+      } catch (err) {
+        console.error('loadProcesses error', err);
+        this.processList = [];
+      }
+    },
+    async loadUnitCodes() {
+      try {
+        const { data } = await axios.get('/api/materials/unitCode'); // UU 공통코드 재사용
+        this.unitList = data;
+      } catch (err) {
+        console.error('loadUnitCodes error', err);
+        this.unitList = [];
+      }
+    },
+
+    /* ============================== 유틸 ============================== */
+    resetFilter() { this.searchType = ''; this.searchValue = ''; this.loadProcesses(); },
+    selectProcess(p) { this.selected = { ...p }; },
+    clearDetail() {
+      this.selected = {
+        process_code: '', process_name: '', duration_min: 0, unit_code: '', spec: ''
+      };
+    },
+
+    /* ============================== CRUD ============================== */
+    async onSave() {
+      if (!this.selected.process_name) {
+        alert('공정명을 입력하세요.'); return;
+      }
+      try {
+        await axios.post('/api/processes', this.selected);
+        await this.loadProcesses();
+      } catch (err) {
+        console.error('onSave error', err);
+        alert('저장 중 오류가 발생했습니다.');
+      }
+    },
+    async onDelete() {
+      if (!this.selected.process_code) {
+        alert('삭제할 공정을 먼저 선택하세요!'); return;
+      }
+      if (!confirm('정말 삭제하시겠습니까?')) return;
+
+      try {
+        await axios.delete(`/api/processes/${this.selected.process_code}`);
+        await this.loadProcesses();
+        this.clearDetail();
+      } catch (err) {
+        console.error('onDelete error', err);
+        alert('삭제 중 오류가 발생했습니다.');
       }
     }
-
-    /**
-     * 신규 공정 등록
-     */
-    const onCreate = async () => {
-    const { process_code, process_name, duration_min } = detail.value;
-
-  
-  if (!process_name) {
-    alert('공정명을 입력하세요.');
-    return;
-  }
-  if (!duration_min) {
-    alert('소요 시간을 입력하세요.');
-    return;
-  }
-
-  try {
-    await axios.post('/api/processes', detail.value);
-    await fetchAllProcesses();
-    onReset();
-  } catch (err) {
-    console.error('onCreate error', err);
   }
 };
-
-
-    /**
-     * 공정 정보 수정
-     */
-    const onUpdate = async () => {
-      try {
-        await axios.put(`/processes/${detail.value.process_code}`, detail.value)
-        await fetchAllProcesses()
-        onReset()
-      } catch (err) {
-        console.error('onUpdate error', err)
-      }
-    }
-
-    /**
-     * 공정 정보 삭제
-     */
-    const onDelete = async () => {
-      try {
-        await axios.delete(`/api/processes/${detail.value.process_code}`)
-        await fetchAllProcesses()
-        onReset()
-      } catch (err) {
-        console.error('onDelete error', err)
-      }
-    }
-
-    // 템플릿에서 사용할 변수/함수 반환
-    return {
-      dropdownProcesses,
-      processList,
-      detail,
-      codeSelect,
-      codeInput,
-      nameSelect,
-      nameInput,
-      onSearch,
-      onReset,
-      selectRow,
-      onDetailReset,
-      onCreate,
-      onUpdate,
-      onDelete
-    }
-  }
-}
 </script>
 
 <style scoped>
-/* 필요 시 추가 스타일 작성 */
+/* 테이블 헤더 고정 */
+.sticky-top th{position:sticky;top:0;background:#fff;z-index:10;}
+/* 선택 행 */
+.table-active{background:#d0ebff;}
+.table-hover tbody tr:hover{background:#f8f9fa;}
 </style>

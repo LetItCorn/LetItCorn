@@ -16,8 +16,8 @@ const findProcesses = async () => {
 };
 
 /**
- * 1-a) 코드별 조회 (LIKE 검색): 공정코드 일부 매칭
- * @param {string} code - 검색할 공정코드
+ * 1-a) 공정 코드 LIKE 검색
+ * @param {string} code - 공정 코드 일부
  */
 const findProcessesByCode = async (code) => {
   const list = await mariaDB
@@ -30,8 +30,8 @@ const findProcessesByCode = async (code) => {
 };
 
 /**
- * 1-b) 이름별 조회 (LIKE 검색): 공정명 일부 매칭
- * @param {string} name - 검색할 공정명
+ * 1-b) 공정 이름 LIKE 검색
+ * @param {string} name - 공정 이름 일부
  */
 const findProcessesByName = async (name) => {
   const list = await mariaDB
@@ -44,8 +44,8 @@ const findProcessesByName = async (name) => {
 };
 
 /**
- * 2) 단건조회: 정확히 일치하는 공정코드로 조회
- * @param {string} processCode - 조회할 공정코드
+ * 2) 단건 조회: 공정 코드로 정확히 조회
+ * @param {string} processCode - 공정코드
  */
 const findProcess = async (processCode) => {
   const rows = await mariaDB
@@ -58,20 +58,24 @@ const findProcess = async (processCode) => {
 };
 
 /**
- * 3) 등록: 새로운 공정 추가
- * @param {object} process - 등록할 공정 데이터
+ * 3) 등록 (또는 수정): 공정 등록 (코드 자동 생성 포함)
+ * @param {object} process - 등록할 공정 정보
  */
 const createProcess = async (process) => {
+  // 기본 파라미터 배열: 등록 시 null일 수 있는 코드 먼저 포함
   let params = [
     process.process_code,
     process.process_name,
-    process.duration_min
+    process.duration_min,
+    process.unit_code,
+    process.spec
   ];
 
-    const process_code = await mariaDB.query('selectPrecessProcessCode');    
-    if(process.process_code == undefined || process.process_code == "" ){
-      params[0] = process_code[0].next_process_code;
-    }    
+  // process_code가 없으면 자동 생성
+  const nextCode = await mariaDB.query('selectPrecessProcessCode');
+  if (!process.process_code || process.process_code.trim() === '') {
+    params[0] = nextCode[0].next_process_code;
+  }
 
   const result = await mariaDB
     .query('processInsert', params)
@@ -83,14 +87,15 @@ const createProcess = async (process) => {
 };
 
 /**
- * 4) 수정: 기존 공정 정보 업데이트
+ * 4) 수정: 공정 정보 업데이트
  * @param {object} process - 수정할 공정 데이터
  */
 const updateProcess = async (process) => {
   const params = [
-    process.process_header,
     process.process_name,
     process.duration_min,
+    process.unit_code,
+    process.spec,
     process.process_code
   ];
   const result = await mariaDB
@@ -103,8 +108,8 @@ const updateProcess = async (process) => {
 };
 
 /**
- * 5) 삭제: 공정코드로 공정 삭제
- * @param {string} processCode - 삭제할 공정코드
+ * 5) 삭제: 공정 코드 기준 삭제
+ * @param {string} processCode - 공정코드
  */
 const deleteProcess = async (processCode) => {
   const result = await mariaDB

@@ -105,7 +105,6 @@
                     <th>순번</th>
                     <th>자재코드</th>
                     <th>자재명</th>
-                    <th>규격</th>
                     <th>단위</th>
                     <th>수량</th>
                   </tr>
@@ -122,7 +121,6 @@
                     <td>{{ comp.mater_code }}</td>
                     <td>{{ comp.mater_name }}</td>
                     <td>{{ comp.spec }}</td>
-                    <td>{{ comp.unit_code }}</td>
                     <td>{{ comp.quantity }}</td>
                   </tr>
                   <tr v-if="compList.length === 0">

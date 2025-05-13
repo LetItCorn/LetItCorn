@@ -71,7 +71,6 @@ const bomComponentsList = `
        , bom_id
        , mater_code
        , mater_name
-       , mater_type
        , spec
        , unit_code
        , quantity
@@ -86,7 +85,6 @@ const bomComponentInfo = `
        , bom_id
        , mater_code
        , mater_name
-       , mater_type
        , spec
        , unit_code
        , quantity
@@ -97,13 +95,12 @@ const bomComponentInfo = `
 // 3) 등록 (INSERT) – material 테이블에서 정보 가져오기
 const bomComponentInsert = `
   INSERT INTO bom_components
-    (item_seq_id, bom_id, mater_code, mater_name, mater_type, spec, unit_code, quantity)
+    (item_seq_id, bom_id, mater_code, mater_name, spec, unit_code, quantity)
   SELECT
     ?,            -- item_seq_id
     ?,            -- bom_id
     m.mater_code,
     m.mater_name,
-    m.mater_type,
     m.spec,
     m.unit_code,
     ?             -- quantity
@@ -118,7 +115,6 @@ const bomComponentUpdate = `
     ON m.mater_code = ?
   SET bc.mater_code  = m.mater_code
     , bc.mater_name  = m.mater_name
-    , bc.mater_type  = m.mater_type
     , bc.spec        = m.spec
     , bc.unit_code   = m.unit_code
     , bc.quantity    = ?
