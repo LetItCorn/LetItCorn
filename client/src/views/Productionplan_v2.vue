@@ -1,31 +1,30 @@
 <template>
-  <div class="container-fluid py-4">
-    <div
-      v-if="!isOrderModalOpen"
-      class="flex gap-4 justify-start items-center mb-4"
-    >
-      <span>등록일자</span>
-      <Datepicker
-        v-model="searchDate"
-        :format="'yy-MM-dd'"
-        :min-date="minDate"
-        :max-date="maxDate"
-        :teleport="true"
-        class="datepicker-input"
-      />
-    </div>
+  <div class="form-wrapper">
+    <div class="form-header">
+      <div v-if="!isOrderModalOpen" class="date-group">
+        <span>등록일자</span>
+        <Datepicker
+          v-model="searchDate"
+          :format="'yy-MM-dd'"
+          :min-date="minDate"
+          :max-date="maxDate"
+          :teleport="true"
+          class="datepicker-input"
+        />
+      </div>
 
-    <div v-if="!isOrderModalOpen" class="button-group">
-      <button @click="openOrderModal">주문서 조회</button>
-      <button @click="resetAll">초기화</button>
-      <button @click="registerPlan">등록</button>
+      <div v-if="!isOrderModalOpen" class="button-group">
+        <button @click="openOrderModal">주문서 조회</button>
+        <button @click="resetAll">초기화</button>
+        <button @click="registerPlan">등록</button>
+      </div>
     </div>
 
     <OrderSelectModal
       v-if="isOrderModalOpen"
       @selectOrder="handleSelectedOrders"
     />
-
+    <div class="grid-container" v-if="!isOrderModalOpen"></div>
     <ag-grid-vue
       ref="gridRef"
       v-if="!isOrderModalOpen"
@@ -40,6 +39,7 @@
 
 <script>
 import { useProductionPlanStore } from "@/store/production";
+import { useUserStore } from "@/store/user";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import { AgGridVue } from "ag-grid-vue3";
@@ -69,7 +69,7 @@ export default {
       { field: "sorder_code", headerName: "주문번호", flex: 2 },
       { field: "plans_head", headerName: "생산계획번호", flex: 2 },
       { field: "item_code", headerName: "품목번호", flex: 1 },
-      { field: "item_name", headerName: "품목명", flex: 1 },
+      { field: "item_name", headerName: "품목명", flex: 2 },
       { field: "sorder_count", headerName: "주문 수량", flex: 1 },
       { field: "plans_vol", headerName: "생산계획수량", flex: 1 },
       {
@@ -134,13 +134,15 @@ export default {
     },
     async registerPlan() {
       const isModify = this.$route.query.mode === "modify";
+      const userStore = useUserStore();
+
       const payload = {
         header: {
           plan_start: this.selectedOrder[0]?.plan_start || "",
           plan_end: this.selectedOrder[0]?.plan_end || "",
           plan_stat: "K01",
           plans_reg: this.formatDate(new Date()),
-          planer: "관리자",
+          planer: userStore.user.id || "관리자",
         },
         details: this.selectedOrder.map((order) => ({
           porder_seq: order.porder_seq,
@@ -205,6 +207,38 @@ export default {
 </script>
 
 <style scoped>
+.form-wrapper {
+  max-width: 1400px;
+  margin: 60px auto 0;
+}
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.date-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.grid-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
 .button-group {
   display: flex;
   justify-content: flex-start;

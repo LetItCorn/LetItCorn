@@ -17,7 +17,7 @@ router.get('/instHead/:inst_no', async (req,res)=>{
   res.send(instHeadInfo);
 })
 //수정
-router.put('/instHead/:inst_head', async(req, res)=>{
+router.put('/instHead/:inst_no', async(req, res)=>{
   let instHeadNo = req.params.inst_head;
   let instHeadInfo = req.body;
   let result = await instHeadService.modifyInstHead(instHeadNo, instHeadInfo)
@@ -28,7 +28,7 @@ router.put('/instHead/:inst_head', async(req, res)=>{
 router.delete('/instHead/:inst_head', async (req, res)=>{
   console.log("요청 도착 - 삭제", req.params.inst_head)
   let instHead  = req.params.inst_head;
-  let resInfo = await instHeadService.removeInstHead(instHead)
+  let resInfo = await instHeadService.deleteInstCascade(instHead)
                                   .catch(err => console.log(err));
   res.send(resInfo);
 });

@@ -40,6 +40,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import Datepicker from "@vuepic/vue-datepicker";
 import axios from "axios";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
 
 // Store 연결
 const instStore = useInstStore();
@@ -114,7 +115,10 @@ async function handleSearch() {
 async function handleSelect() {
   const selected = gridApi.value?.getSelectedRows?.() || [];
   console.log("선택된 항목:", selected);
-  if (!selected.length) return alert("선택된 항목이 없습니다.");
+  if (!selected.length){
+    Swal.fire({icon: "error", title: "선택된 항목이 없습니다."})
+    return ;
+  };
 
 instStore.setSelectedPlans(selected);
 instStore.closeModal();
@@ -127,6 +131,7 @@ instStore.closeModal();
   flex-direction: column;
   align-items: center;
   margin-bottom: 12px;
+  margin-top: 40px;
 }
 
 .date-wrapper {
@@ -137,7 +142,7 @@ instStore.closeModal();
 
 .button-group {
   position: absolute;
-  top: -40px;
+  top: -36px;
   right: 0;
   display: flex;
   gap: 8px;

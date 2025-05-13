@@ -26,10 +26,13 @@ router.post('/inst/register', async (req, res) => {
 router.put('/inst/:inst_no', async(req, res)=>{
   let instNo = req.params.inst_no;
   let instInfo = req.body;
-  let result = await instService.modifyPlan(instNo, instInfo)
-                                .catch(err => console.log(err));
+  let result = await instService.modifyInst(instNo, instInfo)
+                                .catch(err => {console.log(err)
+    res.status(500).send("수정 실패");
+  });
   res.send(result);
 });
+
 //삭제
 router.delete('/inst/:inst_no', async (req, res)=>{
   let instNo = req.params.inst_no;

@@ -40,7 +40,6 @@
     </div>
 
     <ag-grid-vue
-      v-if="selectPlan.length > 0"
       ref="gridRef"
       class="ag-theme-alpine"
       style="width: 100%; height: 600px"
@@ -51,10 +50,10 @@
       :rowMultiSelectWithClick="true"
       :suppressRowClickSelection="true"
       :animateRows="true"
+      :overlayNoRowsTemplate="noRowsTemplate"
       @grid-ready="onGridReady"
     />
 
-    <p v-else class="text-center text-muted">조회된 주문서가 없습니다.</p>
   </div>
 </template>
 
@@ -65,6 +64,7 @@ import { AgGridVue } from "ag-grid-vue3";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import { ModuleRegistry, ClientSideRowModelModule } from "ag-grid-community";
+import Swal from "sweetalert2";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -75,6 +75,7 @@ const startDate = ref(new Date());
 const endDate = ref(new Date());
 const selectPlan = ref([]);
 const gridRef = ref(null);
+const gridApi = ref(null);
 
 const selectList = [
   { value: "작성일자", name: "작성일자" },
@@ -85,7 +86,7 @@ const defaultColDef = {
   sortable: true,
   filter: true,
   resizable: true,
-  floatingFilter: true,
+  floatingFilter: false,
 };
 
 const columnDefs = ref([
@@ -113,6 +114,7 @@ function toYYMMDD(dateObj) {
 
 function onGridReady(params) {
   gridRef.value = params.api;
+  gridApi.value = params.api;
 }
 
 async function handleSearch() {
@@ -131,12 +133,17 @@ async function handleSearch() {
 }
 
 async function handleSelect() {
-  const api = gridRef.value;
-  if (!api) return;
-
+  const api = gridApi.value;
+  if (!api || typeof api.getSelectedRows !== "function") {
+    console.error("ag-Grid API가 유효하지 않음");
+    return;
+  }
   const selectedRows = api.getSelectedRows();
   if (!selectedRows.length) {
-    alert("선택된 항목이 없습니다.");
+    Swal.fire({
+      icon: "error",
+      title: "선택된 항목이 없습니다.",
+    });
     return;
   }
   console.log("[모달] 선택된 주문서:", selectedRows);

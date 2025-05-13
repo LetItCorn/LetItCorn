@@ -1,7 +1,6 @@
 <!-- 생산계획 조회 화면-->
 <template>
-  <div class="p-4 space-y-4 overflow-visible">
-    <div class="flex items-center gap-4 h-[80px]">
+    <div class="plan-search-header">
       <label class="font-bold whitespace-nowrap">등록일자</label>
       <!--계획 작성기준 날짜 설정 후 조회가능-->
       <Datepicker
@@ -30,34 +29,35 @@
         수정
       </button>
     </div>
-    <!--단편 정보 출력 그리드-->
-    <ag-grid-vue
-      class="ag-theme-alpine"
-      style="width: 80%; height: 400px"
-      ref="mainGridRef"
-      :columnDefs="planColumnDefs"
-      :rowData="planList"
-      rowSelection="multiple"
-      :modules="[ClientSideRowModelModule]"
-      @rowSelectionChanged="handleRowSelection"
-      @grid-ready="onGridReady"
-      @rowClicked="handleRowClick"
-    />
-    <!--상세 정보 출력 그리드-->
-    <div v-show="selectedPlan.length > 0">
-      <h2 class="font-bold mt-4">세부 생산계획</h2>
+    <div class="grid-wrapper">
+      <!--단편 정보 출력 그리드-->
       <ag-grid-vue
         class="ag-theme-alpine"
-        style="width: 80%; height: 300px"
-        ref="detailGridRef"
-        :columnDefs="detailColumnDefs"
-        :rowData="detailList"
-        rowSelection="single"
+        style="width: 80%; height: 400px"
+        ref="mainGridRef"
+        :columnDefs="planColumnDefs"
+        :rowData="planList"
+        rowSelection="multiple"
         :modules="[ClientSideRowModelModule]"
-        @grid-ready="onDetailGridReady"
+        @rowSelectionChanged="handleRowSelection"
+        @grid-ready="onGridReady"
+        @rowClicked="handleRowClick"
       />
+      <!--상세 정보 출력 그리드-->
+      <div v-show="selectedPlan.length > 0">
+        <h3 class="font-bold mt-4">세부 생산계획</h3>
+        <ag-grid-vue
+          class="ag-theme-alpine"
+          style="width: 80%; height: 200px"
+          ref="detailGridRef"
+          :columnDefs="detailColumnDefs"
+          :rowData="detailList"
+          rowSelection="single"
+          :modules="[ClientSideRowModelModule]"
+          @grid-ready="onDetailGridReady"
+        />
+      </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -72,6 +72,7 @@ import { useProductionPlanStore } from "@/store/production";
 import { ModuleRegistry } from "ag-grid-community";
 import { ClientSideRowModelModule } from "ag-grid-community";
 import { useRouter } from "vue-router";
+import Swal from "sweetalert2";
 
 const store = useProductionPlanStore();
 const router = useRouter();
@@ -119,39 +120,41 @@ onMounted(() => {
 const planColumnDefs = [
   { headerCheckboxSelection: true, checkboxSelection: true, width: 50 },
   { headerName: "생산계획번호", field: "plans_head", flex: 2 },
-  { headerName: "품목명", field: "item_name" , flex: 2},
+  { headerName: "품목명", field: "item_name", flex: 2 },
   {
     headerName: "생산시작일",
     field: "plan_start",
-    valueFormatter: (params) => formatDate(params.value), flex: 2
+    valueFormatter: (params) => formatDate(params.value),
+    flex: 2,
   },
   { headerName: "미지시수량", field: "unissued_vol", flex: 1 },
   {
     headerName: "생산종료일",
     field: "plan_end",
-    valueFormatter: (params) => formatDate(params.value), flex: 2
+    valueFormatter: (params) => formatDate(params.value),
+    flex: 2,
   },
 ];
 
 const detailColumnDefs = [
-  { headerName: "생산계획번호", field: "plan_no" },
-  { headerName: "품목명", field: "item_name" },
-  { headerName: "주문수량", field: "sorder_count" },
-  { headerName: "생산계획수량", field: "plans_vol" },
+  { headerName: "생산계획번호", field: "plan_no", flex: 2 },
+  { headerName: "품목명", field: "item_name", flex: 2  },
+  { headerName: "주문수량", field: "sorder_count", flex: 1  },
+  { headerName: "생산계획수량", field: "plans_vol", flex: 2  },
   {
     headerName: "납기일",
     field: "delivery_date",
-    valueFormatter: (params) => formatDate(params.value),
+    valueFormatter: (params) => formatDate(params.value), flex: 2 
   },
   {
     headerName: "생산시작일",
     field: "plan_start",
-    valueFormatter: (params) => formatDate(params.value),
+    valueFormatter: (params) => formatDate(params.value), flex: 2 
   },
   {
     headerName: "생산종료일",
     field: "plan_end",
-    valueFormatter: (params) => formatDate(params.value),
+    valueFormatter: (params) => formatDate(params.value), flex: 2 
   },
 ];
 
@@ -176,7 +179,10 @@ const fetchPlanList = async () => {
     detailList.value = [];
     store.updateSearchDate(dateRange.value);
   } catch (err) {
-    alert("생산계획 조회에 실패했습니다.");
+    Swal.fire({
+      icon: "error",
+      title: "생산계획 조회에 실패했습니다.",
+    });
     console.error("조회 실패:", err);
   }
 };
@@ -215,36 +221,47 @@ const handleRowClick = async (event) => {
 //수정
 const modifyPlans = () => {
   if (selectedPlan.value.length === 0) {
-    return alert("수정할 계획을 선택해주세요.");
+    return Swal.fire({
+      icon: "question",
+      title: "수정할 계획을 선택해주세요.",
+    });
   }
   if (selectedPlan.value.length > 1) {
-    return alert("수정은 하나의 계획만 선택할 수 있습니다.");
+    return Swal.fire({
+      icon: "warning",
+      title: "수정은 하나의 계획만 선택할 수 있습니다.",
+    });
   }
   const plan = selectedPlan.value[0];
   if (plan.plan_stat !== "K01") {
-    return alert(
-      `'${plan.plans_head}'은(는) 대기 상태가 아니므로 수정할 수 없습니다.`
-    );
+    return Swal.fire({
+      icon: "warning",
+      title: `'${plan.plans_head}'은(는) 대기 상태가 아니므로 수정할 수 없습니다.`,
+    });
   }
   // Pinia store에 수정 대상 저장
-  store.setEditTarget(plan)
-  store.setEditDetails(detailList.value)
+  store.setEditTarget(plan);
+  store.setEditDetails(detailList.value);
   //수정 페이지로 이동
   router.push({ name: "ProductionPlan", query: { mode: "modify" } });
 };
 //삭제
 const deletePlans = async () => {
   if (selectedPlan.value.length === 0)
-    return alert("삭제할 계획을 선택해주세요.");
+    return Swal.fire({
+      icon: "question",
+      title: "삭제할 계획을 선택해주세요.",
+    });
   const invalid = selectedPlan.value.find((plan) => plan.plan_stat !== "K01");
   if (invalid) {
     console.log(
       "삭제 대상 상태:",
       selectedPlan.value.map((p) => p.plan_stat)
     );
-    return alert(
-      `'${invalid.plans_head}'은(는) 대기 상태가 아니므로 삭제할 수 없습니다.`
-    );
+    return Swal.fire({
+      icon: "warning",
+      title: `'${invalid.plans_head}'은(는) 대기 상태가 아니므로 삭제할 수 없습니다.`,
+    });
   }
   for (const plan of selectedPlan.value) {
     await axios.delete(`/api/plans/${plan.plans_head}`);
@@ -253,7 +270,20 @@ const deletePlans = async () => {
 };
 </script>
 
-<style>
+<style scoped>
+.plan-search-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 40px;
+  margin-bottom: 24px;
+}
+
+.grid-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
 .datepicker-input {
   max-width: 150px;
   min-width: 120px;

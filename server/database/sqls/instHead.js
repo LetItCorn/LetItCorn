@@ -3,6 +3,7 @@ const selectInstHeadList =
 `SELECT
   ih.inst_head,
   i.inst_no,
+  i.lot_cnt,
   p.plan_no,
   it.item_name,
   i.plans_vol,
@@ -32,6 +33,7 @@ const selectInstHeaderById=
  `SELECT
   ih.inst_head,
   i.inst_no,
+  i.lot_cnt,
   p.plan_no,
   it.item_name,
   i.plans_vol,

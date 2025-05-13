@@ -39,7 +39,7 @@ router.put('/plans/:plans_head', async(req, res)=>{
 //삭제
 router.delete('/plans/:plans_head', async (req, res)=>{
   let plansHead = req.params.plans_head;
-  let resInfo = await plansService.removePlans(plansHead)
+  let resInfo = await plansService.removePlansCascade(plansHead)
                                   .catch(err => console.log(err));
   res.send(resInfo);
 });

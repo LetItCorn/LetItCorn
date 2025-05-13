@@ -50,7 +50,9 @@ const registerInst = async ({ header, details }) => {
 
     // 1. 지시 헤더번호 생성
     let instHead = await getNextInstHead(conn);
-    const startDate = new Date(details[0].plan_start).toISOString().slice(0, 10);
+    const startDate = new Date(details[0].plan_start)
+      .toISOString()
+      .slice(0, 10);
     //const endDate = new Date(details[0].plan_end).toISOString().slice(0, 10);
 
     // 2. 지시 헤더 등록
@@ -71,7 +73,7 @@ const registerInst = async ({ header, details }) => {
     for (let row of details) {
       let instNo = await getNextInstNo(conn);
       let lotNo = await getNextLotNo(conn);
-      console.log(mariadb.query)
+      console.log(mariadb.query);
       // 3-1. 지시 디테일 등록
       await conn.query(
         `INSERT INTO inst (inst_no, lot_cnt, plans_vol, iord_no, process_header, out_od, inst_head, item_code, ins_stat)
@@ -85,15 +87,15 @@ const registerInst = async ({ header, details }) => {
           row.out_od,
           instHead,
           row.item_code,
-          "J01"
+          "J01",
         ]
       );
       console.log(mariadb.query);
 
-      // 3-2. 해당 계획(plan_header) 상태를 "진행중(K02)"로 변경
+      // 3-2. 해당 계획(plan_header) 상태 "진행중(K02)", 공정 시작, 종료날짜 를 변경
       await conn.query(
-        `UPDATE plan_header SET plan_stat = 'K02' WHERE plans_head = ?`,
-        [header.plans_head]
+        `UPDATE plan_header SET plan_start = ?, plan_end = ?,plan_stat = ? WHERE plans_head = ?`,
+        [header.plan_start, header.plan_end, "K02", header.plans_head]
       );
       console.log(mariadb.query);
     }
@@ -108,24 +110,70 @@ const registerInst = async ({ header, details }) => {
     if (conn) conn.release(); // 커넥션 해제
   }
 };
-
+//수정
 const modifyInst = async (instNo, instInfo) => {
-  let data = [instInfo, instNo];
-  let resInfo = await mariadb.query("updateInst", data);
+  let conn;
+  try {
+    conn = await mariadb.getConnection();
+    await conn.beginTransaction();
 
-  let result = null;
-  if (resInfo.affectedRows > 0) {
-    instInfo.no = instNo;
-    result = {
-      isUpdated: true,
+    // plans_head가 안나와서 inst 테이블에서 땡겨오기용
+    if (!instInfo.plans_head) {
+        const [row] = await conn.query(
+          `SELECT ih.plans_head 
+          FROM inst i
+          JOIN inst_header ih ON i.inst_head = ih.inst_head
+          WHERE i.inst_no = ?`,
+          [instNo]
+        );    
+    if (!row) throw new Error("plans_head 조회 실패");
+    instInfo.plans_head = row.plans_head;
+  }
+    // inst 테이블 업데이트
+    const data = [
+      instInfo.lot_cnt,
+      instInfo.process_header,
+      instInfo.out_od,
+      instNo,
+    ];
+    const resInst = await conn.query(
+      "UPDATE inst SET lot_cnt = ?, process_header = ?, out_od = ? WHERE inst_no = ?",
+      data
+    );
+    // plan_header 날짜 업데이트
+    await conn.query(
+      `
+      UPDATE plan_header
+      SET plan_start = ?, plan_end = ?
+      WHERE plans_head = ?
+    `,
+      [instInfo.plan_start, instInfo.plan_end, instInfo.plans_head]
+    );
+    
+    //inst_header도 plan_start와 맞춰서 inst_start 동기화
+    await conn.query(
+      `UPDATE inst_header
+       SET inst_start = ?
+       WHERE inst_head = (
+         SELECT i.inst_head
+         FROM inst i
+         WHERE i.inst_no = ?
+       )`,
+      [instInfo.plan_start, instNo]
+    );
+
+    await conn.commit();
+
+    return {
+      isUpdated: resInst.affectedRows > 0,
       instInfo,
     };
-  } else {
-    result = {
-      isUpdated: false,
-    };
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
   }
-  return result;
 };
 
 const removeInst = async (instNo) => {
