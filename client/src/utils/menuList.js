@@ -1,7 +1,7 @@
 const menuConfig = {
   영업: {
     "주문서": [{
-        name: "주문서 조회",
+        name: "주문서 목록",
         path: 'Salesorder'
       },
       {
@@ -10,8 +10,8 @@ const menuConfig = {
       }
     ],
     "거래처": [{
-        name: "거래처 조회",
-        path: 'Client'
+        name: "거래처 목록",
+        path: 'Customer'
       },
       {
         name: "거래처 등록",
@@ -19,7 +19,7 @@ const menuConfig = {
       }
     ],
     "완제품 입고": [{
-        name: "완제품 조회",
+        name: "완제품 목록",
         path: '#'
       },
       {
@@ -28,16 +28,12 @@ const menuConfig = {
       }
     ],
     "반품 입고": [{
-        name: "반품 조회",
+        name: "반품 목록",
         path: '#'
       }, {
         name: "반품 등록",
         path: '#'
       },
-      {
-        name: "폐기확인서 등록",
-        path: '#'
-      }
     ],
   },
   생산: {
