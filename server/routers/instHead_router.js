@@ -10,19 +10,12 @@ router.get('/instHead', async (req, res)=>{
    res.send(instHeadList); 
 });
 //단건조회
-router.get('/instHead/:inst_head', async (req,res)=>{
-  let instHeadNo = req.params.inst_head;
+router.get('/instHead/:inst_no', async (req,res)=>{
+  let instHeadNo = req.params.inst_no;
   let instHeadInfo = await instHeadService.findByInstHead(instHeadNo)
                                   .catch(err => console.log(err));
   res.send(instHeadInfo);
 })
-//등록
-router.post('/instHead', async(req, res)=>{
-  let instHeadInfo = req.body;
-  let result = await instHeadService.addNewInstHead(instHeadInfo)
-                                .catch(err => console.log(err));
-  res.send(result);
-});
 //수정
 router.put('/instHead/:inst_head', async(req, res)=>{
   let instHeadNo = req.params.inst_head;
@@ -33,8 +26,9 @@ router.put('/instHead/:inst_head', async(req, res)=>{
 });
 //삭제
 router.delete('/instHead/:inst_head', async (req, res)=>{
-  let plansHead = req.params.inst_head;
-  let resInfo = await instHeadService.removeInstHead(plansHead)
+  console.log("요청 도착 - 삭제", req.params.inst_head)
+  let instHead  = req.params.inst_head;
+  let resInfo = await instHeadService.removeInstHead(instHead)
                                   .catch(err => console.log(err));
   res.send(resInfo);
 });

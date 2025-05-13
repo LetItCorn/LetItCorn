@@ -17,23 +17,25 @@
 <!--생산지시정보-->
   <ag-grid-vue
   class="ag-theme-alpine"
-  style="width: 100%; height: 500px"
+  style="width: 100%; height: 400px"
   ref="mainGridRef"
   :columnDefs="instColumnDefs"
-  :rowData="List"
+  :rowData="planInst"
   rowSelection="multiple"
   @rowSelectionChanged="handleRowSelection"
   @rowClicked="handleRowClick"/>
+
   <!--상세정보-->
   <ag-grid-vue
   class="ag-theme-alpine"
-  style="width: 100%; height: 500px"
+  style="width: 100%; height: 300px"
   ref="detailGridRef"
   :columnDefs="detailColumnDefs"
-  :rowData="rowData"
+  :rowData="detailList"
   rowSelection="single" />
 </div>
 </template>
+
 <script setup>
 //composition api 해보겠습니다이
 import { ref } from 'vue'
@@ -43,11 +45,22 @@ import { AgGridVue } from 'ag-grid-vue3'
 import "ag-grid-community/styles/ag-theme-alpine.css"
 import { useInstStore } from "@/store/inst";
 import { useRouter } from "vue-router"
-
+import { storeToRefs } from 'pinia'
+import dayjs from 'dayjs'
 
 const router = useRouter();
-const gridRef = ref(null);
 const productionInstStore = useInstStore();
+const { selectedInst, selectedQueryPlans } = storeToRefs(productionInstStore);
+// 날짜 검색 조건
+const startDate = ref("");
+const endDate = ref("");
+//row Data 저장
+const detailList = ref([]);
+const planInst = ref([]);
+const mainGridRef = ref(null);
+// 그리드 데이터와 컬럼 정의
+const gridRef = ref(null);
+const gridApi = ref(null);
 const instColumnDefs = [
   {field: "select",
     checkboxSelection: true,
@@ -57,9 +70,10 @@ const instColumnDefs = [
   { field: "inst_no", headerName: "생산지시번호", flex: 2 },
   { field: "plan_no", headerName: "생산계획번호", flex: 2 },
   { field: "item_name", headerName: "품목명", flex: 2 },
-  { field: "plan_end", headerName: "생산종료일", flex: 2},
+  { field: "plan_end", headerName: "생산종료일", flex: 2, valueFormatter: (params) => {
+    return params.value ? dayjs(params.value).format("YYYY-MM-DD") : ""; }},
   { field: "inster", headerName: "담당자", flex: 1},
-  {field: "ins_stat", headername: "지시상태", flex: 1}
+  {field: "ins_stat_label", headerName: "지시상태", flex: 1}
   ];
 const detailColumnDefs = [
 { field: "inst_no", headerName: "생산지시번호", flex: 2 },
@@ -67,36 +81,100 @@ const detailColumnDefs = [
 { field: "item_name", headerName: "품목명", flex: 2 },
 { field: "plans_vol", headerName: "생산계획량", flex: 1 },
 { field: "iord_no", headerName: "지시수량", flex:1 },
-{ field: "plan_start", headerName: "생산시작일", flex:2 },
-{ field: "plan_end", headerName: "생산종료일", flex: 2},
-{ field: "process_header", headerName: "공정", flex: 1}
+{ field: "plan_start", headerName: "생산시작일", flex:1,valueFormatter: (params) => {
+  return params.value ? dayjs(params.value).format("YYYY-MM-DD") : "";} },
+{ field: "plan_end", headerName: "생산종료일", flex: 1, valueFormatter: (params) => {
+  return params.value ? dayjs(params.value).format("YYYY-MM-DD") : "";} },
+{ field: "process_header_label", headerName: "공정", flex: 1}
 ]; 
-//수정
-const modifyPlan = () => {
-  if(selectedPlan.value.length === null) {}
-  if(selectedPlan.value.length > 1){}
 
-  const plan = selectedPlan.value[0];
-  if (plan.plan_Stat !== "J01") {
-    return alert(
-      `'${plan.inst_head}'은(는) 대기 상태가 아니므로 수정할 수 없습니다.`
-    );
+const handleRowSelection = () => {
+  const selectedNodes = mainGridRef.value.api.getSelectedNodes();
+  const selectedData = selectedNodes.map((node) => node.data);
+  productionInstStore.setSelectedQueryPlans(selectedData);
+}
+const handleRowClick = async (event)=>{  
+  let instNo = event.data.inst_no;
+  productionInstStore.setSelectedInst(event.data);
+  try{
+  let res = await axios.get(`/api/instHead/${instNo}`)
+  console.log("디테일 응답:", res.data);
+  detailList.value = res.data;
+  }
+  catch(err){ 
+  console.log(err);
+  }
+}
+
+//조회 
+const fetchPlanInst = async () => {
+  //백엔드에 날짜변환
+  const formattedStart = startDate.value
+    ? dayjs(startDate.value).format("YYYY-MM-DD")
+    : null;
+  const formattedEnd = endDate.value
+    ? dayjs(endDate.value).format("YYYY-MM-DD")
+    : null;
+
+  if (!formattedStart || !formattedEnd) {
+    alert("조회 시작일과 종료일을 모두 선택해주세요.");
+    return;
+  }
+  try {
+    const res = await axios.get("/api/instHead", {
+      params: {
+        startDate: formattedStart,
+        endDate: formattedEnd,
+      },
+    });
+
+    console.log("응답 타입 확인:", typeof res.data);
+    console.log("응답이 배열인가?", Array.isArray(res.data));
+    console.log("응답 내용:", res.data);
+
+    if (!Array.isArray(res.data)) {
+    console.error("SQL 오류 발생 또는 응답이 배열이 아님:", res.data);
+    planInst.value = [];
+    alert("조회 중 오류가 발생했습니다.");
+    return;
   }
 
-  router.push({ name: "ProductionInst", query: { mode: "modify" } });
+    planInst.value = res.data;
+    productionInstStore.setSelectedInst(null);
+    detailList.value = [];
+  } catch (err) {
+    console.error("조회 오류:", err);
+    planInst.value = [];
+  }
+}
+//수정
+const modifyPlan = () => {
+  let inst = selectedInst.value;
+  console.log("선택된 inst:", inst);
+  if (!inst) return alert("수정할 생산지시를 선택해주세요.");
+  if (inst.ins_stat !== "J01") {
+    return alert(`'${inst.inst_head}'은(는) 대기 상태가 아니므로 수정할 수 없습니다.`);
+  }
+
+  router.push({ name: "ProductionInst", query: { mode: "modify", inst_no: selectedInst.value.inst_no, }, });
 };
 //삭제
-const deletePlan = async()=>{
-  if (selectedPlan.value.length === 0)
+const deletePlan = async()=>{  
+  if (selectedQueryPlans.value.length === 0) {
   return alert("삭제할 계획을 선택해주세요");
-const invalid = selectedPlan.value.find((plan)=> instHead.inst_stat !== "J01");
+}
+
+const invalid = selectedQueryPlans.value.find((instHead)=> instHead.ins_stat !== "J01");
 if (invalid){
-  console.log("삭제 대기상태: ", selectedPlan.value.map((p) => i.inst_stat));
+  console.log("삭제 대기상태: ", selectedQueryPlans.value.map((p) => p.ins_stat));
   return alert(`'${invalid.inst_head}'은(는) 대기 상태가 아니므로 삭제할 수 없습니다.`);
 }
-for (const plan of selectedPlan.value) {
-  await axios.delete(`/api/insts/${plan.inst_stat}`)
+for (const inst of selectedQueryPlans.value) {
+  await axios.delete(`/api/instHead/${inst.inst_head}`)
 }
+alert("삭제가 완료되었습니다.");
+fetchPlanInst();
+productionInstStore.setSelectedQueryPlans([]);
 }
 </script>
 
