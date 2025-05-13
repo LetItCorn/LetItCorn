@@ -4,7 +4,7 @@ import Dashboard from "../views/Dashboard.vue"; // 기본 대시보드
 import Login from "../views/LoginView.vue";
 import Sorder from "../views/Salesorder.vue";
 import InsertSorder from "../views/Insertsalesorder.vue";
-//import Client from "../views/Client.vue";
+import Customer from "../views/Customer.vue";
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
 import RTL from "../views/Rtl.vue";
@@ -67,12 +67,12 @@ const routes = [
     name: "Insertsalesorder",
     component: InsertSorder,
   },
-  // {
-  //   // 거래처 페이지
-  //   path: "/client",
-  //   name: "Client",
-  //   component: Client,
-  // },
+  {
+    // 거래처 페이지
+    path: "/customer",
+    name: "Customer",
+    component: Customer,
+  },
   {
     path: "/tables",
     name: "Tables",
