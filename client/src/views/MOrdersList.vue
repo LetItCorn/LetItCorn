@@ -121,7 +121,7 @@ export default {
   computed: {
     allSelected() {
       return this.filteredOrders.length > 0 &&
-             this.selectedOrders.length === this.filteredOrders.length;
+            this.selectedOrders.length === this.filteredOrders.length;
     },
     filteredOrders() {
       if (!Array.isArray(this.orders)) return [];
