@@ -9,7 +9,7 @@ const svc     = require('../services/m_order_service.js');
 // 프로세스 흐름:
 //  1 클라이언트에서 GET /m_orders 요청
 //     
-//  2 해당 라우트 핸들러 실행 → svc.findAllMOrders() 호출
+//  2 해당 라우트 핸들러 실행 → svc.findAllMOrders() 호출 
 //     
 //  3 서비스 레이어에서 selectMOrderList 쿼리 실행 → DB 조회
 //     

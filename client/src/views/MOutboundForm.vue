@@ -144,7 +144,7 @@ export default {
     /* ───────── 2. 현재 재고 ───────── */
     async loadMaterialStock() {
       try {
-        const { data } = await axios.get('/api/materials');
+        const { data } = await axios.get('/api/materials/stock');
         this.summaryList = data;
       } catch (e) {
         console.error('재고 조회 실패', e);

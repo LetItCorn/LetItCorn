@@ -4,7 +4,7 @@ SELECT
   bc.mater_code,
   m.mater_name,
   bc.unit_code  AS unit,
-  (bc.quantity * id.plans_vol) AS required qty,
+  (bc.quantity * id.plans_vol) AS required_qty,
   i.min_id AS lot_cnt,
   i.mater_lot AS mater_lot,
   (i.min_stock - i.min_oqty) AS available_qty

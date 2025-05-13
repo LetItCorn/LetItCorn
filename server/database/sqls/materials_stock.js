@@ -1,13 +1,18 @@
 // server/database/sqls/materials_stock.js
-// 실시간 재고 현황 조회 뷰(vw_material_stock)용 SQL
 const selectMaterialStock = `
 SELECT
-  mater_code,
-  mater_name,
-  safe_stock,
-  current_stock,
-  diff,
-  nearest_edate
-FROM vw_material_stock
+  m.mater_code,
+  m.mater_name,
+  m.safe_stock,
+  m.current_stock             AS current_stock   
+FROM material m
+ORDER BY m.mater_code;
 `;
-module.exports = { selectMaterialStock };
+
+const updateMaterialStock = `
+  UPDATE material
+     SET current_stock = current_stock + ?
+   WHERE mater_code = ?
+`;
+
+module.exports = { selectMaterialStock,updateMaterialStock };

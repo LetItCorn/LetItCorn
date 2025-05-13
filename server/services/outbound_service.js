@@ -1,3 +1,4 @@
+// server/services/outbound_service.js
 /**
  *  자재 출고 서비스
  *  - 생산지시 기반 LOT 후보 조회
