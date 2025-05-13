@@ -1,19 +1,20 @@
 <template>
   <!--생산 지시 조회-->
   <div class="inquiry-header">
-  <div class="date-wrapper">
+    <div class="filter-row">
   <div class="date-range">
   <label>일자</label>
   <Datepicker v-model="startDate" :format="'yy-MM-dd'" /> 
   <span>~</span> 
   <Datepicker v-model="endDate" :format="'yy-MM-dd'" />
   </div>
-  <div class="button-group">
+  <div class="button-group-inline">
   <button @click="fetchPlanInst">조회</button>
   <button @click="modifyPlan">수정</button>
   <button @click="deletePlan">삭제</button>
   </div>
 </div>
+<div class="grid-wrapper">
 <!--생산지시정보-->
   <ag-grid-vue
   class="ag-theme-alpine"
@@ -34,6 +35,7 @@
   :rowData="detailList"
   rowSelection="single" />
 </div>
+</div>
 </template>
 
 <script setup>
@@ -47,6 +49,7 @@ import { useInstStore } from "@/store/inst";
 import { useRouter } from "vue-router"
 import { storeToRefs } from 'pinia'
 import dayjs from 'dayjs'
+import Swal from "sweetalert2";
 
 const router = useRouter();
 const productionInstStore = useInstStore();
@@ -90,12 +93,14 @@ const detailColumnDefs = [
 
 const handleRowSelection = () => {
   const selectedNodes = mainGridRef.value.api.getSelectedNodes();
-  const selectedData = selectedNodes.map((node) => node.data);
+  const selectedData = selectedNodes.map(node => node.data);
+  console.log("선택된 항목:", selectedData);
   productionInstStore.setSelectedQueryPlans(selectedData);
 }
 const handleRowClick = async (event)=>{  
   let instNo = event.data.inst_no;
   productionInstStore.setSelectedInst(event.data);
+  productionInstStore.setSelectedQueryPlans([event.data]);
   try{
   let res = await axios.get(`/api/instHead/${instNo}`)
   console.log("디테일 응답:", res.data);
@@ -117,7 +122,10 @@ const fetchPlanInst = async () => {
     : null;
 
   if (!formattedStart || !formattedEnd) {
-    alert("조회 시작일과 종료일을 모두 선택해주세요.");
+    Swal.fire({
+      icon: "question",
+      title:"조회 시작일과 종료일을 모두 선택해주세요.",
+    });
     return;
   }
   try {
@@ -135,7 +143,10 @@ const fetchPlanInst = async () => {
     if (!Array.isArray(res.data)) {
     console.error("SQL 오류 발생 또는 응답이 배열이 아님:", res.data);
     planInst.value = [];
-    alert("조회 중 오류가 발생했습니다.");
+    Swal.fire({
+      icon: "error", 
+      title:"조회 중 오류가 발생했습니다.",
+    });
     return;
   }
 
@@ -149,11 +160,27 @@ const fetchPlanInst = async () => {
 }
 //수정
 const modifyPlan = () => {
-  let inst = selectedInst.value;
+  //다중선택방지
+  const selected = selectedQueryPlans.value;
+  if (selected.length > 1) {
+    return Swal.fire({
+      icon: "error", 
+      title:"수정은 한 건만 선택 가능합니다.",
+    });
+  }
+  //단일 선택 
+  const inst = selectedInst.value;
   console.log("선택된 inst:", inst);
-  if (!inst) return alert("수정할 생산지시를 선택해주세요.");
+  if (!inst) return Swal.fire({
+      icon: "question", 
+      title:"수정할 생산지시를 선택해주세요.",
+    });
+  //지시상태 확인
   if (inst.ins_stat !== "J01") {
-    return alert(`'${inst.inst_head}'은(는) 대기 상태가 아니므로 수정할 수 없습니다.`);
+    return Swal.fire({
+      icon: "warning", 
+      title:`'${inst.inst_head}'은(는) 대기 상태가 아니므로 수정할 수 없습니다.`,
+    });
   }
 
   router.push({ name: "ProductionInst", query: { mode: "modify", inst_no: selectedInst.value.inst_no, }, });
@@ -161,19 +188,28 @@ const modifyPlan = () => {
 //삭제
 const deletePlan = async()=>{  
   if (selectedQueryPlans.value.length === 0) {
-  return alert("삭제할 계획을 선택해주세요");
+  return Swal.fire({
+      icon: "error", 
+      title:"삭제할 계획을 선택해주세요.",
+    });
 }
 
 const invalid = selectedQueryPlans.value.find((instHead)=> instHead.ins_stat !== "J01");
 if (invalid){
   console.log("삭제 대기상태: ", selectedQueryPlans.value.map((p) => p.ins_stat));
-  return alert(`'${invalid.inst_head}'은(는) 대기 상태가 아니므로 삭제할 수 없습니다.`);
+  return Swal.fire({
+      icon: "warning", 
+      title:`'${invalid.inst_head}'은(는) 대기 상태가 아니므로 삭제할 수 없습니다.`,
+    });
 }
 for (const inst of selectedQueryPlans.value) {
   await axios.delete(`/api/instHead/${inst.inst_head}`)
 }
-alert("삭제가 완료되었습니다.");
-fetchPlanInst();
+Swal.fire({
+      icon: "success", 
+      title:"삭제가 완료되었습니다.",
+    });
+await fetchPlanInst();
 productionInstStore.setSelectedQueryPlans([]);
 }
 </script>
@@ -183,20 +219,27 @@ productionInstStore.setSelectedQueryPlans([]);
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 12px;
+  margin-top: 20px;
 }
-.date-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 600px;
+.filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-.button-group {
-  position: absolute;
-  top: -40px;
-  right: 0;
+
+.button-group-inline {
   display: flex;
   gap: 8px;
+}
+
+.button-group-inline button {
+  min-width: 60px;
+  height: 36px;
+  font-size: 0.9rem;
 }
 
 .date-range {
@@ -210,5 +253,10 @@ productionInstStore.setSelectedQueryPlans([]);
   font-weight: bold;
   white-space: nowrap;
   margin-bottom: 0;
+}
+
+.grid-wrapper {
+  width: 95%;
+  max-width: 1400px;
 }
 </style>

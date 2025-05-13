@@ -34,9 +34,31 @@ const modifyInstHead = async (instHeadNo, instHeadInfo) => {
    return result;
   };
 
+  const deleteInstCascade = async (instHeadNo) => {
+    const conn = await mariadb.getConnection();
+    try {
+      await conn.beginTransaction();  
+      // 1. 하위 inst 먼저 삭제
+      await conn.query(`DELETE FROM inst WHERE inst_head = ?`, [instHeadNo]);  
+      // 2. 상위 inst_header 삭제
+      const result = await conn.query(
+        `DELETE FROM inst_header WHERE inst_head = ? AND inst_stat = 'J01'`,
+        [instHeadNo]
+      );  
+      await conn.commit();
+      return result;
+    } catch (err) {
+      await conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
+    }
+  };
+
 module.exports = {
   findAllInstHead,
   findByInstHead,
   modifyInstHead,
   removeInstHead,
+  deleteInstCascade,
 }

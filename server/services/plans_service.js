@@ -37,9 +37,26 @@ const modifyPlans = async (plansNo, plansInfo) => {
    return result;
   };
 
+  const removePlansCascade = async (plansHead) => {
+    const conn = await mariadb.getConnection();
+    try {
+      await conn.beginTransaction();
+      await conn.query(`DELETE FROM plans WHERE plans_head = ?`, [plansHead]);
+      const result = await conn.query(`DELETE FROM plan_header WHERE plans_head = ?`, [plansHead]);
+      await conn.commit();
+      return result;
+    } catch (err) {
+      await conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
+    }
+  };
+
 module.exports = {
   findAllPlans,
   findByPlans,
   modifyPlans,
   removePlans,
+  removePlansCascade,
 }
