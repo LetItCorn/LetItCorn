@@ -51,23 +51,23 @@
         <div class="search-form">
           <div class="form-group">
             <label>출고량등록번호</label>
-            <input type="text" v-model="registerParams.soutCode" placeholder="검색">
+            <input type="text" v-model="registerParams.soutCode" readonly>
           </div>
           <div class="form-group">
             <label>주문번호</label>
-            <input type="text" v-model="registerParams.sorderCode" placeholder="검색">
+            <input type="text" v-model="registerParams.sorderCode" readonly>
           </div>
           <div class="form-group">
             <label>LOT번호</label>
-            <input type="text" v-model="registerParams.lotCnt" placeholder="검색">
+            <input type="text" v-model="registerParams.lotCnt" readonly>
           </div>
           <div class="form-group">
             <label>품목명</label>
-            <input type="text" v-model="registerParams.itemName" placeholder="검색">
+            <input type="text" v-model="registerParams.itemName" readonly>
           </div>
           <div class="form-group">
             <label>주문수량</label>
-            <input type="number" v-model="registerParams.sorderCount" placeholder="수량">
+            <input type="number" v-model="registerParams.sorderCount" readonly>
           </div>
           <div class="form-group">
             <label>기출고수량</label>
@@ -79,7 +79,7 @@
           </div>
           <div class="form-group">
             <label>납기일자</label>
-            <input type="date" v-model="registerParams.deliveryDate">
+            <input type="date" v-model="registerParams.deliveryDate" readonly>
           </div>
           <button class="btn btn-primary" @click="registerSqt" id="modal-register-btn">출고량 등록</button>
         </div>
