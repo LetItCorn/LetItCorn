@@ -21,6 +21,7 @@ SELECT f.sequence_order
       ,f.item_code
       ,i.item_name
       ,f.process_code
+      ,p.duration_min
       ,p.process_name 
       ,'' as sta_time
       ,'' as end_time

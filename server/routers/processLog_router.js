@@ -65,5 +65,9 @@ router.delete('/process/:p_log_no', async (req, res)=>{
     res.send(result)
  })
 
- 
+ router.post('/regPrLog', (req,res)=>{
+   let data = req.body
+   console.log(data);
+   res.send('연결됨')
+ })
  module.exports = router
