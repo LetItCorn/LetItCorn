@@ -1,3 +1,4 @@
+// server/database/sqls/Insertsalesorder.js
 module.exports = {
 
   insertSalesOrder: 
@@ -9,5 +10,6 @@ module.exports = {
     sorder_count,
     code_values,
     emp_id
-  ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  ) VALUES (?, ?, ?, ?, ?, ?, ?)`
+
 }

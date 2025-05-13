@@ -4,7 +4,7 @@ import Dashboard from "../views/Dashboard.vue"; // 기본 대시보드
 import Login from "../views/LoginView.vue";
 import Sorder from "../views/Salesorder.vue";
 import InsertSorder from "../views/Insertsalesorder.vue";
-// import Client from "../views/Client.vue";
+import Client from "../views/Client.vue";
 import Tables from "../views/Tables.vue";
 import Billing from "../views/Billing.vue";
 import RTL from "../views/Rtl.vue";
@@ -35,6 +35,7 @@ import Process from "@/views/process.vue";
 import SFproduct from "../views/SFproduct.vue";
 import Material from "@/views/Material.vue";
 import ProductionInstInquiry from "@/views/ProductionInstInquiry.vue";
+import InsertSqt from "../views/Insertsqt.vue";
 
 const routes = [
   {
@@ -43,30 +44,35 @@ const routes = [
     redirect: "/login",
   },
   {
+    // 로그인 페이지
     path: "/login",
     name: "Login",
     component: Login,
   },
   {
+    // 대시보드 페이지
     path: "/dashboard",
     name: "Dashboard",
     component: Dashboard,
   },
   {
+    // 주문서 페이지
     path: "/salesorder",
     name: "Salesorder",
     component: Sorder,
   },
   {
+    // 주문서 등록 페이지
     path: "/insertsalesorder",
     name: "Insertsalesorder",
     component: InsertSorder,
   },
-  // {
-  //   path: "/client",
-  //   name: "Client",
-  //   component: Client,
-  // },
+  {
+    // 거래처 페이지
+    path: "/client",
+    name: "Client",
+    component: Client,
+  },
   {
     path: "/tables",
     name: "Tables",
@@ -113,12 +119,12 @@ const routes = [
     name: 'Item', 
     component: Item,
   },
-   {
-     // 자재관리 페이지
-     path: '/materials',
-     name: 'Material', 
-     component: Material,
-   },
+  {
+    // 자재관리 페이지
+    path: '/materials',
+    name: 'Material', 
+    component: Material,
+  },
   {
     // BOM관리 페이지
     path: '/boms',
@@ -176,7 +182,6 @@ const routes = [
     component: ProductionInstInquiry,
   },
   { 
-
     path: '/m_orders',
     name: 'MOrderForm',
     component: MOrderForm, 
@@ -231,6 +236,12 @@ const routes = [
     name:'sfproduct',
     component: SFproduct 
   },
+  {
+    // 출고량 등록 페이지
+    path: '/insertsqt',
+    name: 'InsertSqt',
+    component: InsertSqt
+  }
 ];
 
 const router = createRouter({

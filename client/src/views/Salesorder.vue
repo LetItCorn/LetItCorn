@@ -111,19 +111,19 @@
         <div class="search-form">
           <div class="form-group">
             <label>주문번호</label>
-            <input type="text" v-model="updateParams.sorderCode">
+            <input type="text" v-model="updateParams.sorderCode" readonly>
           </div>
           <div class="form-group">
             <label>거래처명</label>
-            <input type="text" v-model="updateParams.clientName">
+            <input type="text" v-model="updateParams.clientName" readonly>
           </div>
           <div class="form-group">
             <label>담당자</label>
-            <input type="text" v-model="updateParams.clientMgr">
+            <input type="text" v-model="updateParams.clientMgr" readonly>
           </div>
           <div class="form-group">
             <label>품목명</label>
-            <input type="text" v-model="updateParams.itemName">
+            <input type="text" v-model="updateParams.itemName" readonly>
           </div>
           <div class="form-group">
             <label>주문수량</label>
@@ -321,13 +321,13 @@ export default {
       
       this.selectedOrder = selectedOrders[0];
       // 수정할 데이터 구성
-      const updateParams = {
+      this.updateParams = {
         sorderCode: this.selectedOrder.sorder_code,
         clientName: this.selectedOrder.client_name,
         clientMgr: this.selectedOrder.client_mgr,
         itemName: this.selectedOrder.item_name,
         sorderCount: this.selectedOrder.sorder_count,
-        deliveryDate: this.selectedOrder.delivery_date
+        deliveryDate: this.formatDate(this.selectedOrder.delivery_date)
       };
       this.showUpdateModal();
     },
@@ -429,20 +429,19 @@ export default {
       }
     },
     insertSqt() {
-      const selectedOrders = this.salesOrders.filter(order => order.selected);
+      // const selectedOrders = this.salesOrders.filter(order => order.selected);
       
-      if (selectedOrders.length !== 1) {
-        Swal.fire({
-          icon: 'warning',
-          title: '출고량을 등록할 주문서 체크가 빠진 것 같아요.',
-          text: '출고량을 등록할 주문서를 하나만 선택해주세요.'
-        });
-        return;
-      }
-      
+      // if (selectedOrders.length !== 1) {
+      //   Swal.fire({
+      //     icon: 'warning',
+      //     title: '출고량을 등록할 주문서 체크가 빠진 것 같아요.',
+      //     text: '출고량을 등록할 주문서를 하나만 선택해주세요.'
+      //   });
+      //   return;
+      // }
       this.$router.push({ 
-        name: 'RegisterOutput', 
-        params: { id: selectedOrders[0].sorder_code } 
+        name: 'InsertSqt', 
+        //params: { id : selectedOrders[0].sorder_code } 
       });
     },
     // 배경 클릭 시에만 모달 닫기
@@ -652,6 +651,11 @@ td {
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
+}
+
+.form-group input[readonly] {
+  background-color: #f5f5f5;
+  color: #666;
 }
 
 .date-range {
