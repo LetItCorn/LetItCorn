@@ -33,7 +33,7 @@
     <!--단편 정보 출력 그리드-->
     <ag-grid-vue
       class="ag-theme-alpine"
-      style="width: 100%; height: 500px"
+      style="width: 80%; height: 400px"
       ref="mainGridRef"
       :columnDefs="planColumnDefs"
       :rowData="planList"
@@ -48,7 +48,7 @@
       <h2 class="font-bold mt-4">세부 생산계획</h2>
       <ag-grid-vue
         class="ag-theme-alpine"
-        style="width: 100%; height: 500px"
+        style="width: 80%; height: 300px"
         ref="detailGridRef"
         :columnDefs="detailColumnDefs"
         :rowData="detailList"
@@ -118,18 +118,18 @@ onMounted(() => {
 
 const planColumnDefs = [
   { headerCheckboxSelection: true, checkboxSelection: true, width: 50 },
-  { headerName: "생산계획번호", field: "plans_head" },
-  { headerName: "품목명", field: "item_name" },
+  { headerName: "생산계획번호", field: "plans_head", flex: 2 },
+  { headerName: "품목명", field: "item_name" , flex: 2},
   {
     headerName: "생산시작일",
     field: "plan_start",
-    valueFormatter: (params) => formatDate(params.value),
+    valueFormatter: (params) => formatDate(params.value), flex: 2
   },
-  { headerName: "미지시수량", field: "unissued_vol" },
+  { headerName: "미지시수량", field: "unissued_vol", flex: 1 },
   {
     headerName: "생산종료일",
     field: "plan_end",
-    valueFormatter: (params) => formatDate(params.value),
+    valueFormatter: (params) => formatDate(params.value), flex: 2
   },
 ];
 

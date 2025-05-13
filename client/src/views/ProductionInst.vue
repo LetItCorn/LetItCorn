@@ -26,19 +26,44 @@
 import { storeToRefs } from "pinia";
 import { AgGridVue } from "ag-grid-vue3";
 import "ag-grid-community/styles/ag-grid.css";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useInstStore } from "@/store/inst";
 import PlanSelectModal from "@/examples/ModalsExaple/InstModal.vue";
+import { useRoute } from "vue-router";
+import Swal from "sweetalert2";
 
 const productionInstStore = useInstStore();
+const route = useRoute();
 const gridRef = ref(null);
 const gridApi = ref(null);
-const { selectedPlans, isPlanModalOpen } = storeToRefs(productionInstStore);
-
+const { selectedPlans } = storeToRefs(productionInstStore);
+const { isPlanModalOpen } = storeToRefs(productionInstStore);
 // 등록 시 header에 담을 정보 (plans_head만 전달됨)
 const instHeader = ref({
   plans_head: "",
 });
+
+onMounted(async()=>{
+  const instNo = route.query.inst_no
+  if (!instNo) {
+    Swal.fire({
+      icon: 'error',
+      title: "지시 번호가 없습니다.",
+    })
+    return
+  }
+  try {
+    const res = await axios.get(`/api/instHead/${instNo}`)    
+    const data = Array.isArray(res.data) ? res.data : [res.data]
+    productionInstStore.setSelectedPlans(data)
+  } catch (err) {
+    console.error("수정용 데이터 조회 실패:", err)
+    Swal.fire({
+      icon: 'error',
+      title: "지시 데이터 조회 중 오류 발생",
+    })
+  }  
+})
 
 function isRowSelectable(rowNode) {
   return selectedPlans.value.length !== 0;
@@ -127,21 +152,35 @@ const columnDefs = ref([
 async function registerInst() {
   if (!gridApi.value) {
     console.error("gridRef is not ready");
-    alert("그리드가 아직 초기화되지 않았습니다.");
+    Swal.fire({
+      icon: 'question',
+      title: "그리드가 아직 초기화되지 않았습니다.",
+    });
   return;
 }
 
 const rowData = [];
 const rowCount = gridApi.value.getDisplayedRowCount();
+const processCodeMap = {
+    '반공정': 'X01',
+    '완공정': 'Z01',
+  };
 
 for (let i = 0; i < rowCount; i++) {
   const rowNode = gridApi.value.getDisplayedRowAtIndex(i);
   if (rowNode && rowNode.data) {
-    rowData.push(rowNode.data);
+      const row = { ...rowNode.data };
+    if (row.process_header in processCodeMap) {
+        row.process_header = processCodeMap[row.process_header];
+      }
+      rowData.push(row);
+     }
   }
-}
   if (rowData.length === 0) {
-    alert("등록할 항목이 없습니다.");
+    Swal.fire({
+      icon: 'warning',
+      title: "등록할 항목이 없습니다.",
+    });
     return;
   }
   instHeader.value.plans_head = rowData[0]?.plans_head;
@@ -150,10 +189,18 @@ for (let i = 0; i < rowCount; i++) {
       header: instHeader.value,
       details: rowData,
     });
-    alert("등록 성공");
+    Swal.fire({
+      icon: 'success',
+      title: "등록 성공",
+      text: '등록이 완료되었습니다.'
+    });
   } catch (err) {
     console.error(err);
-    alert("등록 실패");
+    Swal.fire({
+      icon: 'error',
+      title: "등록 실패",
+      text: '등록에 실패하였습니다. 잠시 후 다시시도해 주십시오.'
+    });
   }
 }
 </script>

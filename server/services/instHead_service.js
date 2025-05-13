@@ -2,35 +2,14 @@ const mariadb = require("../database/mapper.js");
 const { convertObjToAry } = require('../utils/converts.js');
 const { convertObjToQuery } = require('../utils/converts.js');
 
-const findAllInstHead = async (searchList) => {
-  let searchKeyword = Object.keys(searchList).length > 0 ? convertObjToQuery(searchList) : 
-  '';
-    let list = await mariadb.query("selectInstHeadList", searchKeyword);
+const findAllInstHead = async ({ startDate, endDate }) => {
+    let list = await mariadb.query("selectInstHeadList", [startDate, endDate]);
     return list;
    };
 const findByInstHead = async (instHeadNo) => {
-     let list = await mariadb.query("selectInstHeaderById", instHeadNo);
-     let info = list[0];
-     return info;
+     let list = await mariadb.query("selectInstHeaderById", [instHeadNo]);
+     return list;
     };
-const addNewInstHead = async (instHeadInfo) => {
-      let insertColumns = ['plans_head', 'plan_start', 'plan_end', 'plan_stat', 'plans_reg', 'planer'];
-      let data = convertObjToAry(instHeadInfo, insertColumns);
-      let resInfo = await mariadb.query("insertInstHeader", data);
-      let result = null;
-      if (resInfo.insertId > 0) {
-        result = {
-          isSuccessed: true,
-          instHeadNo: resInfo.insertId,
-        };
-      } else {
-        result = {
-          isSuccessed: false,
-        };
-      }
-      return result;
-     };
-  
 const modifyInstHead = async (instHeadNo, instHeadInfo) => {
   let data = [instHeadInfo, instHeadNo];
   let resInfo = await mariadb.query("updateInstHead", data);
@@ -58,7 +37,6 @@ const modifyInstHead = async (instHeadNo, instHeadInfo) => {
 module.exports = {
   findAllInstHead,
   findByInstHead,
-  addNewInstHead,
   modifyInstHead,
   removeInstHead,
 }
