@@ -25,8 +25,4 @@
 - 발표 준비 : 2025.05. ~ 2025.05.  
 
 ---
-
-## 📝 커밋 메시지 형식
-- (이름 / 작업내용 / 날짜)  
-- 예시: `표하연 / README.md 작성, GITHUB 병합 테스트 / 20250207`
-
+<img src = "/server/utils/IMG_8794.jpg" width="450px" height="300px" title="50px" alt="Yedam Of Galaxy"></img>
