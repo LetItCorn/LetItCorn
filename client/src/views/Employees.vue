@@ -40,11 +40,6 @@
       </div>
     </div>
 
-    <!-- 2) 상단: 총 사원수 -->
-    <div class="mb-2">
-      <strong>Total: {{ count }}</strong>
-    </div>
-
     <!-- 3) 하단: 리스트(좌 2/3) / 상세(우 1/3) -->
     <div class="row flex-grow-1 gx-3">
       <!-- 좌측 리스트 -->

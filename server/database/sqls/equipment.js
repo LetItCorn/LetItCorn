@@ -34,24 +34,26 @@ const equipmentInfo = `
   WHERE equipment_code = ?
 `;
 
-// 3) 등록 (INSERT)
-const equipmentInsert = `
-  INSERT INTO equipments
-    (equipment_code, equipment_name, equipment_type, install_date, manufacturer, capacity, next_inspection_dt, is_suitable)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-`;
-
-// 4) 수정 (UPDATE)
-const equipmentUpdate = `
-  UPDATE equipments
-     SET equipment_name     = ?
-       , equipment_type     = ?
-       , install_date       = ?
-       , manufacturer       = ?
-       , capacity           = ?
-       , next_inspection_dt = ?
-       , is_suitable        = ?
-   WHERE equipment_code = ?
+// MERGE 등록 + 수정
+const equipmentMerge = `
+  INSERT INTO equipments (
+    equipment_code,
+    equipment_name,
+    equipment_type,
+    install_date,
+    manufacturer,
+    capacity,
+    next_inspection_dt,
+    is_suitable
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  ON DUPLICATE KEY UPDATE
+    equipment_name     = VALUES(equipment_name),
+    equipment_type     = VALUES(equipment_type),
+    install_date       = VALUES(install_date),
+    manufacturer       = VALUES(manufacturer),
+    capacity           = VALUES(capacity),
+    next_inspection_dt = VALUES(next_inspection_dt),
+    is_suitable        = VALUES(is_suitable)
 `;
 
 // 5) 삭제 (DELETE)
@@ -87,21 +89,22 @@ const inspectionInfo = `
   WHERE inspection_id = ?
 `;
 
-// 3) 등록 (INSERT)
-const inspectionInsert = `
-  INSERT INTO equipment_inspections
-    (inspection_id, inspection_date, inspector_id, contents, result, equipment_code)
-  VALUES (?, ?, ?, ?, ?, ?)
-`;
-
-// 4) 수정 (UPDATE)
-const inspectionUpdate = `
-  UPDATE equipment_inspections
-     SET inspection_date = ?
-       , inspector_id    = ?
-       , contents        = ?
-       , result          = ?
-   WHERE inspection_id = ?
+// MERGE 등록 + 수정
+const inspectionMerge = `
+  INSERT INTO equipment_inspections (
+    inspection_id,
+    inspection_date,
+    inspector_id,
+    contents,
+    result,
+    equipment_code
+  ) VALUES (?, ?, ?, ?, ?, ?)
+  ON DUPLICATE KEY UPDATE
+    inspection_date = VALUES(inspection_date),
+    inspector_id    = VALUES(inspector_id),
+    contents        = VALUES(contents),
+    result          = VALUES(result),
+    equipment_code  = VALUES(equipment_code)
 `;
 
 // 5) 삭제 (DELETE)
@@ -111,15 +114,15 @@ const inspectionDelete = `
 `;
 
 module.exports = {
+  // 장비
   equipmentList,
   equipmentInfo,
-  equipmentInsert,
-  equipmentUpdate,
+  equipmentMerge,
   equipmentDelete,
 
+  // 점검
   inspectionList,
   inspectionInfo,
-  inspectionInsert,
-  inspectionUpdate,
-  inspectionDelete
+  inspectionMerge,
+  inspectionDelete,
 };

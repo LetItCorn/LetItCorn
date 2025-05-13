@@ -44,10 +44,10 @@ async function findEquipmentByCode(code) {
 }
 
 /**
- * 등록
+ * 등록 또는 수정 (MERGE 방식)
  * @param {object} eq
  */
-async function createEquipment(eq) {
+async function saveEquipment(eq) {
   const params = [
     eq.equipment_code,
     eq.equipment_name,
@@ -59,32 +59,9 @@ async function createEquipment(eq) {
     eq.is_suitable
   ];
   try {
-    return await mapper.query('equipmentInsert', params);
+    return await mapper.query('equipmentMerge', params);
   } catch (err) {
-    console.error('createEquipment error:', err);
-    throw err;
-  }
-}
-
-/**
- * 수정
- * @param {object} eq
- */
-async function updateEquipment(eq) {
-  const params = [
-    eq.equipment_name,
-    eq.equipment_type,
-    eq.install_date,
-    eq.manufacturer,
-    eq.capacity,
-    eq.next_inspection_dt,
-    eq.is_suitable,
-    eq.equipment_code
-  ];
-  try {
-    return await mapper.query('equipmentUpdate', params);
-  } catch (err) {
-    console.error('updateEquipment error:', err);
+    console.error('saveEquipment (MERGE) error:', err);
     throw err;
   }
 }
@@ -134,10 +111,10 @@ async function findInspectionById(id) {
 }
 
 /**
- * 점검 이력 등록
+ * 점검 이력 등록 또는 수정 (MERGE)
  * @param {object} ins
  */
-async function createInspection(ins) {
+async function saveInspection(ins) {
   const params = [
     ins.inspection_id,
     ins.inspection_date,
@@ -147,29 +124,9 @@ async function createInspection(ins) {
     ins.equipment_code
   ];
   try {
-    return await mapper.query('inspectionInsert', params);
+    return await mapper.query('inspectionMerge', params);
   } catch (err) {
-    console.error('createInspection error:', err);
-    throw err;
-  }
-}
-
-/**
- * 점검 이력 수정
- * @param {object} ins
- */
-async function updateInspection(ins) {
-  const params = [
-    ins.inspection_date,
-    ins.inspector_id,
-    ins.contents,
-    ins.result,
-    ins.inspection_id
-  ];
-  try {
-    return await mapper.query('inspectionUpdate', params);
-  } catch (err) {
-    console.error('updateInspection error:', err);
+    console.error('saveInspection (MERGE) error:', err);
     throw err;
   }
 }
@@ -191,14 +148,12 @@ module.exports = {
   // equipments
   findEquipments,
   findEquipmentByCode,
-  createEquipment,
-  updateEquipment,
+  saveEquipment,
   deleteEquipment,
 
   // equipment_inspections
   findInspectionsByEquipment,
   findInspectionById,
-  createInspection,
-  updateInspection,
+  saveInspection,
   deleteInspection
 };
