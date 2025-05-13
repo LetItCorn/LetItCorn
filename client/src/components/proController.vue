@@ -52,7 +52,7 @@
     methods: {
      async  saveBtn(){
       // 저장버튼 클릭시 상기 정보를 공정 상세 테이블에 저장
-        console.log(this.processes);
+        // console.log(this.processes);
         let data = this.processes
         // data.lot_cnt = this.inst.lot_cnt
         data.ac_cnt = this.manuFac
@@ -60,7 +60,9 @@
         data.sta_time = this.getTime()
         data.end_time = this.getTime(this.processes.duration_min)
         data.pr_status = '종료'
+        // Grid 업데이트를 위한 정보
         this.$emit('setRow',data)
+        console.log(data);
         let res = await axios.post(`/api/regPrLog`,data)
                               .catch(err=>{
                                 console.log(err);
@@ -69,6 +71,7 @@
         this.manuErr = 0
         this.manuFac = 0
       },
+      // 가공 시간 계산 함수
       getTime(minutes=0){
         const now = new Date();
         const newTime = new Date(now.getTime() + minutes * 60000);

@@ -28,6 +28,8 @@ SELECT f.sequence_order
       ,'' as ac_cnt
       ,'' as fault_cnt
       ,'대기' as pr_status
+      ,p.spec
+      ,p.unit_code
 FROM item_process_flows f JOIN processes p 
 						              ON f.process_code = p.process_code
                           JOIN items i
@@ -36,6 +38,24 @@ WHERE  f.item_code = ?
 ORDER BY 1
 `;
 
+// 첫공정 저장시 공정실적 입력
+const regProLog = `
+INSERT INTO process_log (p_log_no,log_dt,process_header,item_name,emp_id,item_code,iord_no,inst_no)
+VALUES (?,?,?,?,?,?,?,?)
+`
+
+// 각 공정 결과 입력
+const regProLogDt = `
+INSERT INTO pr_lot_dt (lot_cnt,pr_log_no,sta_time,end_time,zc_cnt_fault_cnt,process_code,process_name,processer_spec_unit_code)
+VALUES (?,?,?,?,?,?,?,?,?,?,?)
+`
+
+// 전체 공정 종료시 생산지시 업데이트
+const setInst = `
+UPDATE inst 
+SET inst_stat = 'J04' , res_cnt = ?
+WHERE lot_cnt = ?
+`
 
 const selectProcessLog =
  `SELECT pl.p_log_no,

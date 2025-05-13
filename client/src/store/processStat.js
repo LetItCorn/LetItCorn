@@ -20,7 +20,7 @@ export const useProcess = defineStore('flow', {
   actions : {
     setInst(data){
       this.inst = data
-      console.log(this.inst);
+      // console.log(this.inst);
     },
     setProCode(data){
       this.processes = data
