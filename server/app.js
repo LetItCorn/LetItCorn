@@ -56,7 +56,8 @@
   //영업
   const SoRouter = require('./routers/salesorder_router.js'); // 주문서 SalesOrder
   const IsoRouter = require('./routers/Insertsalesorder_router.js'); // 주문서 등록 InsertSalesOrder
-  // const ClientRouter = require('./routers/client_router.js'); // 거래처 조회 Client
+  const IsqtRouter = require('./routers/Insertsqt_router.js'); // 출고량 등록 InsertSqt
+  const ClientRouter = require('./routers/client_router.js'); // 거래처 조회 Client
   //관리
   const userRouter = require('./routers/user_router.js');
   const itemRouter = require('./routers/item_router.js');
@@ -96,7 +97,8 @@
   //영업
   app.use('/', SoRouter);
   app.use('/', IsoRouter);
-  // app.use('/', ClientRouter);
+  app.use('/', IsqtRouter);
+  app.use('/', ClientRouter);
   //자재
   app.use('/', materialsRouter);
   app.use('/', lotRouter);

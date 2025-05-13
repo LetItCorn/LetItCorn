@@ -35,7 +35,20 @@ const findSalesOrdersByCondition = async (conditions) => {
 
 // 주문서 수정
 const updateSalesOrderInfo = async (sorderCode, updateData) => {
-    let data = [updateData, sorderCode]
+
+    const allowedFields = {
+        sorder_count : updateData.sorder_count,
+        delivery_date : updateData.delivery_date,
+    };
+
+    const filteredData = {};
+    Object.entries(allowedFields).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+            filteredData[key] = value;
+        }
+    });
+
+    let data = [filteredData, sorderCode];
     
     let resInfo = await mariadb.query('updateSalesOrder', data).catch(err => {
                     console.error(err);
@@ -50,7 +63,7 @@ const updateSalesOrderInfo = async (sorderCode, updateData) => {
         result = {
             isUpdated: true,
             message: '주문서가 수정되었습니다.',
-            updateData,
+            data: {...filteredData, sorder_code: sorderCode}
         };
     } else {
         console.log('실패');

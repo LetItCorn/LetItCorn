@@ -42,6 +42,7 @@ const outboundInst   = require('./sqls/outbound_candidates_inst.js');
 const instructionSql = require('./sqls/instruction.js');
 const instHeadersSql = require('./sqls/inst_headers.js');
 const clients = require('./sqls/clients.js');
+const sqt = require('./sqls/Insertsqt.js');
 
 module.exports = {
   // 펼침연산자(spread operator, ...)을 활용해 객체의 필드를 다른 객체로 쉽게 복사
@@ -63,7 +64,7 @@ module.exports = {
   ...defectCodes,
   ...commonCodes,
   ...employees,
-      ...Insertsorder,
+  ...Insertsorder,
   ...materials,
   ...lotInventory,
   ...purchaseorders,
@@ -87,4 +88,5 @@ module.exports = {
   ...instructionSql,
   ...instHeadersSql,
   ...clients,
+  ...sqt
 }

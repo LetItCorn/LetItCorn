@@ -307,8 +307,8 @@ export default {
 }
 
 .btn-cancel {
-  background-color: #000 !important;
-  color: #fff !important;
+  background-color: #fff !important;
+  color: #000 !important;
   width: 100px;
 }
 
@@ -316,7 +316,7 @@ export default {
 .form-container {
   width: 500px;
   margin: 0 auto;
-  background-color: #f9f9f9;
+  background-color: #fff;
   border-radius: 8px;
   padding: 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -348,7 +348,7 @@ export default {
 .form-group select:focus {
   border-color: #000;
   outline: none;
-  box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.2);
+  border: 2px solid #000;
 }
 
 .form-group input[readonly] {
