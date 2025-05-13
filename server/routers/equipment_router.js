@@ -1,9 +1,15 @@
+// server/routers/equipment_router.js
+
 const express = require('express');
 const router = express.Router();
 const svc = require('../services/equipment_service.js');
 
+//
+// ─── 장비 관련 API ─────────────────────────────────────
+//
+
 /**
- * 1) 장비 목록 조회
+ * 1) 장비 목록 조회 (필터 포함)
  *    GET /api/equipments?code=&name=&type=&manu=
  */
 router.get('/equipments', async (req, res) => {
@@ -36,10 +42,11 @@ router.get('/equipments/:equipment_code', async (req, res) => {
 /**
  * 3) 장비 등록 또는 수정 (MERGE 방식)
  *    POST /api/equipments
+ *    - equipment_code가 없으면 자동 생성됨
  */
 router.post('/equipments', async (req, res) => {
   try {
-    await svc.saveEquipment(req.body);
+    await svc.saveEquipment(req.body); // 내부에서 코드 자동 생성 처리됨
     res.status(201).json({ message: '장비가 등록/수정되었습니다.' });
   } catch (err) {
     console.error('POST /equipments error:', err);
@@ -62,8 +69,12 @@ router.delete('/equipments/:equipment_code', async (req, res) => {
   }
 });
 
+//
+// ─── 점검 이력 관련 API ───────────────────────────────
+//
+
 /**
- * 5) 점검 이력 목록 조회 (장비 클릭 시)
+ * 5) 특정 장비의 점검 이력 목록 조회
  *    GET /api/equipment_inspections/:equipment_code
  */
 router.get('/equipment_inspections/:equipment_code', async (req, res) => {
@@ -78,7 +89,7 @@ router.get('/equipment_inspections/:equipment_code', async (req, res) => {
 });
 
 /**
- * 6) 점검 이력 단건 조회 (선택 후 수정용)
+ * 6) 점검 이력 단건 조회
  *    GET /api/equipment_inspections/inspection/:inspection_id
  */
 router.get('/equipment_inspections/inspection/:inspection_id', async (req, res) => {
@@ -96,10 +107,11 @@ router.get('/equipment_inspections/inspection/:inspection_id', async (req, res) 
 /**
  * 7) 점검 이력 등록 또는 수정 (MERGE 방식)
  *    POST /api/equipment_inspections
+ *    - inspection_id가 없으면 자동 생성됨
  */
 router.post('/equipment_inspections', async (req, res) => {
   try {
-    await svc.saveInspection(req.body);
+    await svc.saveInspection(req.body); // 내부에서 ID 자동 생성 처리됨
     res.status(201).json({ message: '점검 이력이 등록/수정되었습니다.' });
   } catch (err) {
     console.error('POST /equipment_inspections error:', err);
@@ -122,4 +134,7 @@ router.delete('/equipment_inspections/:inspection_id', async (req, res) => {
   }
 });
 
+//
+// ─── 라우터 내보내기 ─────────────────────────────
+//
 module.exports = router;
