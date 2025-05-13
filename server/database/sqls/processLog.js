@@ -28,6 +28,8 @@ SELECT f.sequence_order
       ,'' as ac_cnt
       ,'' as fault_cnt
       ,'대기' as pr_status
+      ,p.spec
+      ,p.unit_code
 FROM item_process_flows f JOIN processes p 
 						              ON f.process_code = p.process_code
                           JOIN items i

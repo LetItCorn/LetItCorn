@@ -93,7 +93,7 @@ export default {
         .catch(err => {
           console.log(err);
         })
-      console.log(res.data);
+      // console.log(res.data);
       this.rowData = res.data
       this.instHead = res.data[0]['inst_head']
     },
@@ -103,11 +103,11 @@ export default {
       this.instData = data
       let procFlow = this.instData.item_code
       let res = await axios.get(`api/getFlow/${procFlow}`)
-      console.log(res.data[0]);
+      // console.log(res.data[0]);
       this.instData.item_name = res.data[0].item_name
       //pinia에 담기.
       this.setInst(this.instData)
-      console.log(res.data);
+      // console.log(res.data);
       this.flowData = res.data
     },
     // 라벨용 pinia
