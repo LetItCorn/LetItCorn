@@ -11,8 +11,8 @@ ORDER BY m.mater_code;
 
 const updateMaterialStock = `
   UPDATE material
-     SET current_stock = current_stock + ?
-   WHERE mater_code = ?
+    SET current_stock = current_stock + ?
+    WHERE mater_code = ?
 `;
 
 module.exports = { selectMaterialStock,updateMaterialStock };
