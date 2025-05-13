@@ -3,7 +3,7 @@
     <!-- 제목과 액션 버튼을 같은 행에 배치 -->
     <div class="header-container">
       <div class="main-title"> <!-- title -->
-        <h2>거래업체 주문서 조회</h2>
+        <h2>주문서 목록</h2>
       </div>
       <!-- 모든 버튼에 active 효과 / action-buttons 제외 하고 색깔 변경 -->
       <div class="action-buttons">
