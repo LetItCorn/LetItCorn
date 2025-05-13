@@ -79,8 +79,6 @@ const materialService = require('../services/material_service.js');
 //   }
 // });
 
-// =================================================================================
-
 // 1) 전체 자재 목록 조회
 router.get('/materials', async (req, res) => {
   try {

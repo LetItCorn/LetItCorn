@@ -7,20 +7,15 @@ const mapper = require('../database/mapper.js');
 //
 
 /**
- * 전체 조회 (+ 옵션 검색)
- * @param {object} filters
- * @param {string} filters.code  장비코드 필터 (LIKE)
- * @param {string} filters.name  장비명 필터 (LIKE)
- * @param {string} filters.type  장비유형 필터 (정확)
- * @param {string} filters.manu  제조사 필터 (LIKE)
+ * 장비 목록 전체 조회 (검색 필터 포함)
  */
 async function findEquipments({ code = '', name = '', type = '', manu = '' } = {}) {
   try {
     return await mapper.query('equipmentList', [
-      code, code,
-      name, name,
-      type, type,
-      manu, manu
+      code, code,       // LIKE 조건: equipment_code
+      name, name,       // LIKE 조건: equipment_name
+      type, type,       // 정확 일치: equipment_type
+      manu, manu        // LIKE 조건: manufacturer
     ]);
   } catch (err) {
     console.error('findEquipments error:', err);
@@ -29,9 +24,7 @@ async function findEquipments({ code = '', name = '', type = '', manu = '' } = {
 }
 
 /**
- * 단건 조회 (equipment_code 기준)
- * @param {string} code
- * @returns {Promise<Object|null>}
+ * 장비 단건 조회
  */
 async function findEquipmentByCode(code) {
   try {
@@ -44,21 +37,40 @@ async function findEquipmentByCode(code) {
 }
 
 /**
- * 등록 또는 수정 (MERGE 방식)
- * @param {object} eq
+ * 다음 장비코드 자동 생성 (EQ0001 → EQ0002)
+ */
+async function generateNextEquipmentCode() {
+  try {
+    const rows = await mapper.query('equipmentNextCode');
+    return rows[0]?.next_code;
+  } catch (err) {
+    console.error('generateNextEquipmentCode error:', err);
+    throw err;
+  }
+}
+
+/**
+ * 장비 저장 (등록 또는 수정 - MERGE 방식)
+ * 코드가 없으면 자동 생성
  */
 async function saveEquipment(eq) {
-  const params = [
-    eq.equipment_code,
-    eq.equipment_name,
-    eq.equipment_type,
-    eq.install_date,
-    eq.manufacturer,
-    eq.capacity,
-    eq.next_inspection_dt,
-    eq.is_suitable
-  ];
   try {
+    // equipment_code가 비어 있으면 새 코드 생성
+    if (!eq.equipment_code) {
+      eq.equipment_code = await generateNextEquipmentCode();
+    }
+
+    const params = [
+      eq.equipment_code,
+      eq.equipment_name,
+      eq.equipment_type,
+      eq.install_date,
+      eq.manufacturer,
+      eq.capacity,
+      eq.next_inspection_dt,
+      eq.is_suitable
+    ];
+
     return await mapper.query('equipmentMerge', params);
   } catch (err) {
     console.error('saveEquipment (MERGE) error:', err);
@@ -67,8 +79,7 @@ async function saveEquipment(eq) {
 }
 
 /**
- * 삭제
- * @param {string} code
+ * 장비 삭제
  */
 async function deleteEquipment(code) {
   try {
@@ -85,7 +96,6 @@ async function deleteEquipment(code) {
 
 /**
  * 특정 장비의 점검 이력 전체 조회
- * @param {string} equipmentCode
  */
 async function findInspectionsByEquipment(equipmentCode) {
   try {
@@ -97,8 +107,7 @@ async function findInspectionsByEquipment(equipmentCode) {
 }
 
 /**
- * 단건 조회 (inspection_id 기준)
- * @param {string} id
+ * 점검 이력 단건 조회
  */
 async function findInspectionById(id) {
   try {
@@ -111,19 +120,38 @@ async function findInspectionById(id) {
 }
 
 /**
- * 점검 이력 등록 또는 수정 (MERGE)
- * @param {object} ins
+ * 다음 점검 ID 자동 생성 (IN0001 → IN0002)
+ */
+async function generateNextInspectionId() {
+  try {
+    const rows = await mapper.query('inspectionNextId');
+    return rows[0]?.next_id;
+  } catch (err) {
+    console.error('generateNextInspectionId error:', err);
+    throw err;
+  }
+}
+
+/**
+ * 점검 이력 저장 (등록 또는 수정 - MERGE 방식)
+ * ID가 없으면 자동 생성
  */
 async function saveInspection(ins) {
-  const params = [
-    ins.inspection_id,
-    ins.inspection_date,
-    ins.inspector_id,
-    ins.contents,
-    ins.result,
-    ins.equipment_code
-  ];
   try {
+    // inspection_id가 비어 있으면 새 ID 생성
+    if (!ins.inspection_id) {
+      ins.inspection_id = await generateNextInspectionId();
+    }
+
+    const params = [
+      ins.inspection_id,
+      ins.inspection_date,
+      ins.inspector_id,
+      ins.contents,
+      ins.result,
+      ins.equipment_code
+    ];
+
     return await mapper.query('inspectionMerge', params);
   } catch (err) {
     console.error('saveInspection (MERGE) error:', err);
@@ -133,7 +161,6 @@ async function saveInspection(ins) {
 
 /**
  * 점검 이력 삭제
- * @param {string} id
  */
 async function deleteInspection(id) {
   try {
@@ -144,14 +171,17 @@ async function deleteInspection(id) {
   }
 }
 
+//
+// ─── Export ─────────────────────────────
+//
 module.exports = {
-  // equipments
+  // 장비
   findEquipments,
   findEquipmentByCode,
   saveEquipment,
   deleteEquipment,
 
-  // equipment_inspections
+  // 점검
   findInspectionsByEquipment,
   findInspectionById,
   saveInspection,

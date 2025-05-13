@@ -61,6 +61,7 @@
   //관리
   const userRouter = require('./routers/user_router.js');
   const itemRouter = require('./routers/item_router.js');
+  const materialMainRouter = require('./routers/material_main_router.js');
   const bomRouter = require('./routers/bom_router.js');
   const equipmentRouter = require('./routers/equipment_router.js');
   const processDefRouter = require('./routers/process_router.js');
@@ -88,6 +89,7 @@
   //관리
   app.use('/', userRouter);
   app.use('/', itemRouter);
+  app.use('/', materialMainRouter);
   app.use('/', bomRouter);
   app.use('/', equipmentRouter);
   app.use('/', processDefRouter);
