@@ -69,8 +69,6 @@ const getFlow = async(item)=>{
   let result = await mariadb.query('getFlow', item);  
   return result;
 }
-
-
  module.exports = {
   findProcess,
   findByProcessLog,

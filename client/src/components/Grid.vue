@@ -12,13 +12,7 @@
   import {
     useProcess
   } from '@/store/processStat';
-  // pinia의 mapState 를 가져온다
-  import {
-    mapState
-  } from 'pinia';
-  import {
-    mapActions
-  } from 'pinia';
+  import { mapActions } from 'pinia';
   export default {
     name: 'Grid',
     props: {
@@ -37,27 +31,27 @@
         defaultColDef: {
           resizable: true // 열 크기 조절 가능
         },
-
       };
     },
     methods: {
-      
+      ...mapActions(useProcess,['setCurrnetSeq','setProCode']),
       onCellClicked(e) {
         // console.log(e.data);
         console.log(e.data.hasOwnProperty('lot_cnt'));
         // 생산지시 그리드일 경우
         if (e.data.hasOwnProperty('lot_cnt')) {
           this.$emit('passInst', e.data);
+          this.setCurrnetSeq(0)
+          this.setProCode({})
         }
         // 공정 클릭일 경우
         else if (e.data.hasOwnProperty('process_code')) {
           console.log(e.data);
-          // 공정진행 순서 강제 pinia 에 seq정보 저장, 현재 메소드에서 검사,
+        // 공정진행 순서 강제 pinia 에 seq정보 저장, 현재 메소드에서 검사,
           this.$emit('setController',e.data)
+          this.setCurrnetSeq(e.data.sequence_order - 1)
         }
       },
-
-
     },
   }
 </script>
