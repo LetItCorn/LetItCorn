@@ -30,6 +30,7 @@ SELECT f.sequence_order
       ,'대기' as pr_status
       ,p.spec
       ,p.unit_code
+      ,f.process_header
 FROM item_process_flows f JOIN processes p 
 						              ON f.process_code = p.process_code
                           JOIN items i
@@ -38,15 +39,22 @@ WHERE  f.item_code = ?
 ORDER BY 1
 `;
 
-// 첫공정 저장시 공정실적 입력
-const regProLog = `
-INSERT INTO process_log (p_log_no,log_dt,process_header,item_name,emp_id,item_code,iord_no,inst_no)
-VALUES (?,?,?,?,?,?,?,?)
+// procedure out 변수 설정
+const setResult = `
+SET @result := "";
 `
 
+// 첫공정 저장시 공정실적 입력
+const regProLog = `
+CALL MKPRONO(?,?,?,?,?,?, @result);
+`
+// procedure out 조회
+const callResult = `
+SELECT @result AS pr_log_no;
+`
 // 각 공정 결과 입력
 const regProLogDt = `
-INSERT INTO pr_lot_dt (lot_cnt,pr_log_no,sta_time,end_time,zc_cnt_fault_cnt,process_code,process_name,processer_spec_unit_code)
+INSERT INTO pr_lot_dt (lot_cnt,pr_log_no,sta_time,end_time,ac_cnt,fault_cnt,process_code,process_name,processer,spec,unit_code)
 VALUES (?,?,?,?,?,?,?,?,?,?,?)
 `
 
@@ -100,5 +108,9 @@ WHERE pl.p_log_no = ?`;
     prLogUpdate,
     prLogDelete,
     selectInst,
-    getFlow
+    getFlow,
+    regProLog,
+    callResult,
+    regProLogDt,
+    setResult,
  };
