@@ -4,6 +4,8 @@ const mapper = require('../database/mapper.js');
 
 /**
  * 1) 전체조회 + 조건검색
+ *    조건이 없으면 전체 조회됨.
+ *    조건은 모두 optional이며, 각각 ''일 경우 무시됨.
  * @param {object} [filters]
  * @param {string} [filters.group]  // 그룹코드
  * @param {string} [filters.rear]   // 하위코드
@@ -79,9 +81,10 @@ async function findCommonCodesByUseYn(useYn) {
 }
 
 /**
- * 2) 단건조회 (group + rear 기준)
+ * 2-a) 단건 조회 (code_group + code_rear 기준)
  * @param {string} group
  * @param {string} rear
+ * @returns {object|null}
  */
 async function findCommonCode(group, rear) {
   try {
@@ -94,8 +97,39 @@ async function findCommonCode(group, rear) {
 }
 
 /**
- * 3/4) 저장: 신규 등록 혹은 기존 수정 (UPSERT)
+ * 2-b) 단건 조회 (code_values 기준)
+ * @param {string} codeValue
+ * @returns {object|null}
+ */
+async function findCommonCodeByValue(codeValue) {
+  try {
+    const rows = await mapper.query('commonCodeByValue', [codeValue]);
+    return rows[0] || null;
+  } catch (err) {
+    console.error('findCommonCodeByValue error:', err);
+    return null;
+  }
+}
+
+/**
+ * 2-c) 다음 code_rear 생성용 조회 (code_group 내 max + 1)
+ * @param {string} group
+ * @returns {string|null} 다음 code_rear 값 (예: '06')
+ */
+async function getNextCodeRear(group) {
+  try {
+    const rows = await mapper.query('nextCommonCodeRear', [group]);
+    return rows[0]?.next_rear || null;
+  } catch (err) {
+    console.error('getNextCodeRear error:', err);
+    return null;
+  }
+}
+
+/**
+ * 3) 저장: 신규 등록 또는 기존 수정 (MERGE 방식)
  * @param {{ code_group, code_rear, code_name, use_yn, comm_etc, code_values }} code
+ * @returns {Promise}
  */
 async function saveCommonCode(code) {
   const params = [
@@ -115,9 +149,10 @@ async function saveCommonCode(code) {
 }
 
 /**
- * 5) 삭제: 공통코드 삭제
+ * 4) 삭제: 공통코드 삭제 (code_group + code_rear 기준)
  * @param {string} group
  * @param {string} rear
+ * @returns {Promise}
  */
 async function deleteCommonCode(group, rear) {
   try {
@@ -128,6 +163,7 @@ async function deleteCommonCode(group, rear) {
   }
 }
 
+// 모든 서비스 함수 export
 module.exports = {
   findCommonCodes,
   findCommonCodesByGroup,
@@ -135,6 +171,8 @@ module.exports = {
   findCommonCodesByName,
   findCommonCodesByUseYn,
   findCommonCode,
+  findCommonCodeByValue,
+  getNextCodeRear,
   saveCommonCode,
   deleteCommonCode
 };
