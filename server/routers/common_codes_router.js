@@ -80,7 +80,7 @@ router.get('/common_codes/useYn/:useYn', async (req, res) => {
 });
 
 /**
- * 2) 단건조회
+ * 2-a) 단건조회 (code_group + code_rear 기준)
  *    GET /common_codes/:group/:rear
  */
 router.get('/common_codes/:group/:rear', async (req, res) => {
@@ -94,6 +94,42 @@ router.get('/common_codes/:group/:rear', async (req, res) => {
   } catch (err) {
     console.error(`GET /common_codes/${group}/${rear} error:`, err);
     res.status(500).json({ error: '단건 조회 중 오류가 발생했습니다.' });
+  }
+});
+
+/**
+ * 2-b) 단건조회 (code_values 기준)
+ *    GET /common_codes/value/:codeValue
+ */
+router.get('/common_codes/value/:codeValue', async (req, res) => {
+  const { codeValue } = req.params;
+  try {
+    const info = await commonService.findCommonCodeByValue(codeValue);
+    if (!info) {
+      return res.status(404).json({ error: '해당 코드값을 찾을 수 없습니다.' });
+    }
+    res.json(info);
+  } catch (err) {
+    console.error(`GET /common_codes/value/${codeValue} error:`, err);
+    res.status(500).json({ error: '코드값 기준 조회 중 오류가 발생했습니다.' });
+  }
+});
+
+/**
+ * 2-c) 다음 code_rear 자동 생성용
+ *    GET /common_codes/nextRear/:group
+ */
+router.get('/common_codes/nextRear/:group', async (req, res) => {
+  const group = req.params.group;
+  try {
+    const nextRear = await commonService.getNextCodeRear(group);
+    if (!nextRear) {
+      return res.status(404).json({ error: '다음 하위코드를 생성할 수 없습니다.' });
+    }
+    res.json({ next_rear: nextRear });
+  } catch (err) {
+    console.error(`GET /common_codes/nextRear/${group} error:`, err);
+    res.status(500).json({ error: '다음 코드 조회 중 오류가 발생했습니다.' });
   }
 });
 

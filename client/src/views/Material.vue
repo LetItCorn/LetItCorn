@@ -226,7 +226,7 @@ export default {
       if (this.searchType === 'code') params.code = this.searchValue;
       if (this.searchType === 'name') params.name = this.searchValue;
       try {
-        const res = await axios.get('/api/materials', { params });
+        const res = await axios.get('/api/materialmains', { params });
         this.materialList = res.data;   // 응답 바인딩
         this.clearDetail();             // 상세 초기화
       } catch (err) {
@@ -237,7 +237,7 @@ export default {
     // 단위 코드 목록 조회 (common_codes UU)
     async loadUnitCodes() {
       try {
-        const res = await axios.get('/api/materials/unitCode');
+        const res = await axios.get('/api/materialmains/unitCode');
         this.unitList = res.data;       // unitList에 할당
       } catch (err) {
         console.error('loadUnitCodes error', err);
@@ -273,7 +273,7 @@ export default {
         return;
       }
       try {
-        await axios.post('/api/materials', this.selected);
+        await axios.post('/api/materialmains', this.selected);
         await this.loadMaterials();      // 저장 후 목록 갱신
       } catch (err) {
         console.error('onCreate error', err);
@@ -289,7 +289,7 @@ export default {
   if (!confirm('정말 삭제하시겠습니까?')) return;
 
   try {
-    await axios.delete(`/api/materials/${this.selected.mater_code}`);
+    await axios.delete(`/api/materialmains/${this.selected.mater_code}`);
     await this.loadMaterials(); // 목록 새로고침
     this.clearDetail();         // 상세 영역 비우기
   } catch (err) {

@@ -37,7 +37,7 @@ async function findEquipmentByCode(code) {
 }
 
 /**
- * 다음 장비코드 자동 생성 (EQ0001 → EQ0002)
+ * 다음 장비코드 자동 생성 (EQ000001 → EQ000002)
  */
 async function generateNextEquipmentCode() {
   try {
@@ -55,7 +55,7 @@ async function generateNextEquipmentCode() {
  */
 async function saveEquipment(eq) {
   try {
-    // equipment_code가 비어 있으면 새 코드 생성
+    // 장비코드가 없으면 자동 생성
     if (!eq.equipment_code) {
       eq.equipment_code = await generateNextEquipmentCode();
     }
@@ -66,7 +66,9 @@ async function saveEquipment(eq) {
       eq.equipment_type,
       eq.install_date,
       eq.manufacturer,
-      eq.capacity,
+      eq.unit_code,
+      eq.spec,
+      eq.qty,
       eq.next_inspection_dt,
       eq.is_suitable
     ];
@@ -87,6 +89,18 @@ async function deleteEquipment(code) {
   } catch (err) {
     console.error('deleteEquipment error:', err);
     throw err;
+  }
+}
+
+/**
+ * 사용여부 (is_suitable) 공통코드 목록 조회 - DD 그룹
+ */
+async function findSuitableCodes() {
+  try {
+    return await mapper.query('suitableCodeList');
+  } catch (err) {
+    console.error('findSuitableCodes error:', err);
+    return [];
   }
 }
 
@@ -138,7 +152,6 @@ async function generateNextInspectionId() {
  */
 async function saveInspection(ins) {
   try {
-    // inspection_id가 비어 있으면 새 ID 생성
     if (!ins.inspection_id) {
       ins.inspection_id = await generateNextInspectionId();
     }
@@ -178,12 +191,15 @@ module.exports = {
   // 장비
   findEquipments,
   findEquipmentByCode,
+  generateNextEquipmentCode,
   saveEquipment,
   deleteEquipment,
+  findSuitableCodes,  // ✅ 추가: DD 그룹 공통코드 조회
 
   // 점검
   findInspectionsByEquipment,
   findInspectionById,
+  generateNextInspectionId,
   saveInspection,
   deleteInspection
 };
