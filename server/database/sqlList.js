@@ -36,8 +36,6 @@ const mOrderDetailIn = require('./sqls/m_order_detail_insert.js');
 const qcHistory = require('./sqls/qcHistory.js');
 const mReturns = require('./sqls/m_returns.js');
 const materialStock = require('./sqls/materials_stock.js');
-const outboundPicking = require('./sqls/mOutboundPicking.js');
-const outboundCandidates = require('./sqls/outbound_candidates.js');
 const outboundInst   = require('./sqls/outbound_candidates_inst.js');
 const instructionSql = require('./sqls/instruction.js');
 const instHeadersSql = require('./sqls/inst_headers.js');
@@ -86,14 +84,12 @@ module.exports = {
   ...qcHistory,
   ...mReturns,
   ...materialStock,
-  ...outboundPicking,
-  ...outboundCandidates,
   ...outboundInst,
   ...instructionSql,
   ...instHeadersSql,
   ...clients,
   ...sqt,
   ...customer,
-  ...instructionsOpen
+  ...instructionsOpen,
   ...materialmains
 }

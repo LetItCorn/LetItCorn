@@ -9,10 +9,21 @@ FROM material m
 ORDER BY m.mater_code;
 `;
 
+// 재고 누적 sql
 const updateMaterialStock = `
   UPDATE material
     SET current_stock = current_stock + ?
     WHERE mater_code = ?
 `;
 
-module.exports = { selectMaterialStock,updateMaterialStock };
+// 재고 차감 sql
+const decreaseMaterialStock =  `
+UPDATE material
+  SET current_stock = current_stock - ?
+  WHERE mater_code = ?
+`;
+
+
+module.exports = { selectMaterialStock,
+                  updateMaterialStock,
+                  decreaseMaterialStock };
