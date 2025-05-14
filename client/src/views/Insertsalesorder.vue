@@ -104,8 +104,9 @@ export default {
     },
     // 오늘 날짜 가져오기
     getTodayDate() {
-      const now = new Date(); // 현재 날짜 date 객체 생성
-      return now.toISOString().split('T')[0]; // YYYY-MM-DDTHH:mm:ss.sssZ 형식으로 변환 날짜와 시간을 T로 구분을 하니 split을 통해 날짜만 가져옴
+      //const now = new Date(); // 현재 날짜 date 객체 생성
+      const deliveryDate = new Date(new Date().setDate(new Date().getDate() + 60)); // 현재 날짜 date에서 +60일 2개월 후 날짜
+      return deliveryDate.toISOString().split('T')[0]; // YYYY-MM-DDTHH:mm:ss.sssZ 형식으로 변환 날짜와 시간을 T로 구분을 하니 split을 통해 날짜만 가져옴
     },
     // 거래처 목록 조회
     async fetchClients() {

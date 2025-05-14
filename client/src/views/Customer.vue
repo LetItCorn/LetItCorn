@@ -146,31 +146,36 @@
           </div>
           <div class="form-group">
             <label>거래처명</label>
-            <input type="text" v-model="insertParams.clientName" placeholder="검색">
+            <input type="text" v-model="insertParams.clientName" placeholder="입력">
           </div>
           <div class="form-group">
             <label>대표</label>
-            <input type="text" v-model="insertParams.clientCeo" placeholder="검색">
+            <input type="text" v-model="insertParams.clientCeo" placeholder="입력">
           </div>
           <div class="form-group">
             <label>전화번호</label>
-            <input type="text" v-model="insertParams.clientPhone" placeholder="검색">
+            <input type="text" v-model="insertParams.clientPhone" placeholder="입력">
           </div>
           <div class="form-group">
             <label>이메일</label>
-            <input type="text" v-model="insertParams.clientEmail" placeholder="검색">
+            <input type="text" v-model="insertParams.clientEmail" placeholder="입력">
           </div>
           <div class="form-group">
             <label>주소</label>
-            <input type="text" v-model="insertParams.clientAddress" placeholder="검색">
+            <input type="text" v-model="insertParams.clientAddress" placeholder="입력">
           </div>
           <div class="form-group">
             <label>거래처 담당자</label>
-            <input type="text" v-model="insertParams.clientMgr" placeholder="검색">
+            <input type="text" v-model="insertParams.clientMgr" placeholder="입력">
           </div>
           <div class="form-group">
             <label>거래처 유형</label>
-            <input type="text" v-model="insertParams.codeName" readonly>
+            <select v-model="selectedclienttype" @change="handleClientTypeChange">
+              <option value="">거래처 유형을 선택하세요</option>
+              <option v-for="clienttype in clienttypes" :key="clienttype.code_name" :value="clienttype">
+                {{ clienttype.code_name }}
+              </option>
+            </select>
           </div>
           <button class="btn btn-primary" @click="insertCustomer" id="modal-insert-btn">등록</button>
         </div>
@@ -223,6 +228,8 @@
         clientMgr: '',
         codeName: '',
       },
+      selectedclienttype: '',
+      clienttypes: [],
     };
   },
   computed: {
@@ -230,8 +237,17 @@
   },
   created() {
     this.fetchAllCustomer();
+    this.fetchClientType();
+    this.insertParams.clientCode = this.generateClientCode();
   },
   methods: {
+    // 거래처번호 생성
+    generateClientCode() {
+      // 랜덤 숫자 3자리 (실제로는 DB에서 순차 번호를 가져와야 함)
+      const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      
+      return `CUT${randomNum}`;
+    },
     async fetchAllCustomer() {
       try {
         const response = await axios.get('/api/customer');
@@ -312,6 +328,27 @@
           title: '검색 실패',
           text: '거래처 검색에 실패했어요.'
         });
+      }
+    },
+    // 거래처 유형
+    async fetchClientType() {
+      try {
+        const response = await axios.get('/api/clienttype');
+        this.clienttypes = response.data;
+      } catch (error) {
+        console.error('거래처 유형을 가져오는 중 오류 발생:', error);
+        Swal.fire({
+          icon: 'error',
+          title: '데이터 로딩 실패',
+          text: '거래처 유형을 불러오는데 실패했습니다.'
+        });
+      }
+    },
+    handleClientTypeChange() {
+      if (this.selectedclienttype) {
+        this.insertParams.codeName = this.selectedclienttype.code_name;
+      } else {
+        this.insertParams.codeName = '';
       }
     },
     confirmUpdate() {
@@ -606,12 +643,16 @@ td {
   font-weight: 500;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
 }
+
 
 .form-group input[readonly] {
   background-color: #f5f5f5;

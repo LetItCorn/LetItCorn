@@ -58,4 +58,10 @@ module.exports = {
         client_mgr,
         code_values
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+
+    // 거래처 유형 조회
+    selectClientType:
+    `SELECT code_name
+    FROM common_codes
+    WHERE code_group = 'EE'`
 };

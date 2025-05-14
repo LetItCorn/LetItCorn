@@ -75,6 +75,30 @@ router.delete('/customer/:id', async (req, res) => {
     }
 });
 
+// 거래처 등록
+router.post('/customer', async (req, res) => {
+    try {
+        let customerInfo = req.body;
+        console.log("요청 데이터 : ", customerInfo);
+        let result = await customerService.addCustomer(customerInfo);
+        console.log("서비스 결과 : ", result);
+        res.send(result);
+    } catch (err) {
+        res.status(500).send({ error: '거래처 등록에 실패했습니다.' });
+    }
+});
+
+// 거래처 유형 조회
+router.get('/clienttype', async (req, res) => {
+    try {
+        const clienttypes = await customerService.findAllClientType();
+        res.send(clienttypes);
+    } catch (err) {
+        res.status(500).send({ error: '거래처 유형을 불러오는데 실패했습니다.' });
+    }
+});
+
+
 
 
 module.exports = router

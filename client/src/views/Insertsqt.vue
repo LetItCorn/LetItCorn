@@ -231,6 +231,7 @@ export default {
   background-color: #fbff00 !important;
   color: #000 !important;
   width: 100px !important;
+  border: none !important;
 }
 
 table {

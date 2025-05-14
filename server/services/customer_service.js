@@ -109,7 +109,7 @@ const addCustomer = async (customerInfo) => {
 
     let result = null;
 
-    if(resInfo.affectedRows > 0){  //affetedRows 라고 적혀있었음 
+    if(resInfo.affectedRows > 0){
         console.log('성공');
         result = {
             isSuccessed : true,
@@ -125,11 +125,19 @@ const addCustomer = async (customerInfo) => {
     return result;
 }
 
+// 거래처 유형 조회
+const findAllClientType = async () => {
+    let clienttypes = await mariadb.query('selectClientType')
+        .catch(err => console.error(err));
+    return clienttypes;
+};
+
 
 module.exports = {
     findAllCustomer,
     findCustomerByCondition,
     updateCustomerInfo,
     removeCustomer,
-    addCustomer
+    addCustomer,
+    findAllClientType
 };
