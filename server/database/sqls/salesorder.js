@@ -169,16 +169,20 @@ module.exports = {
     WHERE sorder_code = ?`,
 
   selectClientList: 
-  `SELECT client_code,
-    client_name,
-    client_mgr,
-    client_type
-    FROM client`,
+  `SELECT c.client_code,
+    c.client_name,
+    c.client_mgr,
+    com.code_name
+  FROM client as c
+  JOIN common_codes as com
+    ON c.code_values = com.code_values
+  WHERE com.code_values = 'E02'
+  ORDER BY c.client_code`,
 
   selectItemList: 
   `SELECT item_code,
     item_name,
     item_type
-    FROM items`,
+  FROM items`,
     
 };

@@ -83,7 +83,6 @@ const removeSalesOrder = async (orderCode) => {
             console.error(err);
             throw err;
         });
-    
     return { success: true, message: '주문서가 삭제되었습니다.' };
 };
 
