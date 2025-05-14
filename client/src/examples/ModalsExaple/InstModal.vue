@@ -2,8 +2,8 @@
   <div class="modal-header">
     <div class="date-wrapper">
       <div class="button-group">
-        <button @click="handleSearch">조회</button>
-        <button @click="handleSelect">선택</button>
+        <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="handleSearch">조회</button>
+        <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="handleSelect">선택</button>
       </div>
 
       <div class="date-range">

@@ -33,7 +33,7 @@
       <!--단편 정보 출력 그리드-->
       <ag-grid-vue
         class="ag-theme-alpine"
-        style="width: 80%; height: 400px"
+        style="width: 80%; height: 500px"
         ref="mainGridRef"
         :columnDefs="planColumnDefs"
         :rowData="planList"
@@ -97,6 +97,13 @@ const onDetailGridReady = (params) => {
   console.log("detail grid ready 됨");
   detailGridApi.value = params.api;
 };
+
+const statusMap={
+  K01: "대기",
+  K02: "진행중",
+  K03: "완료"
+};
+
 // ref/reactive 값이 바뀔 때 특정 로직 실행
 watch(detailList, (newVal) => {
   console.log("detailList 변경됨:", newVal);
@@ -134,6 +141,12 @@ const planColumnDefs = [
     valueFormatter: (params) => formatDate(params.value),
     flex: 2,
   },
+  {
+    headerName: "지시상태",
+    field: "plan_stat",
+    valueFormatter: params => statusMap[params.value] || params.value,
+    flex: 1
+  }
 ];
 
 const detailColumnDefs = [
