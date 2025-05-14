@@ -304,12 +304,14 @@ export default {
   background-color: #fbff00 !important;
   color: #000 !important;
   width: 100px;
+  border: none !important;
 }
 
 .btn-cancel {
   background-color: #fff !important;
   color: #000 !important;
   width: 100px;
+  border: none !important;
 }
 
 /* 폼 스타일 */
