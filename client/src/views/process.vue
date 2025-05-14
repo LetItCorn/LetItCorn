@@ -86,7 +86,7 @@ export default {
     this.getInst()
   },
   methods : {
-    ...mapActions(useProcess, ['setProCode','setOrderQty','setInst']),
+    ...mapActions(useProcess, ['setProCode','setOrderQty','setInst','setFlowLength']),
     // 생산지시 조회 쿼리 실행 함수
     async getInst() {
       let res = await axios.get(`api/proce`)
@@ -97,7 +97,7 @@ export default {
       this.rowData = res.data
       this.instHead = res.data[0]['inst_head']
     },
-    // 선택한 생산지시의 품목정보 업뎃
+    // 선택한 생산지시의 품목에 일치하는 공정흐름 업뎃
     async getInstData(data){
       this.setOrderQty('')
       this.instData = data
@@ -105,6 +105,7 @@ export default {
       let res = await axios.get(`api/getFlow/${procFlow}`)
       // console.log(res.data[0]);
       this.instData.item_name = res.data[0].item_name
+      this.setFlowLength(res.data.length)
       //pinia에 담기.
       this.setInst(this.instData)
       // console.log(res.data);

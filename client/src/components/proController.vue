@@ -34,6 +34,7 @@
   import {
     useProcess
   } from '@/store/processStat';
+  import { useUserStore } from '@/store/user';
   import {
     mapState
   } from 'pinia';
@@ -54,16 +55,24 @@
       // 저장버튼 클릭시 상기 정보를 공정 상세 테이블에 저장
         // console.log(this.processes);
         let data = this.processes
-        // data.lot_cnt = this.inst.lot_cnt
+
+        let comData ={}
+       
+        this.processes.ac_cnt = this.manuFac
+        this.processes.fault_cnt = this.manuErr
         data.ac_cnt = this.manuFac
         data.fault_cnt = this.manuErr
         data.sta_time = this.getTime()
         data.end_time = this.getTime(this.processes.duration_min)
         data.pr_status = '종료'
+        Object.assign(comData,this.processes,this.inst)
+        console.log(comData);
+        comData.userId= this.userId
+        comData.flowLength = this.flowLength
         // Grid 업데이트를 위한 정보
         this.$emit('setRow',data)
         console.log(data);
-        let res = await axios.post(`/api/regPrLog`,data)
+        let res = await axios.post(`/api/regPrLog`,comData)
                               .catch(err=>{
                                 console.log(err);
                               })
@@ -81,7 +90,8 @@
       }
     },
     computed: {
-  ...mapState(useProcess, ['processes', 'orderQty','inst'])
+  ...mapState(useProcess, ['processes', 'orderQty','inst','flowLength']),
+  ...mapState(useUserStore,['userId'])
 }
   }
 </script>
