@@ -4,7 +4,7 @@
 const selectOutboundList = `
 SELECT
   mout_id,
-  mater_code,
+  mater_code,   
   mout_qty,
   DATE_FORMAT(mout_date, '%Y-%m-%d') AS mout_date,
   mout_checker,
@@ -35,6 +35,19 @@ FROM m_outbound
 WHERE mout_id = ?
 `;
 
+const updateMaterialStockDeduct = `
+UPDATE material
+   SET current_stock = current_stock - ?
+ WHERE mater_code    = ?`;
+
+
+const updateInboundOqty = `
+UPDATE m_inbound
+   SET min_oqty = min_oqty + ?
+ WHERE min_id   = ?
+   AND mater_code = ?`;
+
+
 const deleteOutbound = `
 DELETE FROM m_outbound
 WHERE mout_id = ?
@@ -45,5 +58,7 @@ module.exports = {
   selectOutboundList,
   insertOutbound,
   selectOutboundOne,
-  deleteOutbound
+  deleteOutbound,
+  updateMaterialStockDeduct,
+  updateInboundOqty
 };

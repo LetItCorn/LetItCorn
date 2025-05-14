@@ -9,4 +9,5 @@ WHERE inst_stat = ?
 ORDER BY plan_start DESC, inst_head DESC
 `;
 
+
 module.exports = { selectInstHeadersByStatus };

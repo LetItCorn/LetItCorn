@@ -26,10 +26,10 @@ async function createMOrderWithDetails(header, details) {
   try {
     await conn.beginTransaction();
 
-    /* 1) 헤더 INSERT  ──> 단 한 번만 */
+    /* 1) 헤더 INSERT  */
     const headerParams = [
       header.moder_id,
-      header.moder_date,     // ✅ moder_date
+      header.moder_date,     
       header.moder_req,
       header.receiver,
       header.reference,

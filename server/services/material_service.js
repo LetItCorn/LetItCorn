@@ -1,5 +1,4 @@
-// ==== services/material_service.js ==== 
-
+// 전체 자재 목록 조회
 const mariadb = require('../database/mapper.js');
 const { convertObjToAry } = require('../utils/converts.js');
 
@@ -50,6 +49,7 @@ const removeMaterial = async (code) => {
 
 async function findMaterialStock() {
     // vw_material_stock 뷰를 바로 조회
+    console.log('service')
     return await mariadb.query('selectMaterialStock', [])
     .catch(err => { console.error(err); return []; });
 };

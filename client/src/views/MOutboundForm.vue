@@ -1,9 +1,10 @@
-<!-- client/src/views/MOutboundForm.vue -->
 <template>
   <div class="container py-4">
-    <h2 class="text-center mb-4">자재 출고 처리 <small class="text-muted">(생산지시 기반)</small></h2>
+    <h2 class="text-center mb-4">
+      자재 출고 처리 <small class="text-muted">(생산지시 기반)</small>
+    </h2>
 
-    <!-- ─────────────── 생산지시 선택 ─────────────── -->
+    <!-- ────────── 생산지시 선택 ────────── -->
     <div class="row align-items-end g-2 mb-3">
       <div class="col-auto">
         <label class="form-label fw-bold">생산지시번호</label>
@@ -16,15 +17,17 @@
       </div>
 
       <div class="col-auto pt-4">
-        <button class="btn btn-primary px-4"
-                :disabled="!selectedInst"
-                @click="loadCandidatesByInst">
+        <button
+          class="btn btn-primary px-4"
+          :disabled="!selectedInst"
+          @click="loadCandidatesByInst"
+        >
           조회
         </button>
       </div>
     </div>
 
-    <!-- ─────────────── 재고 현황 & 출고 후보 ─────────────── -->
+    <!-- ──────── 재고 현황 & 출고 후보 ──────── -->
     <div class="row g-3">
       <!-- 현재 재고 -->
       <div class="col-lg-5">
@@ -42,7 +45,7 @@
                 <td>{{ item.mater_code }}</td>
                 <td class="text-start px-2">{{ item.mater_name }}</td>
                 <td>{{ item.safe_stock }}</td>
-                <td :class="{'text-danger': item.current_stock < item.safe_stock}">
+                <td :class="{ 'text-danger': item.current_stock < item.safe_stock }">
                   {{ item.current_stock }}
                 </td>
               </tr>
@@ -75,10 +78,10 @@
                 <td>{{ row.mater_code }}</td>
                 <td class="text-start px-2">{{ row.mater_name }}</td>
                 <td>{{ row.req_qty }}</td>
-                <td>{{ row.total_stock }}</td>
+                <td>{{ row.available_qty }}</td>
                 <td>
                   <input v-model.number="row.mout_qty"
-                         type="number" min="1" :max="Math.min(row.req_qty,row.total_stock)"
+                         type="number" min="1" :max="row.available_qty"
                          class="form-control form-control-sm"/>
                 </td>
                 <td>{{ row.lot_cnt }}</td>
@@ -134,7 +137,7 @@ export default {
     async loadInstList() {
       try {
         const { data } = await axios.get('/api/instructions/open');
-        this.instList = data;          // [{inst_head, inst_start}, ...]
+        this.instList = Array.isArray(data) ? data : [];
       } catch (e) {
         console.error('지시 목록 조회 실패', e);
         alert('생산지시 목록을 불러오지 못했습니다.');
@@ -145,7 +148,7 @@ export default {
     async loadMaterialStock() {
       try {
         const { data } = await axios.get('/api/materials/stock');
-        this.summaryList = data;
+        this.summaryList = Array.isArray(data) ? data : [];
       } catch (e) {
         console.error('재고 조회 실패', e);
       }
@@ -155,11 +158,12 @@ export default {
     async loadCandidatesByInst() {
       if (!this.selectedInst) return;
       try {
-        const { data } = await axios
-          .get(`/api/outbound_candidates/instruction/${this.selectedInst}`);
-        this.rows = data.map(r => ({
+        const { data } = await axios.get(`/api/outbound_candidates/instruction/${this.selectedInst}`);
+        this.rows = (Array.isArray(data) ? data : []).map(r => ({
           ...r,
-          mout_qty: Math.min(r.req_qty, r.total_stock)   // 기본값
+          req_qty: r.required_qty,             
+          available_qty: r.available_qty,
+          mout_qty: Math.min(r.required_qty, r.available_qty)
         }));
         this.selected = [];
       } catch (e) {
@@ -175,22 +179,26 @@ export default {
     /* ───────── 4. 출고 실행 ───────── */
     async processOutbound() {
       if (!this.selected.length) return;
+      // 유효성 검사
+      const invalid = this.selected.find(r => !r.mout_qty || r.mout_qty < 1 || r.mout_qty > r.available_qty);
+      if (invalid) {
+        return alert(`출고수량이 올바르지 않은 행이 있습니다. (${invalid.mater_code})`);
+      }
       try {
-        const today = new Date().toISOString().slice(0,10);
-        /* 4-1) 출고 API 호출 */
+        const today = new Date().toISOString().slice(0, 10);
         await axios.post('/api/m_outbound/instruction', {
-          instHead : this.selectedInst,
-          records  : this.selected.map(r => ({
-            lot_cnt     : r.lot_cnt,
-            mater_code  : r.mater_code,
-            mout_qty    : r.mout_qty,
-            mater_lot   : r.mater_lot,
-            mout_date   : today,
+          instHead: this.selectedInst,
+          records: this.selected.map(r => ({
+            lot_cnt: r.lot_cnt,
+            mater_code: r.mater_code,
+            mout_qty: r.mout_qty,
+            mater_lot: r.mater_lot,
+            mout_date: today,
             mout_checker: '현재사용자'
           }))
         });
         alert('출고 완료!');
-        /* 4-2) 화면 초기화 */
+        // 화면 갱신
         this.loadMaterialStock();
         this.loadCandidatesByInst();
       } catch (e) {

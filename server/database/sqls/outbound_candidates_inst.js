@@ -1,3 +1,4 @@
+// server/database/sqls/outbound_candidates_inst.js
 //생산지시 기반 LOT 출고 후보 조회
 const selectOutboundCandidatesByInstHead = `
 SELECT 
@@ -16,7 +17,7 @@ SELECT
   join material m on m.mater_code = bc.mater_code
   join m_inbound i on i.mater_code = bc.mater_code
   where ih.inst_head = ?
-    AND ih.inst_stat = '대기'
+    AND ih.inst_stat = 'J01'
     AND (i.min_stock - i.min_oqty) > 0
   order by bc.mater_code, i.min_date;
   `;

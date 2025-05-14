@@ -44,7 +44,9 @@ const instHeadersSql = require('./sqls/inst_headers.js');
 const clients = require('./sqls/clients.js');
 const sqt = require('./sqls/Insertsqt.js');
 const customer = require('./sqls/customer.js');
+const instructionsOpen = require('./sqls/instructions_open.js');
 const materialmains = require('./sqls/materialmains.js');
+
 
 module.exports = {
   // 펼침연산자(spread operator, ...)을 활용해 객체의 필드를 다른 객체로 쉽게 복사
@@ -92,5 +94,6 @@ module.exports = {
   ...clients,
   ...sqt,
   ...customer,
+  ...instructionsOpen
   ...materialmains
 }
