@@ -1,4 +1,4 @@
-// server/routers/materials_router.js
+// server/routers/materials_main_router.js
 const express = require('express');
 const router = express.Router();
 const materialService = require('../services/material_service.js');
@@ -34,19 +34,19 @@ router.get('/materials/unitCode', async (req, res) => {
  * 2) 단건 조회
  *    - URL 파라미터 mater_code로 조회
  */
-router.get('/materials/:mater_code', async (req, res) => {
-  const materCode = req.params.mater_code;
-  try {
-    const info = await materialService.MaterialByCode(materCode);
-    if (!info) {
-      return res.status(404).json({ error: '해당 자재가 존재하지 않습니다.' });
-    }
-    res.json(info);
-  } catch (err) {
-    console.error(`GET /materials/${materCode} error`, err);
-    res.status(500).json({ error: '자재 조회 중 오류 발생' });
-  }
-});
+// router.get('/materials/:mater_code', async (req, res) => {
+//   const materCode = req.params.mater_code;
+//   try {
+//     const info = await materialService.MaterialByCode(materCode);
+//     if (!info) {
+//       return res.status(404).json({ error: '해당 자재가 존재하지 않습니다.' });
+//     }
+//     res.json(info);
+//   } catch (err) {
+//     console.error(`GET /materials/${materCode} error`, err);
+//     res.status(500).json({ error: '자재 조회 중 오류 발생' });
+//   }
+// });
 
 /**
  * 3) 등록 또는 수정

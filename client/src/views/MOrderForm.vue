@@ -306,7 +306,7 @@ export default {
         this.form.partner_name = client.client_name;
         this.form.ceo_name = client.client_ceo;      // client_ceo 필드 사용
         this.form.address = client.client_address;  // client_address 필드 사용
-        this.form.business_type = client.client_type;
+        this.form.business_type = client.code_name;
         this.form.contact = client.client_phone;     // client_phone 필드 사용
       } else {
         this.form.receiver = '';
@@ -341,7 +341,7 @@ export default {
     }
     // 자재 목록 조회
     try {
-      const resM = await axios.get('/api/materials');
+      const resM = await axios.get('/api/materials/stock');
       this.materials = resM.data;
     } catch (e) {
       console.error('자재 목록 조회 실패', e);

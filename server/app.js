@@ -53,6 +53,7 @@
   const mReturnsRouter = require('./routers/m_returns_router.js');
   const instHeaderAPIRouter= require('./routers/inst_header_router.js');
   const clientsRouter = require('./routers/clients_router.js');
+  const instructionsRouter = require('./routers/instructions_router.js');
   //영업
   const SoRouter = require('./routers/salesorder_router.js'); // 주문서 SalesOrder
   const IsoRouter = require('./routers/Insertsalesorder_router.js'); // 주문서 등록 InsertSalesOrder
@@ -114,3 +115,4 @@
   app.use('/', mReturnsRouter);
   app.use('/', instHeaderAPIRouter);
   app.use('/', clientsRouter);
+  app.use('/', instructionsRouter);

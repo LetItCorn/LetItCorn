@@ -1,3 +1,4 @@
+<!-- client/src/views/MMovement.vue -->
 <template>
   <div class="container-fluid py-4">
     <h2 class="text-center mb-4">자재 입/출고 조회</h2>

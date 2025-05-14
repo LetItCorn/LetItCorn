@@ -7,61 +7,84 @@
  *  - 피킹 리스트 PDF 생성
  */
 const mariadb         = require('../database/mapper.js');
-const materialService = require('./material_service.js');
-const { queryFormat } = require('../utils/converts.js');
 const PDFDocument     = require('pdfkit');
 
 /* ────────────────────────────────────────────────────────── */
 /* 1) 출고 이력 전체                                              */
 async function findAllOutbounds() {
-  return await mariadb.query('selectOutboundList');
+  return await mariadb.query('selectOutboundList'); 
 }
 
 /* ────────────────────────────────────────────────────────── */
 /* 2) 생산지시 기반 LOT 후보 조회                                 */
 async function findOutboundCandidates(instHead) {
-  return await mariadb.query('selectOutboundCandidatesByInst', [instHead]);
+  return await mariadb.query('selectOutboundCandidatesByInstHead', [instHead]);
 }
 
 /* ────────────────────────────────────────────────────────── */
 /* 3) 출고 INSERT + 상태 변경                                     */
-async function addOutbound(info) {
-  const {
-    inst_head, mout_id, mater_code, mout_qty,
-    mout_date, mout_checker, lot_cnt, mater_lot
-  } = info;
+async function addOutboundsForInstruction(payload) {
+  const { instHead, records } = payload;
+  if (!records?.length) return { isSuccess:false, message:'records 비어 있음' };
 
-  /* 3-1) 재고 검증 */
-  const material = await materialService.findMaterialByCode(mater_code);
-  if (!material) return { isSuccess: false, error: '존재하지 않는 자재' };
-  if (mout_qty > material.current_stock)
-    return { isSuccess: false, error: '재고 부족' };
-
-  /* 3-2) 트랜잭션 */
   const conn = await mariadb.getConnection();
   try {
     await conn.beginTransaction();
 
-    /* (a) 출고 INSERT */
-    await conn.query(
-      mariadb.selectedQuery('insertOutbound', [mout_id, mater_code, mout_qty,
-                                              mout_date, mout_checker, lot_cnt, mater_lot]),
-      [mout_id, mater_code, mout_qty, mout_date, mout_checker, lot_cnt, mater_lot]
-    );
+    /* ① 건별 재고·가용수량 검증 및 INSERT */
+    for (const rec of records) {
+      /* (a) 현재고 확인 */
+      const [mat] = await conn.query(
+        'SELECT current_stock FROM material WHERE mater_code = ? FOR UPDATE',
+        [rec.mater_code]
+      );
+      if (!mat || mat.current_stock < rec.mout_qty)
+        throw new Error(`재고 부족: ${rec.mater_code}`);
 
-    /* (b) inst_header → 자재입고 로 상태 변경 */
+      /* (b) m_outbound INSERT */
+      const params = [
+        rec.lot_cnt + '-' + Date.now(),    // mout_id 생성
+        rec.mater_code,
+        rec.mout_qty,
+        rec.mout_date,
+        rec.mout_checker,
+        rec.lot_cnt,
+        rec.mater_lot
+      ];
+      await conn.query(
+        mariadb.selectedQuery('insertOutbound', params), params
+      );
+
+      /* (c) LOT 사용량 증가 */
+      await conn.query(
+        mariadb.selectedQuery('updateInboundOqty',
+          [rec.mout_qty, rec.lot_cnt, rec.mater_code]),
+        [rec.mout_qty, rec.lot_cnt, rec.mater_code]
+      );
+
+      /* (d) 자재 현재고 차감 */
+      await conn.query(
+        mariadb.selectedQuery('updateMaterialStockDeduct',
+          [rec.mout_qty, rec.mater_code]),
+        [rec.mout_qty, rec.mater_code]
+      );
+    }
+
+    /* ② 생산지시 상태를 ‘자재 입고(J02)’ 로 업데이트 */
     await conn.query(
-      `UPDATE inst_header SET inst_stat='자재 입고'
-       WHERE inst_head = ? AND inst_stat='대기'`,
-      [inst_head]
+      `UPDATE inst_header
+          SET inst_stat = '자재 입고'
+        WHERE inst_head = ?
+          AND inst_stat = '대기'`,
+      [instHead]
     );
 
     await conn.commit();
-    return { isSuccess: true };
+    return { isSuccess:true };
   } catch (err) {
     await conn.rollback();
-    console.error('addOutbound error', err);
-    return { isSuccess: false, error: 'DB 오류' };
+    console.error('[Service] addOutboundsForInstruction ERROR', err);
+    return { isSuccess:false, message:err.message };
   } finally {
     conn.release();
   }
@@ -156,9 +179,9 @@ async function generatePickingListPDF(ids, res) {
 
 /* ────────────────────────────────────────────────────────── */
 module.exports = {
-  findAllOutbounds,
+  findAllOutbounds, 
   findOutboundCandidates,
-  addOutbound,
+  addOutboundsForInstruction,
   cancelOutbound,
   generatePickingListPDF
 };

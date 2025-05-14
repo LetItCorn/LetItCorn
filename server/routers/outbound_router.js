@@ -19,9 +19,9 @@ router.get('/outbound_candidates/instruction/:instHead', async (req, res, next) 
 });
 
 /* 3) 출고 INSERT */
-router.post('/m_outbound', async (req, res, next) => {
+router.post('/m_outbound/instruction', async (req, res, next) => {
   try {
-    const result = await svc.addOutbound(req.body);
+    const result = await svc.addOutboundsForInstruction(req.body);
     res.json(result);
   } catch (err) { next(err); }
 });
