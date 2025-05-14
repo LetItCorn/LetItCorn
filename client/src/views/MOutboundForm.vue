@@ -1,108 +1,109 @@
+<!-- client/src/views/MOutboundForm.vue -->
 <template>
   <div class="container py-4">
-    <h2 class="text-center mb-4">
-      자재 출고 처리 <small class="text-muted">(생산지시 기반)</small>
-    </h2>
-
-    <!-- ────────── 생산지시 선택 ────────── -->
-    <div class="row align-items-end g-2 mb-3">
-      <div class="col-auto">
-        <label class="form-label fw-bold">생산지시번호</label>
-        <select v-model="selectedInst" class="form-select">
-          <option value="" disabled>(지시 선택)</option>
-          <option v-for="i in instList" :key="i.inst_head" :value="i.inst_head">
-            {{ i.inst_head }} — {{ i.inst_start }}
-          </option>
-        </select>
-      </div>
-
-      <div class="col-auto pt-4">
-        <button
-          class="btn btn-primary px-4"
-          :disabled="!selectedInst"
-          @click="loadCandidatesByInst"
-        >
-          조회
-        </button>
-      </div>
-    </div>
-
-    <!-- ──────── 재고 현황 & 출고 후보 ──────── -->
-    <div class="row g-3">
-      <!-- 현재 재고 -->
-      <div class="col-lg-5">
-        <h5 class="mb-2">현재 재고 현황</h5>
-        <div class="table-responsive">
-          <table class="table table-bordered text-center small mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>자재코드</th><th>자재명</th>
-                <th>안전재고</th><th>현재재고</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in summaryList" :key="item.mater_code">
-                <td>{{ item.mater_code }}</td>
-                <td class="text-start px-2">{{ item.mater_name }}</td>
-                <td>{{ item.safe_stock }}</td>
-                <td :class="{ 'text-danger': item.current_stock < item.safe_stock }">
-                  {{ item.current_stock }}
-                </td>
-              </tr>
-              <tr v-if="!summaryList.length">
-                <td colspan="4" class="text-muted py-3">재고 데이터를 불러오는 중...</td>
-              </tr>
-            </tbody>
-          </table>
+    <h2 class="text-center mb-4">자재 출고 처리</h2>
+    <div class="row gx-4">
+      <!-- ──────────── 좌측: 생산지시 선택 ──────────── -->
+      <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <strong>출고 대상 생산지시 (J01)</strong>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-hover mb-0 text-center">
+                <thead class="table-secondary">
+                  <tr>
+                    <th style="width:1%">
+                      <input
+                        type="checkbox"
+                        :checked="allInstSelected"
+                        @change="toggleAllInsts"
+                      />
+                    </th>
+                    <th>지시번호</th>
+                    <th>시작일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="inst in instList"
+                    :key="inst.inst_head"
+                    :class="{ 'table-active': selectedInsts.includes(inst.inst_head) }"
+                  >
+                    <td>
+                      <input
+                        type="checkbox"
+                        :value="inst.inst_head"
+                        v-model="selectedInsts"
+                        @change="onInstChange"
+                      />
+                    </td>
+                    <td>{{ inst.inst_head }}</td>
+                    <td>{{ inst.inst_start }}</td>
+                  </tr>
+                  <tr v-if="!instList.length">
+                    <td colspan="3" class="text-muted py-4">
+                      처리 가능한 생산지시가 없습니다.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- 출고 후보 -->
-      <div class="col-lg-7">
-        <h5 class="mb-2">출고 후보 (LOT)</h5>
-        <div class="table-responsive" style="max-height:55vh; overflow:auto">
-          <table class="table table-bordered text-center small mb-0">
-            <thead class="table-light">
-              <tr>
-                <th style="width:1%">
-                  <input type="checkbox" :checked="allSelected" @change="toggleAll"/>
-                </th>
-                <th>자재코드</th><th>자재명</th>
-                <th>필요수량</th><th>가용수량</th>
-                <th>출고수량</th><th>LOT#</th><th>LOT번호</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in rows" :key="row.lot_cnt + '-' + row.mater_code">
-                <td><input type="checkbox" v-model="selected" :value="row"/></td>
-                <td>{{ row.mater_code }}</td>
-                <td class="text-start px-2">{{ row.mater_name }}</td>
-                <td>{{ row.req_qty }}</td>
-                <td>{{ row.available_qty }}</td>
-                <td>
-                  <input v-model.number="row.mout_qty"
-                         type="number" min="1" :max="row.available_qty"
-                         class="form-control form-control-sm"/>
-                </td>
-                <td>{{ row.lot_cnt }}</td>
-                <td>{{ row.mater_lot }}</td>
-              </tr>
-              <tr v-if="!rows.length">
-                <td colspan="8" class="text-muted py-3">후보가 없습니다.</td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- ──────────── 우측: BOM 자재 리스트 ──────────── -->
+      <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <strong>필요 자재</strong>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered mb-0 text-center">
+                <thead class="table-secondary">
+                  <tr>
+                    <th>자재코드</th>
+                    <th>자재명</th>
+                    <th>단위</th>
+                    <th>필요수량</th>
+                    <th>가용수량</th>
+                    <th>LOT 번호</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="r in bomRows" :key="r.lot_cnt + '-' + r.mater_code">
+                    <td>{{ r.mater_code }}</td>
+                    <td class="text-start px-2">{{ r.mater_name }}</td>
+                    <td>{{ r.unit }}</td>
+                    <td>{{ r.required_qty }}</td>
+                    <td>{{ r.available_qty }}</td>
+                    <td>{{ r.mater_lot }}</td>
+                  </tr>
+                  <tr v-if="!bomRows.length">
+                    <td colspan="6" class="text-muted py-4">
+                      왼쪽에서 생산지시를 선택하세요.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 출고 실행 버튼 -->
+        <div class="text-end">
+          <button
+            class="btn btn-success"
+            :disabled="!selectedInsts.length || !bomRows.length"
+            @click="processOutbound"
+          >
+            출고 실행
+          </button>
         </div>
       </div>
-    </div>
-
-    <!-- 출고 실행 버튼 -->
-    <div class="text-end mt-3">
-      <button class="btn btn-success px-4"
-              :disabled="!selected.length"
-              @click="processOutbound">
-        출고 실행
-      </button>
     </div>
   </div>
 </template>
@@ -114,95 +115,83 @@ export default {
   name: 'MOutboundForm',
   data() {
     return {
-      /* 생산지시 */
-      instList: [],            // 드롭다운 목록
-      selectedInst: '',        // v-model
-      /* 재고 & 후보 */
-      summaryList: [],
-      rows: [],
-      selected: []
+      instList: [],        // J01 상태 생산지시 목록
+      selectedInsts: [],   // 체크된 inst_head 배열
+      bomRows: []          // 선택 지시 기반 BOM 자재 리스트
     };
   },
   computed: {
-    allSelected() {
-      return this.rows.length > 0 && this.selected.length === this.rows.length;
+    allInstSelected() {
+      return (
+        this.instList.length > 0 &&
+        this.selectedInsts.length === this.instList.length
+      );
     }
   },
-  created() {
-    this.loadInstList();
-    this.loadMaterialStock();
+  async created() {
+    // 1) J01 상태인 생산지시 목록 조회
+    try {
+      const res = await axios.get('/api/instructions/open');
+      this.instList = res.data;
+    } catch (e) {
+      console.error('생산지시 조회 실패', e);
+    }
   },
   methods: {
-    /* ───────── 1. 생산지시 목록 ───────── */
-    async loadInstList() {
-      try {
-        const { data } = await axios.get('/api/instructions/open');
-        this.instList = Array.isArray(data) ? data : [];
-      } catch (e) {
-        console.error('지시 목록 조회 실패', e);
-        alert('생산지시 목록을 불러오지 못했습니다.');
+    toggleAllInsts(evt) {
+      this.selectedInsts = evt.target.checked
+        ? this.instList.map(i => i.inst_head)
+        : [];
+      this.onInstChange();
+    },
+    async onInstChange() {
+      // 단일 선택일 때만 처리(복수 선택 시 빈 리스트)
+      if (this.selectedInsts.length === 1) {
+        try {
+          const instHead = this.selectedInsts[0];
+          const res = await axios.get(
+            `/api/outbound_candidates/instruction/${instHead}`
+          );
+          this.bomRows = res.data;
+        } catch (e) {
+          console.error('BOM 자재 조회 실패', e);
+          this.bomRows = [];
+        }
+      } else {
+        this.bomRows = [];
       }
     },
-
-    /* ───────── 2. 현재 재고 ───────── */
-    async loadMaterialStock() {
-      try {
-        const { data } = await axios.get('/api/materials/stock');
-        this.summaryList = Array.isArray(data) ? data : [];
-      } catch (e) {
-        console.error('재고 조회 실패', e);
-      }
-    },
-
-    /* ───────── 3. 후보 LOT ───────── */
-    async loadCandidatesByInst() {
-      if (!this.selectedInst) return;
-      try {
-        const { data } = await axios.get(`/api/outbound_candidates/instruction/${this.selectedInst}`);
-        this.rows = (Array.isArray(data) ? data : []).map(r => ({
-          ...r,
-          req_qty: r.required_qty,             
-          available_qty: r.available_qty,
-          mout_qty: Math.min(r.required_qty, r.available_qty)
-        }));
-        this.selected = [];
-      } catch (e) {
-        console.error('출고 후보 조회 실패', e);
-        alert('출고 후보를 불러오는 중 오류가 발생했습니다.');
-      }
-    },
-
-    toggleAll(e) {
-      this.selected = e.target.checked ? [...this.rows] : [];
-    },
-
-    /* ───────── 4. 출고 실행 ───────── */
     async processOutbound() {
-      if (!this.selected.length) return;
-      // 유효성 검사
-      const invalid = this.selected.find(r => !r.mout_qty || r.mout_qty < 1 || r.mout_qty > r.available_qty);
-      if (invalid) {
-        return alert(`출고수량이 올바르지 않은 행이 있습니다. (${invalid.mater_code})`);
-      }
+      // 선택 지시 하나만 처리
+      const instHead = this.selectedInsts[0];
+      const today = new Date().toISOString().slice(0, 10);
+      const records = this.bomRows.map(r => ({
+        mout_id:      `${instHead}-${r.mater_code}-${Date.now()}`,
+        lot_cnt:      r.lot_cnt,
+        mater_code:   r.mater_code,
+        mout_qty:     r.required_qty,
+        mout_date:    today,
+        mout_checker: '현재사용자',
+        mater_lot:    r.mater_lot
+      }));
       try {
-        const today = new Date().toISOString().slice(0, 10);
-        await axios.post('/api/m_outbound/instruction', {
-          instHead: this.selectedInst,
-          records: this.selected.map(r => ({
-            lot_cnt: r.lot_cnt,
-            mater_code: r.mater_code,
-            mout_qty: r.mout_qty,
-            mater_lot: r.mater_lot,
-            mout_date: today,
-            mout_checker: '현재사용자'
-          }))
+        const res = await axios.post('/api/m_outbound/instruction', {
+          inst_head: instHead,
+          records
         });
-        alert('출고 완료!');
-        // 화면 갱신
-        this.loadMaterialStock();
-        this.loadCandidatesByInst();
+        if (res.data.success) {
+          alert('자재 출고가 완료되었습니다.');
+          // 초기화
+          this.selectedInsts = [];
+          this.bomRows = [];
+          // 목록 다시 불러오기
+          const tmp = await axios.get('/api/instructions/open');
+          this.instList = tmp.data;
+        } else {
+          alert('출고 실패: ' + (res.data.results.find(r=>!r.isSuccess)?.error || '알 수 없는 오류'));
+        }
       } catch (e) {
-        console.error('출고 처리 오류', e.response?.data || e);
+        console.error('출고 처리 오류', e);
         alert('출고 처리 중 오류가 발생했습니다.');
       }
     }
@@ -211,7 +200,8 @@ export default {
 </script>
 
 <style scoped>
-h5 { font-weight: 600; }
-.table th, .table td { vertical-align: middle; }
-.table tbody tr:nth-child(even){ background:#f9f9f9; }
+.table th,
+.table td {
+  vertical-align: middle;
+}
 </style>
