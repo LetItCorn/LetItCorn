@@ -7,10 +7,10 @@
       </div>
       <!-- 모든 버튼에 active 효과 / action-buttons 제외 하고 색깔 변경 -->
       <div class="action-buttons">
-        <button class="btn btn-select" :class="{ active: activeAction === 'search' }" @click="showSearchModal">조회</button> <!-- 조회 modal -->
-        <button class="btn btn-update" :class="{ active: activeAction === 'update' }" @click="confirmUpdate">수정</button> <!-- 수정 modal // confirmUpdate => showUpdateModal => searchSalesOrders -->
-        <button class="btn btn-delete" :class="{ active: activeAction === 'delete' }" @click="confirmDelete">삭제</button>
-        <button class="btn btn-outline" :class="{ active: activeAction === 'output' }" @click="insertSqt">출고량 등록</button> <!-- shipment quantity 출고량 -->
+        <button class="btn btn-select" @click="showSearchModal">조회</button> <!-- 조회 modal -->
+        <button class="btn btn-update" @click="confirmUpdate">수정</button> <!-- 수정 modal // confirmUpdate => showUpdateModal => searchSalesOrders -->
+        <button class="btn btn-delete" @click="confirmDelete">삭제</button>
+        <button class="btn btn-outline" @click="insertSqt">출고량 등록</button> <!-- shipment quantity 출고량 -->
       </div>
     </div>
     
@@ -151,7 +151,6 @@ export default {
       originalSalesOrders: [], // 원본 데이터 유지
       activeFilter: 'all',
       activeSort: '',
-      activeAction: '',
       searchModalVisible: false,
       updateModalVisible: false,
       selectAll: false,
@@ -195,7 +194,7 @@ export default {
         Swal.fire({
           icon: 'error',
           title: '데이터 로딩 실패',
-          text: '주문서 목록을 불러오는데 실패했습니다.'
+          text: '주문서 목록을 불러오는데 실패했어요.'
         });
       }
     },
@@ -294,7 +293,7 @@ export default {
         Swal.fire({
           icon: 'error',
           title: '검색 실패',
-          text: '주문서 검색에 실패했습니다.'
+          text: '주문서 검색에 실패했어요.'
         });
       }
     },
@@ -343,7 +342,7 @@ export default {
         }
 
         const updatedOrder = {
-          sorder_count: parseInt(this.updateParams.sorderCount, 10),
+          sorder_count: this.updateParams.sorderCount,
           delivery_date: this.updateParams.deliveryDate
         }
 
@@ -352,7 +351,7 @@ export default {
         Swal.fire({
           icon: 'success',
           title: '수정 완료',
-          text: '주문서가 수정되었습니다.'
+          text: '주문서가 수정되었어요.'
         });
 
         this.updateModalVisible = false;
@@ -364,7 +363,7 @@ export default {
         Swal.fire({
           icon: 'error',
           title: '수정 실패',
-          text: '주문서 수정에 실패했습니다.'
+          text: '주문서 수정에 실패했어요.'
         });
       }
     },
@@ -414,7 +413,7 @@ export default {
         Swal.fire({
           icon: 'success',
           title: '삭제 완료',
-          text: '선택한 주문서가 삭제되었습니다.'
+          text: '선택한 주문서가 삭제되었어요.'
         });
         
         // 목록 새로고침
@@ -424,7 +423,7 @@ export default {
         Swal.fire({
           icon: 'error',
           title: '삭제 실패',
-          text: '주문서 삭제에 실패했습니다.'
+          text: '주문서 삭제에 실패했어요.'
         });
       }
     },
@@ -521,6 +520,7 @@ export default {
   color: #000 !important;
   width: 100px !important;
   border: 1px solid #ddd;
+  border: none !important;
 }
 
 .btn-filter.active {
@@ -534,44 +534,28 @@ export default {
   background-color: #0000ff !important;
   color: #fff !important;
   width: 100px !important;
-}
-
-.btn-select.active {
-  background-color: #0000ff !important;
-  color: #fff !important;
+  border: none !important;
 }
 
 .btn-update {
   background-color: #28a745 !important;
   color: #fff !important;
   width: 100px !important;
-}
-
-.btn-update.active {
-  background-color: #28a745 !important;
-  color: #fff !important;
+  border: none !important;
 }
 
 .btn-delete {
   background-color: #dc3545 !important;
   color: #fff !important;
   width: 100px !important;
-}
-
-.btn-delete.active {
-  background-color: #dc3545 !important;
-  color: #fff !important;
+  border: none !important;
 }
 
 .btn-outline {
   background-color: #fbff00 !important;
   color: #000 !important;
   width: 150px !important;
-}
-
-.btn-outline.active {
-  background-color: #fbff00 !important;
-  color: #000 !important;
+  border: none !important;
 }
 
 /* 정렬 버튼 스타일 */
@@ -580,6 +564,7 @@ export default {
   color: #000 !important;
   border: 1px solid #ddd;
   width: 150px !important;
+  border: none !important;
 } 
 
 .btn-sort.active {

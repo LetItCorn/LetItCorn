@@ -3,12 +3,13 @@
     <div class="inst-wrapper">
       <div class="inst-header">
         <div class="button-group">
-          <button @click="resetAll">초기화</button>
-          <button @click="selectPlan">생산계획조회</button>
-          <button @click="registerInst">등록</button>
+          <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="resetAll">초기화</button>
+          <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="selectPlan">생산계획조회</button>
+          <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="registerInst">등록</button>
         </div>
       </div>
     </div>
+    <div class="grid-wrapper">
     <ag-grid-vue
       ref="gridRef"
       class="ag-theme-alpine"
@@ -22,6 +23,7 @@
       :suppressRowClickSelection="true"
       @grid-ready="onGridReady"
     />
+  </div>
   </div>
   <PlanSelectModal v-if="isPlanModalOpen" />
 </template>
@@ -314,7 +316,10 @@ async function registerInst() {
   justify-content: flex-end;
   margin-bottom: 16px;
 }
-
+.grid-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
 .button-group {
   display: flex;
   gap: 8px;

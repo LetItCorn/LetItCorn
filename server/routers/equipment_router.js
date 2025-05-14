@@ -47,7 +47,7 @@ router.get('/equipments/:equipment_code', async (req, res) => {
 router.post('/equipments', async (req, res) => {
   try {
     await svc.saveEquipment(req.body); // 내부에서 코드 자동 생성 처리됨
-    res.status(201).json({ message: '장비가 등록/수정되었습니다.' });
+    res.status(201).json({ message: '장비가 저장되었습니다.' });
   } catch (err) {
     console.error('POST /equipments error:', err);
     res.status(500).json({ error: '장비 저장 중 오류가 발생했습니다.' });
@@ -69,12 +69,26 @@ router.delete('/equipments/:equipment_code', async (req, res) => {
   }
 });
 
+/**
+ * 5) 장비 사용여부 (is_suitable) 코드 목록 조회
+ *    GET /api/equipments/suitableCodes
+ */
+router.get('/equipments/suitableCodes', async (req, res) => {
+  try {
+    const list = await svc.findSuitableCodes();
+    res.json(list);
+  } catch (err) {
+    console.error('GET /equipments/suitableCodes error:', err);
+    res.status(500).json({ error: '사용여부 코드 목록 조회 중 오류가 발생했습니다.' });
+  }
+});
+
 //
 // ─── 점검 이력 관련 API ───────────────────────────────
 //
 
 /**
- * 5) 특정 장비의 점검 이력 목록 조회
+ * 6) 특정 장비의 점검 이력 목록 조회
  *    GET /api/equipment_inspections/:equipment_code
  */
 router.get('/equipment_inspections/:equipment_code', async (req, res) => {
@@ -89,7 +103,7 @@ router.get('/equipment_inspections/:equipment_code', async (req, res) => {
 });
 
 /**
- * 6) 점검 이력 단건 조회
+ * 7) 점검 이력 단건 조회
  *    GET /api/equipment_inspections/inspection/:inspection_id
  */
 router.get('/equipment_inspections/inspection/:inspection_id', async (req, res) => {
@@ -105,14 +119,14 @@ router.get('/equipment_inspections/inspection/:inspection_id', async (req, res) 
 });
 
 /**
- * 7) 점검 이력 등록 또는 수정 (MERGE 방식)
+ * 8) 점검 이력 등록 또는 수정 (MERGE 방식)
  *    POST /api/equipment_inspections
  *    - inspection_id가 없으면 자동 생성됨
  */
 router.post('/equipment_inspections', async (req, res) => {
   try {
     await svc.saveInspection(req.body); // 내부에서 ID 자동 생성 처리됨
-    res.status(201).json({ message: '점검 이력이 등록/수정되었습니다.' });
+    res.status(201).json({ message: '점검 이력이 저장되었습니다.' });
   } catch (err) {
     console.error('POST /equipment_inspections error:', err);
     res.status(500).json({ error: '점검 이력 저장 중 오류가 발생했습니다.' });
@@ -120,7 +134,7 @@ router.post('/equipment_inspections', async (req, res) => {
 });
 
 /**
- * 8) 점검 이력 삭제
+ * 9) 점검 이력 삭제
  *    DELETE /api/equipment_inspections/:inspection_id
  */
 router.delete('/equipment_inspections/:inspection_id', async (req, res) => {

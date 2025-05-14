@@ -1,6 +1,8 @@
 // 전체 자재 목록 조회
 const mariadb = require('../database/mapper.js');
 const { convertObjToAry } = require('../utils/converts.js');
+
+// 전체 자재 목록 조회
 const findAllMaterials = async () => {
     let list = await mariadb.query('selectMaterialList')
     .catch(err => console.error(err));

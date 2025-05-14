@@ -10,6 +10,7 @@ module.exports = {
     sorder_count,
     code_values,
     emp_id
-  ) VALUES (?, ?, ?, ?, ?, ?, ?)`
+  ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+
 
 }

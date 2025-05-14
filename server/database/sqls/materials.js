@@ -1,4 +1,5 @@
 // server/database/sqls/materials.js
+
 // 각 자재 관련 SQL 쿼리를 정의
 const selectMaterialList = `
 SELECT

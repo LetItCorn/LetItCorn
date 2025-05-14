@@ -9,9 +9,9 @@
   <Datepicker v-model="endDate" :format="'yy-MM-dd'" />
   </div>
   <div class="button-group-inline">
-  <button @click="fetchPlanInst">조회</button>
-  <button @click="modifyPlan">수정</button>
-  <button @click="deletePlan">삭제</button>
+  <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="fetchPlanInst">조회</button>
+  <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="modifyPlan">수정</button>
+  <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="deletePlan">삭제</button>
   </div>
 </div>
 <div class="grid-wrapper">
