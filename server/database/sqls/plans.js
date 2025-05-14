@@ -6,20 +6,21 @@
 // 조건없이 전체조회
 const selectPlanHeaderList =
 `SELECT
-    ph.plans_head,
-    i.item_name,
-    ph.plan_start,
-    ph.plan_end,
-    ph.plan_stat,
-    p.plans_vol,
-    IFNULL(SUM(ins.plans_vol), 0) AS issued_vol,
-    (p.plans_vol - IFNULL(SUM(ins.plans_vol), 0)) AS unissued_vol
+  ph.plans_head,
+  i.item_name,
+  ph.plan_start,
+  ph.plan_end,
+  ph.plan_stat,
+  SUM(p.plans_vol) AS plans_vol,
+  IFNULL(SUM(ins.plans_vol), 0) AS issued_vol,
+  SUM(p.plans_vol) - IFNULL(SUM(ins.plans_vol), 0) AS unissued_vol
 FROM plan_header ph
 JOIN plans p ON ph.plans_head = p.plans_head
 JOIN items i ON p.item_code = i.item_code
-LEFT JOIN inst ins ON p.item_code = ins.item_code
+LEFT JOIN inst_header ih ON ph.plans_head = ih.plans_head
+LEFT JOIN inst ins ON ih.inst_head = ins.inst_head AND p.item_code = ins.item_code
 WHERE ph.plans_reg BETWEEN ? AND ?
-GROUP BY ph.plans_head, i.item_name, ph.plan_start, ph.plan_end, p.plans_vol
+GROUP BY ph.plans_head, i.item_name, ph.plan_start, ph.plan_end, ph.plan_stat
 ORDER BY ph.plans_reg DESC`;
 
 const selectPlanDetailByHead =
