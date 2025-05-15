@@ -51,7 +51,7 @@
   const movementRouter = require('./routers/movement_router.js');
   const qcHistoryRouter = require('./routers/qc_history_router.js');
   const mReturnsRouter = require('./routers/m_returns_router.js');
-  const instHeaderAPIRouter= require('./routers/inst_header_router.js');
+  const instHeaderRouter = require('./routers/inst_header_router.js');
   const clientsRouter = require('./routers/clients_router.js');
   const instructionsRouter = require('./routers/instructions_router.js');
   //영업
@@ -113,6 +113,6 @@
   app.use('/', movementRouter);  
   app.use('/', qcHistoryRouter);
   app.use('/', mReturnsRouter);
-  app.use('/', instHeaderAPIRouter);
+  app.use('/', instHeaderRouter );
   app.use('/', clientsRouter);
   app.use('/', instructionsRouter);

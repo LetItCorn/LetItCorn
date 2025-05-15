@@ -1,4 +1,3 @@
-<!-- client/src/views/components/QualityInspectionModal.vue -->
 <template>
   <div v-if="visible" class="modal-overlay" @click.self="close">
     <div class="modal-dialog">
@@ -12,25 +11,45 @@
             <table class="table table-bordered text-center mb-0">
               <thead>
                 <tr>
-                  <th>발주ID</th>
-                  <th>자재코드</th>
-                  <th>수량</th>
-                  <th>발주일</th>
-                  <th>납기일</th>
-                  <th v-if="inspected">결과</th>
+                  <th>검사번호</th>
+                  <th>검사항목</th>
+                  <th>기준값</th>
+                  <th>측정값</th>
+                  <th>판정</th>
+                  <th>비고</th>
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="order in orders"
-                  :key="order.moder_id + '-' + order.mater_code"
-                >
-                  <td>{{ order.moder_id }}</td>
-                  <td>{{ order.mater_code }}</td>
-                  <td>{{ order.moder_qty }}</td>
-                  <td>{{ order.moder_date }}</td>
-                  <td>{{ order.due_date }}</td>
-                  <td v-if="inspected">{{ getResult(order) }}</td>
+                <tr v-for="(item, idx) in testItems" :key="item.test_no">
+                  <td>{{ item.test_no }}</td>
+                  <td>{{ item.test_feild }}</td>
+                  <td>{{ item.test_stand }}</td>
+                  <td>
+                    <input
+                      v-model="item.test_res"
+                      type="text"
+                      class="form-control form-control-sm"
+                      placeholder="값 입력"
+                    />
+                  </td>
+                  <td>
+                    <select
+                      v-model="item.test_stat"
+                      class="form-select form-select-sm"
+                    >
+                      <option disabled value="">선택</option>
+                      <option value="적합">적합</option>
+                      <option value="부적합">부적합</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      v-model="item.test_etc"
+                      type="text"
+                      class="form-control form-control-sm"
+                      placeholder="비고"
+                    />
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -38,21 +57,11 @@
         </div>
         <div class="modal-footer">
           <button
-            v-if="!inspected"
-            class="btn btn-primary"
-            @click="runInspection"
-          >검사 실행</button>
-          <button
-            v-else
             class="btn btn-success"
+            :disabled="!canComplete"
             @click="completeInspection"
-          >완료</button>
-          <button class="btn btn-secondary" @click="close">
-            취소
-          </button>
-        </div>
-        <div v-if="inspected" class="text-success text-center mt-2">
-          입고/반품으로 데이터를 넘겼습니다.
+          >검사완료</button>
+          <button class="btn btn-secondary" @click="close">취소</button>
         </div>
       </div>
     </div>
@@ -71,42 +80,42 @@ export default {
   },
   data() {
     return {
-      inspected: false,
-      results: []  // [{ order, status }]
+      testItems: [
+        { test_no: 'QC011', test_feild: '온도 검사',   test_res: '', test_stat: '', test_etc: '', test_stand: '≤4℃' },
+        { test_no: 'QC012', test_feild: 'pH 측정',     test_res: '', test_stat: '', test_etc: '', test_stand: '6.5~6.8' },
+        { test_no: 'QC013', test_feild: '고형분 검사', test_res: '', test_stat: '', test_etc: '', test_stand: '36~38%' },
+        { test_no: 'QC014', test_feild: '유지방 검사', test_res: '', test_stat: '', test_etc: '', test_stand: '10~12%' },
+        { test_no: 'QC015', test_feild: '미생물 검사', test_res: '', test_stat: '', test_etc: '', test_stand: '총호기성생균수 ≤10⁴ CFU/g' }
+      ]
     };
   },
+  computed: {
+    canComplete() {
+      return this.orders.length > 0 && this.testItems.every(item => item.test_res && item.test_stat);
+    }
+  },
   methods: {
-    async runInspection() {
-      // 랜덤으로 PASS / FAIL 생성
-      this.results = this.orders.map(o => ({
-        order: o,
-        status: Math.random() < 0.5 ? 'PASS' : 'FAIL'
-      }));
-      this.inspected = true;
-
-      // 부모로 즉시 전달
-      const payload = this.results.map(r => ({
-        moder_id:   r.order.moder_id,
-        mater_code: r.order.mater_code,
-        qc_result:  r.status
-      }));
-      this.$emit('inspect', payload);
-    },
     completeInspection() {
+      const payload = [];
+      this.orders.forEach(order => {
+        this.testItems.forEach(item => {
+          payload.push({
+            qc_no:      item.test_no,
+            moder_id:   order.moder_id,
+            mater_code: order.mater_code,
+            qc_date:    new Date().toISOString().slice(0,10),
+            qc_result:  item.test_stat,
+            inspector:  this.$session ? this.$session.userId : 'unknown',
+            test_res:   item.test_res,
+            test_etc:   item.test_etc
+          });
+        });
+      });
+      this.$emit('inspect', payload);
       this.close();
     },
     close() {
-      // 상태 초기화
-      this.inspected = false;
-      this.results = [];
       this.$emit('close');
-    },
-    getResult(order) {
-      const r = this.results.find(
-        r => r.order.moder_id === order.moder_id &&
-             r.order.mater_code === order.mater_code
-      );
-      return r ? r.status : '';
     }
   }
 };
@@ -115,20 +124,25 @@ export default {
 <style scoped>
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0,0,0,0.5);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 2000;
 }
 .modal-dialog {
-  width: 90%;
-  max-width: 700px;
+  width: 80vw;
+  max-width: 900px;
   margin: 0;
 }
 .modal-content {
   max-height: 80vh;
-  display: flex; flex-direction: column;
+  display: flex;
+  flex-direction: column;
   background: #fff;
   border-radius: 0.3rem;
   overflow: hidden;

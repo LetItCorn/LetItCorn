@@ -1,13 +1,14 @@
-// 생산지시 헤더(대기·진행 …) 목록
-const selectInstHeadersByStatus = `
+// server/database/sqls/inst_headers.js
+const selectInstHeaderByStatus = `
 SELECT
   inst_head,
-  DATE_FORMAT(plan_start,'%Y-%m-%d') AS plan_start,
-  DATE_FORMAT(plan_end  ,'%Y-%m-%d') AS plan_end
+  DATE_FORMAT(inst_start, '%Y-%m-%d') AS inst_start,
+  inst_stat,
+  plans_head,
+  inster
 FROM inst_header
 WHERE inst_stat = ?
-ORDER BY plan_start DESC, inst_head DESC
+ORDER BY inst_start DESC
 `;
 
-
-module.exports = { selectInstHeadersByStatus };
+module.exports = { selectInstHeaderByStatus };
