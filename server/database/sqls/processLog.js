@@ -50,67 +50,40 @@ CALL MKPRONO(?,?,?,?,?,?, @result);
 `
 // procedure out 조회
 const callResult = `
-SELECT @result AS pr_log_no;
+SELECT @result AS p_log_no;
 `
 // 각 공정 결과 입력
 const regProLogDt = `
-INSERT INTO pr_lot_dt (lot_cnt,pr_log_no,sta_time,end_time,ac_cnt,fault_cnt,process_code,process_name,processer,spec,unit_code)
-VALUES (?,?,?,?,?,?,?,?,?,?,?)
+INSERT INTO pr_log_dt (lot_cnt,p_log_no,sta_time,end_time,ac_cnt,fault_cnt,process_code,process_name,processer,spec,unit_code)
+VALUES (?,?,STR_TO_DATE(?, '%H:%i'),STR_TO_DATE(?, '%H:%i'),?,?,?,?,?,?,?)
 `
 
 // 전체 공정 종료시 생산지시 업데이트
 const setInst = `
 UPDATE inst 
-SET inst_stat = 'J04' , res_cnt = ?
+SET ins_stat = 'J04' , res_cnt = ?
 WHERE lot_cnt = ?
 `
 
-const selectProcessLog =
- `SELECT pl.p_log_no,
-       pl.log_dt,
-       pl.process_head,
-       pl.item_name,
-       pl.emp_id,
-       pl.inst_head,
-       ih.inst_stat  
-FROM process_log pl
-JOIN inst_header ih
-  ON pl.inst_head = ih.inst_head
-ORDER BY pl.p_log_no;`;
+// 공정에 알맞는 품질 검사 조회
+const getQcTest = `
+  SELECT  test_no
+         ,test_feild
+         ,test_res
+         ,test_stat
+         ,test_etc
+         ,test_stand
+  FROM test_qc
+  WHERE test_target = ?
+`
 
-const selectPrLogOne =
- `SELECT pl.p_log_no,
-       pl.log_dt,
-       pl.process_head,
-       pl.item_name,
-       pl.emp_id,
-       pl.inst_head,
-       ih.inst_stat  
-FROM process_log pl
-JOIN inst_header ih
-  ON pl.inst_head = ih.inst_head
-WHERE pl.p_log_no = ?`;
-
- const prLogInsert = 
-`INSERT INTO process_log  (p_log_no, log_dt, process_head, item_name, emp_id, inst_head, item_code, iord_no)
- VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
- const prLogUpdate =
- `UPDATE process_log 
- SET ?
- WHERE p_log_no = ?`;
- const prLogDelete = 
-`DELETE FROM process_log 
- WHERE p_log_no = ?`;
  module.exports = {
-    selectProcessLog,
-    selectPrLogOne,
-    prLogInsert,
-    prLogUpdate,
-    prLogDelete,
     selectInst,
     getFlow,
     regProLog,
     callResult,
     regProLogDt,
     setResult,
+    setInst,
+    getQcTest
  };
