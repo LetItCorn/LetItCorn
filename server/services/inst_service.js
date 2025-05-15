@@ -76,8 +76,8 @@ const registerInst = async ({ header, details }) => {
       console.log(mariadb.query);
       // 3-1. 지시 디테일 등록
       await conn.query(
-        `INSERT INTO inst (inst_no, lot_cnt, plans_vol, iord_no, process_header, out_od, inst_head, item_code, ins_stat)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO inst (inst_no, lot_cnt, plans_vol, iord_no, process_header, out_od, inst_head, item_code, item_name, ins_stat)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           instNo,
           lotNo,
