@@ -1,154 +1,141 @@
 // server/routers/equipment_router.js
+// ===============================================================
+const express          = require('express');
+const router           = express.Router();
+const equipmentService = require('../services/equipment_service.js');
 
-const express = require('express');
-const router = express.Router();
-const svc = require('../services/equipment_service.js');
+/*----------------------------------------------------------------
+  1) 설비유형(LL) 코드
+----------------------------------------------------------------*/
+router.get('/equipments/typeCode', async (_, res) => {
+  try { res.json(await equipmentService.getEquipmentTypeCodes()); }
+  catch (err) { console.error(err); res.status(500).json({ error:'설비유형 코드 조회 오류' }); }
+});
 
-//
-// ─── 장비 관련 API ─────────────────────────────────────
-//
+/*----------------------------------------------------------------
+  2) 단위(UU) 코드
+----------------------------------------------------------------*/
+router.get('/equipments/unitCode', async (_, res) => {
+  try { res.json(await equipmentService.getUnitCodes()); }
+  catch (err) { console.error(err); res.status(500).json({ error:'단위코드 조회 오류' }); }
+});
+
+/*----------------------------------------------------------------
+  ⭐️ 2-1) 적합여부(DD) 코드 – 신설
+----------------------------------------------------------------*/
+router.get('/equipments/suitableCode', async (_, res) => {
+  try { res.json(await equipmentService.getSuitableCodes()); }
+  catch (err) { console.error(err); res.status(500).json({ error:'적합여부 코드 조회 오류' }); }
+});
 
 /**
- * 1) 장비 목록 조회 (필터 포함)
- *    GET /api/equipments?code=&name=&type=&manu=
+ * 3) 설비점검 이력 조회 (특정 설비)
+ *    GET /equipments/inspectionsList/:equipment_code
+ */
+router.get('/equipments/inspectionsList/:equipment_code', async (req, res) => {
+  try {
+    const list = await equipmentService.equipmentInspectionsList(
+      req.params.equipment_code
+    );
+    res.json(list);
+  } catch (err) {
+    console.error(`GET /equipments/inspectionsList/${req.params.equipment_code} error:`, err);
+    res.status(500).json({ error: '설비점검 이력 조회 중 오류가 발생했습니다.' });
+  }
+});
+
+/**
+ * 4) 설비점검 이력 저장 (MERGE)
+ *    POST /equipments/saveInspection
+ *    body: { inspection_id?, inspection_date, inspector_id,
+ *            contents, result, equipment_code }
+ */
+router.post('/equipments/saveInspection', async (req, res) => {
+  try {
+    const result = await equipmentService.saveInspection(req.body);
+    res.json(result);
+  } catch (err) {
+    console.error('POST /equipments/saveInspection error:', err);
+    res.status(500).json({ error: '설비점검 이력 저장 중 오류가 발생했습니다.' });
+  }
+});
+
+/**
+ * 5) 설비점검 이력 삭제
+ *    POST /equipments/deleteInspection
+ *    body: { inspection_id }
+ */
+router.post('/equipments/deleteInspection', async (req, res) => {
+  try {
+    const result = await equipmentService.deleteInspection(req.body.inspection_id);
+    res.json(result);
+  } catch (err) {
+    console.error('POST /equipments/deleteInspection error:', err);
+    res.status(500).json({ error: '설비점검 이력 삭제 중 오류가 발생했습니다.' });
+  }
+});
+
+/**
+ * 6) 설비 전체조회 + 조건검색
+ *    GET /equipments?code=xxx&name=yyy&type=zzz
  */
 router.get('/equipments', async (req, res) => {
-  const { code = '', name = '', type = '', manu = '' } = req.query;
   try {
-    const list = await svc.findEquipments({ code, name, type, manu });
+    const { code = '', name = '', type = '' } = req.query;
+    const list = await equipmentService.findEquipments({ code, name, type });
     res.json(list);
   } catch (err) {
     console.error('GET /equipments error:', err);
-    res.status(500).json({ error: '장비 목록 조회 중 오류가 발생했습니다.' });
+    res.status(500).json({ error: '설비 조회 중 오류가 발생했습니다.' });
   }
 });
 
 /**
- * 2) 장비 단건 조회
- *    GET /api/equipments/:equipment_code
+ * 7) 설비 단건조회
+ *    GET /equipments/:equipment_code
  */
 router.get('/equipments/:equipment_code', async (req, res) => {
-  const code = req.params.equipment_code;
   try {
-    const eq = await svc.findEquipmentByCode(code);
-    if (!eq) return res.status(404).json({ error: '해당 장비를 찾을 수 없습니다.' });
-    res.json(eq);
+    const info = await equipmentService.findEquipment(req.params.equipment_code);
+    if (!info) {
+      return res.status(404).json({ error: '해당 설비를 찾을 수 없습니다.' });
+    }
+    res.json(info);
   } catch (err) {
-    console.error(`GET /equipments/${code} error:`, err);
-    res.status(500).json({ error: '장비 단건 조회 중 오류가 발생했습니다.' });
+    console.error(`GET /equipments/${req.params.equipment_code} error:`, err);
+    res.status(500).json({ error: '설비 단건 조회 중 오류가 발생했습니다.' });
   }
 });
 
 /**
- * 3) 장비 등록 또는 수정 (MERGE 방식)
- *    POST /api/equipments
- *    - equipment_code가 없으면 자동 생성됨
+ * 8) 설비 등록/수정 (MERGE)
+ *    POST /equipments
+ *    body: { equipment_code?, equipment_name, equipment_type,
+ *            install_date, manufacturer, next_inspection_dt,
+ *            is_suitable, unit_code, qty }
  */
 router.post('/equipments', async (req, res) => {
   try {
-    await svc.saveEquipment(req.body); // 내부에서 코드 자동 생성 처리됨
-    res.status(201).json({ message: '장비가 저장되었습니다.' });
+    const result = await equipmentService.saveEquipment(req.body);
+    res.json(result);
   } catch (err) {
     console.error('POST /equipments error:', err);
-    res.status(500).json({ error: '장비 저장 중 오류가 발생했습니다.' });
+    res.status(500).json({ error: '설비 저장 중 오류가 발생했습니다.' });
   }
 });
 
 /**
- * 4) 장비 삭제
- *    DELETE /api/equipments/:equipment_code
+ * 9) 설비 삭제
+ *    DELETE /equipments/:equipment_code
  */
 router.delete('/equipments/:equipment_code', async (req, res) => {
-  const code = req.params.equipment_code;
   try {
-    await svc.deleteEquipment(code);
-    res.json({ message: '장비가 삭제되었습니다.' });
+    const result = await equipmentService.deleteEquipment(req.params.equipment_code);
+    res.json(result);
   } catch (err) {
-    console.error(`DELETE /equipments/${code} error:`, err);
-    res.status(500).json({ error: '장비 삭제 중 오류가 발생했습니다.' });
+    console.error(`DELETE /equipments/${req.params.equipment_code} error:`, err);
+    res.status(500).json({ error: '설비 삭제 중 오류가 발생했습니다.' });
   }
 });
 
-/**
- * 5) 장비 사용여부 (is_suitable) 코드 목록 조회
- *    GET /api/equipments/suitableCodes
- */
-router.get('/equipments/suitableCodes', async (req, res) => {
-  try {
-    const list = await svc.findSuitableCodes();
-    res.json(list);
-  } catch (err) {
-    console.error('GET /equipments/suitableCodes error:', err);
-    res.status(500).json({ error: '사용여부 코드 목록 조회 중 오류가 발생했습니다.' });
-  }
-});
-
-//
-// ─── 점검 이력 관련 API ───────────────────────────────
-//
-
-/**
- * 6) 특정 장비의 점검 이력 목록 조회
- *    GET /api/equipment_inspections/:equipment_code
- */
-router.get('/equipment_inspections/:equipment_code', async (req, res) => {
-  const code = req.params.equipment_code;
-  try {
-    const list = await svc.findInspectionsByEquipment(code);
-    res.json(list);
-  } catch (err) {
-    console.error(`GET /equipment_inspections/${code} error:`, err);
-    res.status(500).json({ error: '점검 이력 조회 중 오류가 발생했습니다.' });
-  }
-});
-
-/**
- * 7) 점검 이력 단건 조회
- *    GET /api/equipment_inspections/inspection/:inspection_id
- */
-router.get('/equipment_inspections/inspection/:inspection_id', async (req, res) => {
-  const id = req.params.inspection_id;
-  try {
-    const ins = await svc.findInspectionById(id);
-    if (!ins) return res.status(404).json({ error: '해당 점검 이력을 찾을 수 없습니다.' });
-    res.json(ins);
-  } catch (err) {
-    console.error(`GET /equipment_inspections/inspection/${id} error:`, err);
-    res.status(500).json({ error: '점검 이력 단건 조회 중 오류가 발생했습니다.' });
-  }
-});
-
-/**
- * 8) 점검 이력 등록 또는 수정 (MERGE 방식)
- *    POST /api/equipment_inspections
- *    - inspection_id가 없으면 자동 생성됨
- */
-router.post('/equipment_inspections', async (req, res) => {
-  try {
-    await svc.saveInspection(req.body); // 내부에서 ID 자동 생성 처리됨
-    res.status(201).json({ message: '점검 이력이 저장되었습니다.' });
-  } catch (err) {
-    console.error('POST /equipment_inspections error:', err);
-    res.status(500).json({ error: '점검 이력 저장 중 오류가 발생했습니다.' });
-  }
-});
-
-/**
- * 9) 점검 이력 삭제
- *    DELETE /api/equipment_inspections/:inspection_id
- */
-router.delete('/equipment_inspections/:inspection_id', async (req, res) => {
-  const id = req.params.inspection_id;
-  try {
-    await svc.deleteInspection(id);
-    res.json({ message: '점검 이력이 삭제되었습니다.' });
-  } catch (err) {
-    console.error(`DELETE /equipment_inspections/${id} error:`, err);
-    res.status(500).json({ error: '점검 이력 삭제 중 오류가 발생했습니다.' });
-  }
-});
-
-//
-// ─── 라우터 내보내기 ─────────────────────────────
-//
 module.exports = router;

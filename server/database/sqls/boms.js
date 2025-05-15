@@ -32,10 +32,10 @@ INSERT INTO boms (bom_id, item_code, item_name, registered_date)
 SELECT
   CONCAT(
     'BOM',
-    DATE_FORMAT(CURDATE(), '%Y%m%d'),
+    DATE_FORMAT(CURDATE(), '%y%m%d'),
     LPAD(
       COALESCE(
-        MAX(CAST(SUBSTRING(bom_id, 12, 3) AS UNSIGNED)),
+        MAX(CAST(SUBSTRING(bom_id, 10, 3) AS UNSIGNED)),  -- BOM250515001 → 10번째부터 3자리
         0
       ) + 1,
       3,
@@ -46,6 +46,7 @@ SELECT
   ?,  -- item_name
   NOW()
 FROM boms
+WHERE bom_id LIKE CONCAT('BOM', DATE_FORMAT(CURDATE(), '%y%m%d'), '%')
 `;
 
 // 4) 수정 (UPDATE)

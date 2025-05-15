@@ -220,4 +220,12 @@ export default {
 <style scoped>
 /* 🔹 리스트 선택 행 색상 */
 .table-active { background-color:#d0ebff; }
+
+/* 🔹 헤더를 카드 내부 스크롤 영역 상단에 고정 + 겹침 방지 */
+.table thead th {
+  position: sticky;   /* 스크롤해도 고정 */
+  top: 0;             /* 카드(body) 최상단에 붙이기 */
+  z-index: 5;         /* 데이터 행 위에 올라오도록 */
+  background:#f8f9fa; /* 헤더 배경(부트스트랩 thead-light 색) */
+}
 </style>
