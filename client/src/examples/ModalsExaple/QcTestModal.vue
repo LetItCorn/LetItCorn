@@ -8,7 +8,7 @@
         <div class="col-1">
         </div>
       </div>
-      <AgGridVue :rowData="rowData" :columnDefs="colDef" class="ag-theme-alpine" style="height: 50vh;" :singleClickEdit="true"/>
+      <AgGridVue :rowData="rowData" :columnDefs="colDef" class="ag-theme-alpine" style="height: 50vh;" :singleClickEdit="true" @cell-value-changed="resQc" />
       <button class="btn btn-info" @click="confirmQc">결과 등록</button>
     </div>
   </div>
@@ -26,6 +26,7 @@ import {
   mapState
 } from 'pinia';
 import axios from 'axios';
+import { checkQc } from '@/utils/checkQc';
 export default {
   props: ['visible'],
   components: {
@@ -38,12 +39,8 @@ export default {
       colDef: [{  field: 'test_no',  headerName: '검사번호',  flex: 1 },
       { field: 'test_feild', headerName: '검사항목', flex: 1 },
       { field: 'test_stand', headerName: '검사기준', flex: 1 },
-      { field: 'pr_status', headerName: '측정값', flex: 1},
-      { field: 'test_res',  headerName: '결과', flex: 1,  editable: true, // 셀 편집 가능하게 설정
-    cellEditor: 'agSelectCellEditor',
-    cellEditorParams: {
-      values: ['합격', '불합격']
-    }},
+      { field: 'pr_status', headerName: '측정값', flex: 1, editable: true,},
+      { field: 'test_res',  headerName: '결과', flex: 1},
       ]
     }
   },
@@ -57,6 +54,13 @@ export default {
     },
     confirmQc() {
       this.$emit('modalClose')
+    },
+    resQc(event) {
+      console.log(event);
+      let res = checkQc(event.data.pr_status,event.data.test_stand) 
+      console.log(res);
+      // console.log(this.rowData[event.rowIndex]);
+      this.rowData[event.rowIndex].test_res = res
     }
   },
   computed: {

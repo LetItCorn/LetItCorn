@@ -69,10 +69,9 @@ WHERE lot_cnt = ?
 const getQcTest = `
   SELECT  test_no
          ,test_feild
-         ,test_res
-         ,test_stat
-         ,test_etc
+         ,'' AS 
          ,test_stand
+         ,'' AS test_res
   FROM test_qc
   WHERE test_target = ?
 `

@@ -1,8 +1,13 @@
 const checkQc = function(value,stand){
   let bound = stand.split('~')
-    if(value>bound[0] && value<bound[1]){
+  console.log(bound);
+  console.log(value);
+    if(parseFloat(value)>=parseFloat(bound[0]) && parseFloat(value)<=parseFloat(bound[1])){
       return 'pass'
     }else{
       return 'fail'
     }
 }
+module.exports = {
+  checkQc
+};
