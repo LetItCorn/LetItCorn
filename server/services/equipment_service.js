@@ -169,7 +169,7 @@ const saveInspection = async (inspection) => {
   try {
     // 신규 ID 자동생성
     if (!inspection.inspection_id) {
-      const rows = await mariaDB.query('inspectionNextId');
+      const rows = await mariaDB.query('inspectionNextId');  // ← 그대로 유지
       inspection.inspection_id = rows[0]?.next_id;
       if (!inspection.inspection_id) throw new Error('점검ID 자동생성 실패');
     }
@@ -183,7 +183,10 @@ const saveInspection = async (inspection) => {
       inspection.equipment_code
     ];
 
-    return await mariaDB.query('insertInspection', params);
+    await mariaDB.query('insertInspection', params);
+
+    // ⭐ 반드시 새 ID를 반환한다!
+    return inspection.inspection_id;
   } catch (err) {
     console.error('saveInspection error', err);
     throw err;

@@ -52,8 +52,10 @@ router.get('/equipments/inspectionsList/:equipment_code', async (req, res) => {
  */
 router.post('/equipments/saveInspection', async (req, res) => {
   try {
-    const result = await equipmentService.saveInspection(req.body);
-    res.json(result);
+    // 서비스에서 inspection_id를 돌려받음
+    const nextId = await equipmentService.saveInspection(req.body);
+    // ⭐ { next_id } 형태로 응답
+    res.json({ next_id: nextId });
   } catch (err) {
     console.error('POST /equipments/saveInspection error:', err);
     res.status(500).json({ error: '설비점검 이력 저장 중 오류가 발생했습니다.' });

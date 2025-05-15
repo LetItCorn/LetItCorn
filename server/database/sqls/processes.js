@@ -1,3 +1,12 @@
+// server/database/sqls/processes.js
+
+// 공통코드 가져오기
+const unitCode = `
+  SELECT code_name, code_values
+  FROM common_codes
+  WHERE code_group = 'UU'
+`;
+
 // 1) 전체 조회
 const processList = `
   SELECT process_code
@@ -86,6 +95,7 @@ const selectPrecessProcessCode = `
 `;
 
 module.exports = {
+  unitCode,
   processList,
   processListByCode,
   processListByName,

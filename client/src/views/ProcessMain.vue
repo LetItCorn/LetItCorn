@@ -91,8 +91,8 @@
                 <label class="form-label">단위</label>
                 <select v-model="selected.unit_code" class="form-select form-select-sm">
                   <option value="">선택</option>
-                  <option v-for="u in unitList" :key="u.code_values" :value="u.code_values">
-                    {{ u.code_name }}
+                  <option v-for="unit in unitList" :key="unit.code_values" :value="unit.code_values">
+                    {{ unit.code_name }}
                   </option>
                 </select>
               </div>
@@ -147,13 +147,13 @@ export default {
     this.loadProcesses();
     this.loadUnitCodes();
   },
-  watch: {
-    /* 단위코드가 변경되면 spec(단위 “이름”) 자동 반영 --------------------- */
-    'selected.unit_code'(val) {
-      const unit = this.unitList.find(u => u.code_values === val);
-      this.selected.spec = unit ? unit.code_name : '';
-    }
-  },
+  // watch: {
+  //   /* 단위코드가 변경되면 spec(단위 “이름”) 자동 반영 --------------------- */
+  //   'selected.unit_code'(val) {
+  //     const unit = this.unitList.find(u => u.code_values === val);
+  //     this.selected.spec = unit ? unit.code_name : '';
+  //   }
+  // },
   methods: {
     /* ============================== 조회 ============================== */
     async loadProcesses() {
@@ -172,7 +172,7 @@ export default {
     },
     async loadUnitCodes() {
       try {
-        const { data } = await axios.get('/api/materials/unitCode'); // UU 공통코드 재사용
+        const { data } = await axios.get('/api/processes/unitCode'); // UU 공통코드 재사용
         this.unitList = data;
       } catch (err) {
         console.error('loadUnitCodes error', err);
@@ -187,6 +187,15 @@ export default {
       this.selected = {
         process_code: '', process_name: '', duration_min: 0, unit_code: '', spec: ''
       };
+    },
+        async unitCode() {
+      try {
+        const res = await axios.get('/api/processes/unitCode');
+        this.unitList = res.data;
+      } catch (err) {
+        console.error('unitCode error', err);
+        this.unitList = [];
+      }
     },
 
     /* ============================== CRUD ============================== */

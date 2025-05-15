@@ -2,6 +2,16 @@
 
 const mariaDB = require('../database/mapper.js');
 
+// 단위코드(공통코드 UU) 가져오기
+const unitCode = async () => {
+  try {
+    return await mariaDB.query('unitCode');
+  } catch (err) {
+    console.error('unitCode error', err);
+    return [];
+  }
+};
+
 /**
  * 1) 전체조회: 조건 없이 모든 공정 조회
  */
@@ -122,6 +132,7 @@ const deleteProcess = async (processCode) => {
 };
 
 module.exports = {
+  unitCode,
   findProcesses,
   findProcessesByCode,
   findProcessesByName,
