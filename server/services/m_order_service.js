@@ -1,18 +1,18 @@
 // server/services/m_order_service.js
 const { getConnection, selectedQuery, query } = require('../database/mapper');
 
-/** 전체 발주서 + 상세 JOIN */
+// 전체 발주서 + 상세 JOIN 
 async function findAllMOrders() {
   return await query('selectMOrderList', []);
 }
 
-/** 단건 헤더 */
+// 단건 헤더 
 async function findMOrderById(moder_id) {
   const rows = await query('selectMOrderOne', [ moder_id ]);
   return rows[0] || null;
 }
 
-/** 헤더 + 상세 */
+// 헤더 + 상세 
 async function getMOrderWithDetails(moder_id) {
   const header = await findMOrderById(moder_id);
   if (!header) return null;
@@ -20,13 +20,13 @@ async function getMOrderWithDetails(moder_id) {
   return { header, details };
 }
 
-/** 등록 */
+// 등록 
 async function createMOrderWithDetails(header, details) {
   const conn = await getConnection();
   try {
     await conn.beginTransaction();
 
-    /* 1) 헤더 INSERT  */
+    // 헤더 INSERT 
     const headerParams = [
       header.moder_id,
       header.moder_date,     
@@ -47,7 +47,7 @@ async function createMOrderWithDetails(header, details) {
       headerParams
     );
 
-    /* 2) 상세 INSERT 반복 */
+    // 2 상세 INSERT 반복 
     for (const d of details) {
       const detailParams = [
         header.moder_id,
