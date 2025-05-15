@@ -26,7 +26,8 @@
     </div>
 
     <div class="col-4 d-flex align-items-center justify-content-center">
-  <button class="btn btn-warning py-5 px-5">품질검사</button>
+  <button class="btn btn-warning py-5 px-5" @click="showModal = true">품질검사</button>
+<QcTestModal :visible="showModal" @modalClose="showModal = false" />
 </div>
   </div>
 </template>
@@ -36,21 +37,27 @@
   } from '@/store/processStat';
   import { useUserStore } from '@/store/user';
   import {
+    mapActions,
     mapState
   } from 'pinia';
   import axios from 'axios';
+  import QcTestModal from '@/examples/ModalsExaple/QcTestModal.vue';
   export default {
     emits : ['setRow'],
-    components: {},
+    components: {
+      QcTestModal
+    },
     data() {
       return {
-        manuFac: 0,
-        manuErr: 0
+        manuFac : 0,
+        manuErr : 0,
+        showModal : false,
       };
     },
     created() {},
     mounted() {},
     methods: {
+      ...mapActions(useProcess,['setInst']),
      async  saveBtn(){
       // 저장버튼 클릭시 상기 정보를 공정 상세 테이블에 저장
         // console.log(this.processes);
@@ -65,18 +72,24 @@
         data.sta_time = this.getTime()
         data.end_time = this.getTime(this.processes.duration_min)
         data.pr_status = '종료'
+        // console.log('공정');
+        // console.log(this.inst);
         Object.assign(comData,this.processes,this.inst)
         console.log(comData);
         comData.userId= this.userId
         comData.flowLength = this.flowLength
         // Grid 업데이트를 위한 정보
         this.$emit('setRow',data)
-        console.log(data);
+        // console.log(data);
         let res = await axios.post(`/api/regPrLog`,comData)
                               .catch(err=>{
                                 console.log(err);
                               })
-        console.log(res);
+        // console.log('결과');
+        // console.log(res);
+        this.inst.p_log_no = res.data.p_log_no
+        this.setInst(this.inst)
+        // console.log(this.inst);
         this.manuErr = 0
         this.manuFac = 0
       },
