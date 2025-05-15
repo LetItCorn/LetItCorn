@@ -5,7 +5,7 @@
         <h2>거래처 목록</h2>
       </div>
       <div class="action-buttons">
-        <button class="btn btn-reroad" @click="fetchAllCustomer">새로고침</button>
+        <button class="btn btn-reroad" @click="fetchAllCustomer">초기화</button>
         <button class="btn btn-select" @click="showSearchModal">조회</button>
         <button class="btn btn-update" @click="confirmUpdate">수정</button>
         <button class="btn btn-delete" @click="confirmDelete">삭제</button>
@@ -177,7 +177,7 @@
               </option>
             </select>
           </div>
-          <button class="btn btn-primary" @click="insertCustomer" id="modal-insert-btn">등록</button>
+          <button class="btn btn-primary" @click="registerCustomer" id="modal-insert-btn">등록</button>
         </div>
       </div>
     </div>
@@ -226,6 +226,7 @@
         clientEmail: '',
         clientAddress: '',
         clientMgr: '',
+        codeValues: '',
         codeName: '',
       },
       selectedclienttype: '',
@@ -257,11 +258,11 @@
         }));
         this.originalCustomer = [...this.customer];
       } catch (error) {
-        console.error('주문서 데이터를 가져오는 중 오류 발생:', error);
+        console.error('거래처 데이터를 가져오는 중 오류 발생:', error);
         Swal.fire({
           icon: 'error',
           title: '데이터 로딩 실패',
-          text: '주문서 목록을 불러오는데 실패했어요.'
+          text: '거래처 목록을 불러오는데 실패했어요.'
         });
       }
     },
@@ -340,12 +341,13 @@
         Swal.fire({
           icon: 'error',
           title: '데이터 로딩 실패',
-          text: '거래처 유형을 불러오는데 실패했습니다.'
+          text: '거래처 유형을 불러오는데 실패했어요.'
         });
       }
     },
     handleClientTypeChange() {
       if (this.selectedclienttype) {
+        this.insertParams.codeValues = this.selectedclienttype.code_values;
         this.insertParams.codeName = this.selectedclienttype.code_name;
       } else {
         this.insertParams.codeName = '';
@@ -429,12 +431,14 @@
     },
     resetUpdateParams() {
       this.updateParams = {
-        sorderCode: '',
+        clientCode: '',
         clientName: '',
+        clientCeo: '',
+        clientPhone: '',
+        clientEmail: '',
+        clientAddress: '',
         clientMgr: '',
-        itemName: '',
-        sorderCount: '',
-        deliveryDate: ''
+        codeName: '',
       };
     },
     confirmDelete() {
@@ -473,7 +477,7 @@
         Swal.fire({
           icon: 'success',
           title: '삭제 완료',
-          text: '선택한 주문서가 삭제되었어요.'
+          text: '선택한 거래처가 삭제되었어요.'
         });
         
         // 목록 새로고침
@@ -483,14 +487,74 @@
         Swal.fire({
           icon: 'error',
           title: '삭제 실패',
-          text: '주문서 삭제에 실패했어요.'
+          text: '거래처 삭제에 실패했어요.'
         });
       }
     },
-    insertSqt() {
-      this.$router.push({ 
-        name: 'InsertSqt' 
-      });
+    // 거래처 등록
+    async registerCustomer() {
+      // 필수 항목 검증
+      if (!this.validateForm()) {
+        return;
+      }
+
+      let obj ={
+        client_code:this.insertParams.clientCode,
+        client_name:this.insertParams.clientName,
+        client_ceo:this.insertParams.clientCeo,
+        client_phone:this.insertParams.clientPhone,
+        client_email:this.insertParams.clientEmail,
+        client_address:this.insertParams.clientAddress,
+        client_mgr:this.insertParams.clientMgr,
+        code_values:this.insertParams.codeValues
+      }
+
+      console.log(obj);
+      
+      try {
+        let response = await axios.post('/api/customer', obj);
+        
+        let addRes = response.data;
+        console.log(addRes);
+        if(addRes.isSuccessed) {
+          Swal.fire({
+            icon: 'success',
+            title: '등록 완료',
+            text: '거래처가 성공적으로 등록되었어요.'
+          });
+        } else {
+          console.log("등록 실패: ", response.data);
+          Swal.fire({
+            icon: 'error',
+            title: '등록 실패',
+            text: '거래처가 등록 실패되었어요.'
+          });
+        }
+        this.insertModalVisible = false;
+
+        // 목록 새로고침
+        this.fetchAllCustomer();
+      } catch (error) {
+        console.error('거래처 등록 중 오류 발생:', error);
+        Swal.fire({
+          icon: 'error',
+          title: '등록 실패',
+          text: '거래처가 등록 실패되었어요.'
+        });
+      }
+    },
+    // 폼 유효성 검사
+    validateForm() {
+      
+      if (!this.insertParams.codeName) {
+        Swal.fire({
+          icon: 'warning',
+          title: '입력 오류',
+          text: '거래처 유형을 선택해주세요.'
+        });
+        return false;
+      }
+      return true;
     },
     // 배경 클릭 시에만 모달 닫기
     closeModalOnBackgroundClick(event) {

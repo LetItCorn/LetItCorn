@@ -118,7 +118,7 @@ export default {
         Swal.fire({
           icon: 'error',
           title: '데이터 로딩 실패',
-          text: '거래처 목록을 불러오는데 실패했습니다.'
+          text: '거래처 목록을 불러오는데 실패했어요.'
         });
       }
     },
@@ -132,7 +132,7 @@ export default {
         Swal.fire({
           icon: 'error',
           title: '데이터 로딩 실패',
-          text: '품목 목록을 불러오는데 실패했습니다.'
+          text: '품목 목록을 불러오는데 실패했어요.'
         });
       }
     },
@@ -187,7 +187,7 @@ export default {
           Swal.fire({
             icon: 'success',
             title: '등록 완료',
-            text: '주문서가 성공적으로 등록되었습니다.'
+            text: '주문서가 성공적으로 등록되었어요.'
           });
           this.goBack();
         } else {
@@ -195,7 +195,7 @@ export default {
           Swal.fire({
             icon: 'error',
             title: '등록 실패',
-            text: '주문서 등록 실패'
+            text: '주문서 등록을 실패했어요.'
           });
         }
       } catch (error) {
@@ -203,7 +203,7 @@ export default {
         Swal.fire({
           icon: 'error',
           title: '등록 실패',
-          text: '주문서 등록에 실패했습니다.'
+          text: '주문서 등록을 실패했어요.'
         });
       }
     },
@@ -227,11 +227,11 @@ export default {
         return false;
       }
       
-      if (!this.orderData.sorderCount || this.orderData.sorderCount < 1) {
+      if (!this.orderData.sorderCount || this.orderData.sorderCount <= 100) {
         Swal.fire({
           icon: 'warning',
           title: '입력 오류',
-          text: '주문수량을 1 이상으로 입력해주세요.'
+          text: '주문수량을 최소 100개 이상으로 입력해주세요.'
         });
         return false;
       }

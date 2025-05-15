@@ -10,7 +10,7 @@
         <button class="btn btn-select" @click="showSearchModal">조회</button> <!-- 조회 modal -->
         <button class="btn btn-update" @click="confirmUpdate">수정</button> <!-- 수정 modal // confirmUpdate => showUpdateModal => searchSalesOrders -->
         <button class="btn btn-delete" @click="confirmDelete">삭제</button>
-        <button class="btn btn-outline" @click="insertSqt">출고량 등록</button> <!-- shipment quantity 출고량 -->
+        <button class="btn btn-outline" @click="insertSqt">출고</button> <!-- shipment quantity 출고량 -->
       </div>
     </div>
     
@@ -428,19 +428,9 @@ export default {
       }
     },
     insertSqt() {
-      // const selectedOrders = this.salesOrders.filter(order => order.selected);
       
-      // if (selectedOrders.length !== 1) {
-      //   Swal.fire({
-      //     icon: 'warning',
-      //     title: '출고량을 등록할 주문서 체크가 빠진 것 같아요.',
-      //     text: '출고량을 등록할 주문서를 하나만 선택해주세요.'
-      //   });
-      //   return;
-      // }
       this.$router.push({ 
-        name: 'InsertSqt', 
-        //params: { id : selectedOrders[0].sorder_code } 
+        name: 'InsertSqt' 
       });
     },
     // 배경 클릭 시에만 모달 닫기
@@ -552,9 +542,9 @@ export default {
 }
 
 .btn-outline {
-  background-color: #fbff00 !important;
-  color: #000 !important;
-  width: 150px !important;
+  background-color: #ff9100 !important;
+  color: #fff !important;
+  width: 100px !important;
   border: none !important;
 }
 
