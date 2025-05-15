@@ -86,20 +86,6 @@ const removeSalesOrder = async (orderCode) => {
     return { success: true, message: '주문서가 삭제되었습니다.' };
 };
 
-// 거래처 목록 조회
-const findAllClients = async () => {
-    let clients = await mariadb.query('selectClientList')
-        .catch(err => console.error(err));
-    return clients;
-};
-
-// 품목 목록 조회
-const findAllItems = async () => {
-    let items = await mariadb.query('selectItemList')
-        .catch(err => console.error(err));
-    return items;
-};
-
 // 정렬 기능
 const findSalesOrdersBySort = async (sortType) => {
     let query;
@@ -135,7 +121,5 @@ module.exports = {
     findSalesOrdersByCondition,
     updateSalesOrderInfo,
     removeSalesOrder,
-    findAllClients,
-    findAllItems,
     findSalesOrdersBySort
 };
