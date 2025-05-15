@@ -8,7 +8,7 @@
 
       <div class="date-range">
         <label>작성일자</label>
-        <Datepicker v-model="startDate" :format="'yy-MM-dd'" />
+         <Datepicker v-model="startDate" :format="'yy-MM-dd'" />
         <span>~</span>
         <Datepicker v-model="endDate" :format="'yy-MM-dd'" />
       </div>
@@ -46,8 +46,8 @@ import Swal from "sweetalert2";
 const instStore = useInstStore();
 const { planModalData } = storeToRefs(instStore);
 // 날짜 검색 조건
-const startDate = ref("");
-const endDate = ref("");
+const startDate = ref(dayjs().subtract(7, "day").toDate());
+const endDate = ref(dayjs().toDate());
 // 그리드 데이터와 컬럼 정의
 const gridRef = ref(null);        // 원래 AgGridVue 컴포넌트를 참조
 const gridApi = ref(null);        // 여기에는 API만 저장
