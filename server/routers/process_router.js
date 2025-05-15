@@ -1,3 +1,5 @@
+// // server/routers/process_router.js
+
 const express = require('express');
 const router = express.Router();
 const processService = require('../services/process_service.js');
@@ -39,6 +41,20 @@ router.get('/processes/:process_code', async (req, res) => {
   } catch (err) {
     console.error(`GET /processes/${processCode} error`, err);
     res.status(500).json({ error: '공정 조회 실패' });
+  }
+});
+
+/**
+ * 2-1) 단위코드(공통코드 UU) 조회
+ *    GET /items/unitCode
+ */
+router.get('/processes/unitCode', async (req, res) => {
+  try {
+    const unitList = await processService.unitCode();
+    res.json(unitList);
+  } catch (err) {
+    console.error('GET /processes/unitCode error:', err);
+    res.status(500).json({ error: '단위코드 조회 중 오류가 발생했습니다.' });
   }
 });
 

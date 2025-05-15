@@ -224,18 +224,23 @@ const equipmentNextCode = `
   WHERE SUBSTRING(equipment_code, 3, 6) = DATE_FORMAT(NOW(), '%y%m%d')
 `;
 
-// 6-b) 신규 점검ID 생성용 (예: 'INS000001' ...)
+// 6-b) 신규 점검ID 생성용 (예: 'INS250515011' – YYMMDD + 3자리)
 const inspectionNextId = `
-  SELECT
-    CONCAT(
-      'INS',
-      LPAD(
-        IFNULL(MAX(CAST(SUBSTRING(inspection_id, 4) AS UNSIGNED)), 0) + 1,
-        6,
-        '0'
-      )
-    ) AS next_id
+  SELECT CONCAT(
+           'INS',
+           DATE_FORMAT(NOW(), '%y%m%d'),
+           LPAD(
+             IFNULL(
+               MAX(
+                 CAST(SUBSTRING(inspection_id, 10) AS UNSIGNED)   -- 뒤 3자리
+               ), 0
+             ) + 1,
+             3,
+             '0'
+           )
+         ) AS next_id
   FROM equipment_inspections
+  WHERE SUBSTRING(inspection_id, 4, 6) = DATE_FORMAT(NOW(), '%y%m%d')
 `;
 
 // ─────────────────────────────────────────────

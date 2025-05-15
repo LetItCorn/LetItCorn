@@ -228,16 +228,14 @@ export default {
       searchValue: '',
       employeeList: [],
       selected: {},
-      codeList:[],
-      workList:[],
+      codeList: [],
+      workList: [],
     };
   },
   computed: {
-    // 총 사원 수
     count() {
       return this.employeeList.length;
     },
-    // 검색창 placeholder
     filterPlaceholder() {
       switch (this.searchType) {
         case 'id': return '사원ID';
@@ -251,85 +249,58 @@ export default {
     this.loadEmployees();
   },
   methods: {
-    // 서버에서 리스트 불러오기 (필터 적용)
     async loadEmployees() {
       const params = {
         empId: this.searchType === 'id' ? this.searchValue : '',
-        name:  this.searchType === 'name' ? this.searchValue : '',
-        userId:this.searchType === 'user' ? this.searchValue : ''
+        name: this.searchType === 'name' ? this.searchValue : '',
+        userId: this.searchType === 'user' ? this.searchValue : ''
       };
       try {
         const res = await axios.get('/api/employees', { params });
         this.employeeList = res.data;
         this.clearDetail();
-
-        
       } catch (err) {
         console.error('loadEmployees error', err);
         this.employeeList = [];
       }
 
-      try{
-        const codeList = await axios.get('/api/employees/userCode');        
+      try {
+        const codeList = await axios.get('/api/employees/userCode');
         this.codeList = codeList.data;
-      }catch(err){
+      } catch (err) {
         console.error('loadEmployees error', err);
         this.codeList = [];
       }
 
-      try{
-        const workList = await axios.get('/api/employees/workCode');        
-        this.workList = workList.data;        
-      }catch(err){
+      try {
+        const workList = await axios.get('/api/employees/workCode');
+        this.workList = workList.data;
+      } catch (err) {
         console.error('loadEmployees error', err);
-        this.codeList = [];
+        this.workList = [];
       }
-
-
     },
-    // 필터 초기화
     resetFilter() {
       this.searchType = '';
       this.searchValue = '';
       this.loadEmployees();
     },
-    // 리스트 행 클릭
     selectEmp(emp) {
       this.selected = { ...emp };
     },
-    // 상세 초기화
     clearDetail() {
-      this.selected = {mode:'reg'};
+      this.selected = { mode: 'reg' };
     },
-    // 등록
     async onCreate() {
       try {
         const emp = this.selected;
 
-        if (!emp.emp_name) {
-          alert('이름을 입력하세요.');
-          return;
-        }
-        if (!emp.user_id) {
-          alert('사용자 ID를 입력하세요.');
-          return;
-        }
-        if (!emp.user_passd) {
-          alert('비밀번호를 입력하세요.');
-          return;
-        }
-        if (!emp.role_code) {
-          alert('권한 코드를 선택하세요.');
-          return;
-        }
-        if (!emp.status_code) {
-          alert('상태 코드를 선택하세요.');
-          return;
-        }
-        if (!emp.hire_date) {
-          alert('입사일을 선택하세요.');
-          return;
-        }
+        if (!emp.emp_name) return alert('이름을 입력하세요.');
+        if (!emp.user_id) return alert('사용자 ID를 입력하세요.');
+        if (!emp.user_passd) return alert('비밀번호를 입력하세요.');
+        if (!emp.role_code) return alert('권한 코드를 선택하세요.');
+        if (!emp.status_code) return alert('상태 코드를 선택하세요.');
+        if (!emp.hire_date) return alert('입사일을 선택하세요.');
 
         await axios.post('/api/employees', this.selected);
         await this.loadEmployees();
@@ -337,7 +308,6 @@ export default {
         console.error('onCreate error', err);
       }
     },
-    // 수정
     async onUpdate() {
       if (!this.selected.emp_id) return;
       try {
@@ -347,9 +317,13 @@ export default {
         console.error('onUpdate error', err);
       }
     },
-    // 삭제
     async onDelete() {
       if (!this.selected.emp_id) return;
+      
+      // 🔽 확인창 추가
+      const confirmDelete = confirm('정말 삭제하시겠습니까?');
+      if (!confirmDelete) return;
+
       try {
         await axios.delete(`/api/employees/${this.selected.emp_id}`);
         await this.loadEmployees();
@@ -357,7 +331,6 @@ export default {
         console.error('onDelete error', err);
       }
     },
-    // 날짜 포맷터
     formatDate(val) {
       if (!val) return '';
       const d = new Date(val);
