@@ -1,186 +1,323 @@
 <!-- src/views/Equipment.vue -->
 <template>
-  <div class="container-fluid p-0" style="height:100vh">
-    <!-- ───────── 1) 상단 필터 바 ───────── -->
-    <div class="row m-0" style="height:10vh">
-      <div class="col-12 h-100">
-        <div class="card h-100 position-relative">
-          <div class="card-body p-0">
-            <div class="position-absolute top-0 end-0 d-flex align-items-center" style="margin:.5rem; z-index:1000">
-              <!-- 필터 선택 -->
-              <select v-model="searchType" class="form-control form-control-sm me-2" style="width:120px">
-                <option value="">[전체]</option>
-                <option value="code">코드</option>
-                <option value="name">명칭</option>
-                <option value="type">유형</option>
-                <option value="manu">제조사</option>
+  <div class="container-fluid vh-100 py-3 d-flex flex-column">
+    <!-- 1) 상단 조회·필터 바 ------------------------------------------------ -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body d-flex align-items-center">
+            <div class="ms-auto d-flex align-items-center">
+              <select
+                v-model="searchType"
+                class="form-select form-select-sm me-2"
+                style="width:140px"
+              >
+                <option value="">[선택 없음]</option>
+                <option value="code">장비코드</option>
+                <option value="name">장비명</option>
+                <option value="type">유형코드</option>
               </select>
-              <!-- 필터 입력 -->
-              <input v-model="searchValue" :placeholder="filterPlaceholder"
-                     class="form-control form-control-sm me-2" style="width:200px">
-              <!-- 버튼 -->
-              <button @click="loadEquipments"  class="btn btn-sm btn-outline-primary me-1" style="width:80px;height:32px">조회</button>
-              <button @click="resetFilter"      class="btn btn-sm btn-outline-secondary"  style="width:80px;height:32px">초기화</button>
+              <input
+                v-model="searchValue"
+                :placeholder="filterPlaceholder"
+                class="form-control form-control-sm me-2"
+                style="width:200px"
+              />
+              <button
+                @click="loadEquipments"
+                class="btn btn-sm btn-primary me-2"
+                style="width:80px"
+              >
+                조회
+              </button>
+              <button
+                @click="resetFilter"
+                class="btn btn-sm btn-outline-secondary"
+                style="width:80px"
+              >
+                초기화
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ───────── 2) 하단 영역 ───────── -->
-    <div class="row g-3 m-0" style="height:90vh">
-      <!-- 2‑1) 장비 리스트 -->
+    <!-- 2) 하단: 리스트(좌) / 상세+이력(우) ----------------------------------- -->
+    <div class="row flex-grow-1 gx-3">
+      <!-- 좌측: 장비 리스트 ------------------------------------------------ -->
       <div class="col-md-8 h-100">
         <div class="card h-100">
-          <div class="card-body d-flex flex-column p-2">
-            <div class="table-responsive flex-fill overflow-auto">
-              <table class="table table-hover table-sm mb-0">
-                <thead class="thead-light sticky-top">
-                  <tr>
-                    <th>코드</th><th>명칭</th><th>유형</th><th>설치일</th><th>제조사</th>
-                    <th>다음점검</th><th>수량</th><th>단위</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="eq in equipmentList" :key="eq.equipment_code"
-                      @click="selectEquipment(eq)"
-                      :class="{ 'table-active': isSelected(eq) }"
-                      style="cursor:pointer">
-                    <td>{{ eq.equipment_code }}</td>
-                    <td>{{ eq.equipment_name }}</td>
-                    <td>{{ eq.equipment_type }}</td>
-                    <td>{{ fmt(eq.install_date) }}</td>
-                    <td>{{ eq.manufacturer }}</td>
-                    <td>{{ fmt(eq.next_inspection_dt) }}</td>
-                    <td>{{ eq.qty }}</td>
-                    <td>{{ eq.spec }}</td>
-                  </tr>
-                  <tr v-if="equipmentList.length === 0">
-                    <td colspan="8" class="text-center py-4">데이터가 없습니다.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="mt-2 d-flex justify-content-end">
-              <button @click="openEqModal"   class="btn btn-sm btn-warning me-1" style="width:80px;height:32px">등록</button>
-              <button @click="deleteEquipment" class="btn btn-sm btn-danger"  style="width:80px;height:32px"
-                      :disabled="!selectedEquipment.equipment_code">삭제</button>
-            </div>
+          <div class="card-header">
+            장비 리스트 ({{ equipmentList.length }})
+          </div>
+          <div class="card-body p-0 overflow-auto">
+            <table class="table table-hover table-sm mb-0">
+              <thead class="thead-light sticky-top">
+                <tr>
+                  <th>코드</th>
+                  <th>장비명</th>
+                  <th>유형</th>
+                  <th>설치일</th>
+                  <th>제조사</th>
+                  <th>다음점검</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="eq in equipmentList"
+                  :key="eq.equipment_code"
+                  @click="selectEq(eq)"
+                  :class="{ 'table-active': eq.equipment_code === selected.equipment_code }"
+                  style="cursor:pointer"
+                >
+                  <td>{{ eq.equipment_code }}</td>
+                  <td>{{ eq.equipment_name }}</td>
+                  <td>{{ eq.type_name || eq.equipment_type }}</td>
+                  <td>{{ formatDate(eq.install_date) }}</td>
+                  <td>{{ eq.manufacturer }}</td>
+                  <td>{{ formatDate(eq.next_inspection_dt) }}</td>
+                </tr>
+                <tr v-if="equipmentList.length === 0">
+                  <td colspan="6" class="text-center py-4">데이터가 없습니다.</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <!-- 2‑2) 점검 이력 리스트 -->
-      <div class="col-md-4 h-100">
-        <div class="card h-100">
-          <div class="card-body d-flex flex-column p-2">
-            <div class="table-responsive flex-fill overflow-auto">
-              <table class="table table-hover table-sm mb-0">
-                <thead class="thead-light sticky-top">
-                  <tr><th>점검일</th><th>점검자</th><th>결과</th></tr>
-                </thead>
-                <tbody>
-                  <tr v-for="ins in inspectionList" :key="ins.inspection_id"
-                      @click="selectInspection(ins)"
-                      :class="{ 'table-active': isInspectionSelected(ins) }"
-                      style="cursor:pointer">
-                    <td>{{ fmt(ins.inspection_date) }}</td>
-                    <td>{{ ins.inspector_id }}</td>
-                    <td>{{ ins.result }}</td>
-                  </tr>
-                  <tr v-if="!selectedEquipment.equipment_code">
-                    <td colspan="3" class="text-center py-4">장비를 선택하세요.</td>
-                  </tr>
-                  <tr v-else-if="inspectionList.length === 0">
-                    <td colspan="3" class="text-center py-4">점검 이력이 없습니다.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="mt-2 d-flex justify-content-end">
-              <button @click="openInsModal"   class="btn btn-sm btn-warning me-1" style="width:80px;height:32px"
-                      :disabled="!selectedEquipment.equipment_code">등록</button>
-              <button @click="deleteInspection" class="btn btn-sm btn-danger"  style="width:80px;height:32px"
-                      :disabled="!selectedInspection.inspection_id">삭제</button>
+      <!-- 우측: 상세 + 점검 이력 -------------------------------------------- -->
+      <div class="col-md-4 h-100 d-flex flex-column">
+        <!-- 상세 카드 ---------------------------------------------------- -->
+        <div class="card flex-grow-1 mb-2">
+          <div class="card-header">장비 상세 정보</div>
+          <div class="card-body overflow-auto">
+            <table class="table table-borderless mb-3">
+              <tbody>
+                <tr>
+                  <th>코드</th>
+                  <td>
+                    <input
+                      v-model="selected.equipment_code"
+                      class="form-control form-control-sm"
+                      readonly
+                      placeholder="자동 생성"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th>장비명</th>
+                  <td>
+                    <input
+                      v-model="selected.equipment_name"
+                      class="form-control form-control-sm"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th>유형코드</th>
+                  <td>
+                    <select
+                      v-model="selected.equipment_type"
+                      class="form-select form-select-sm"
+                    >
+                      <option value="">선택</option>
+                      <option
+                        v-for="code in typeList"
+                        :key="code.code_values"
+                        :value="code.code_values"
+                      >
+                        {{ code.code_name }}
+                      </option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th>설치일</th>
+                  <td>
+                    <input
+                      v-model="selected.install_date"
+                      type="date"
+                      class="form-control form-control-sm"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th>제조사</th>
+                  <td>
+                    <input
+                      v-model="selected.manufacturer"
+                      class="form-control form-control-sm"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th>다음점검일</th>
+                  <td>
+                    <input
+                      v-model="selected.next_inspection_dt"
+                      type="date"
+                      class="form-control form-control-sm"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th>적합여부</th>
+                  <td>
+                    <select
+                      v-model="selected.is_suitable"
+                      class="form-select form-select-sm"
+                    >
+                      <option value="">선택</option>
+                      <option
+                        v-for="code in suitableList"
+                        :key="code.code_values"
+                        :value="code.code_values"
+                      >
+                        {{ code.code_name }}
+                      </option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th>단위코드</th>
+                  <td>
+                    <select
+                      v-model="selected.unit_code"
+                      class="form-select form-select-sm"
+                    >
+                      <option value="">선택</option>
+                      <option
+                        v-for="code in unitList"
+                        :key="code.code_values"
+                        :value="code.code_values"
+                      >
+                        {{ code.code_name }}
+                      </option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th>용량/수량</th>
+                  <td>
+                    <input
+                      v-model="selected.qty"
+                      type="number"
+                      class="form-control form-control-sm"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-outline-secondary flex-grow-1"
+                @click="clearDetail"
+              >
+                초기화
+              </button>
+              <button class="btn btn-success flex-grow-1" @click="onCreate">
+                등록/수정
+              </button>
+              <button
+                class="btn btn-danger flex-grow-1"
+                @click="onDelete"
+                :disabled="!selected.equipment_code || selected.mode==='reg'"
+              >
+                삭제
+              </button>
             </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- ──────── 장비 모달 ──────── -->
-    <div v-if="showEqModal" class="modal-backdrop">
-      <div class="modal-box">
-        <button class="close-btn" @click="closeEqModal">&times;</button>
-        <h5 class="mb-3">장비 {{ eqForm.equipment_code ? '수정' : '등록' }}</h5>
-
-        <!-- 코드(자동) -->
-        <div class="mb-2">
-          <label class="form-label">코드</label>
-          <input v-model="eqForm.equipment_code" class="form-control form-control-sm"
-                 readonly :placeholder="eqForm.equipment_code ? '' : '(자동 생성)'">
-        </div>
-
-        <!-- 상세 입력 -->
-        <div class="mb-2"><label class="form-label">명칭</label>
-          <input v-model="eqForm.equipment_name" class="form-control form-control-sm"></div>
-
-        <div class="mb-2"><label class="form-label">유형</label>
-          <input v-model="eqForm.equipment_type" class="form-control form-control-sm"></div>
-
-        <div class="mb-2"><label class="form-label">설치일</label>
-          <input type="date" v-model="eqForm.install_date" class="form-control form-control-sm"></div>
-
-        <div class="mb-2"><label class="form-label">제조사</label>
-          <input v-model="eqForm.manufacturer" class="form-control form-control-sm"></div>
-
-        <div class="mb-2"><label class="form-label">다음 점검일</label>
-          <input type="date" v-model="eqForm.next_inspection_dt" class="form-control form-control-sm"></div>
-
-        <div class="mb-2"><label class="form-label">사용 여부</label>
-          <select v-model="eqForm.is_suitable" class="form-control form-control-sm">
-            <option v-for="opt in suitableCodes" :key="opt.is_suitable" :value="opt.is_suitable">
-              {{ opt.is_suitable_name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="mb-2"><label class="form-label">수량</label>
-          <input type="number" v-model.number="eqForm.qty" class="form-control form-control-sm" min="0"></div>
-
-        <div class="mb-2"><label class="form-label">단위</label>
-          <input v-model="eqForm.spec" class="form-control form-control-sm"></div>
-
-        <!-- 버튼 -->
-        <div class="d-flex justify-content-end mt-3">
-          <button class="btn btn-sm btn-outline-secondary me-2" @click="resetEqForm">초기화</button>
-          <button class="btn btn-sm btn-primary" :disabled="savingEq" @click.prevent="saveEquipment">
-            {{ savingEq ? '저장중…' : '저장' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ──────── 점검 모달 ──────── -->
-    <div v-if="showInsModal" class="modal-backdrop">
-      <div class="modal-box">
-        <button class="close-btn" @click="closeInsModal">&times;</button>
-        <h5 class="mb-3">점검 {{ insForm.inspection_id ? '수정' : '등록' }}</h5>
-
-        <div class="mb-2"><label class="form-label">점검일</label>
-          <input type="date" v-model="insForm.inspection_date" class="form-control form-control-sm"></div>
-
-        <div class="mb-2"><label class="form-label">점검자</label>
-          <input v-model="insForm.inspector_id" class="form-control form-control-sm"></div>
-
-        <div class="mb-3"><label class="form-label">결과</label>
-          <input v-model="insForm.result" class="form-control form-control-sm"></div>
-
-        <div class="d-flex justify-content-end">
-          <button class="btn btn-sm btn-outline-secondary me-2" @click="resetInsForm">초기화</button>
-          <button class="btn btn-sm btn-primary" :disabled="savingIns" @click.prevent="saveInspection">
-            {{ savingIns ? '저장중…' : '저장' }}
-          </button>
+        <!-- 점검 이력 카드 ------------------------------------------------ -->
+        <div class="card flex-grow-1 d-flex flex-column">
+          <div
+            class="card-header d-flex align-items-center justify-content-between"
+          >
+            <span>설비 점검 이력 ({{ inspectionList.length }})</span>
+            <div class="d-flex gap-1">
+              <button
+                class="btn btn-sm btn-outline-primary"
+                @click="addInspectionRow"
+              >
+                추가
+              </button>
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                @click="loadInspections(selected.equipment_code)"
+              >
+                새로고침
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0 overflow-auto">
+            <table class="table table-sm table-hover mb-0">
+              <thead class="thead-light sticky-top">
+                <tr>
+                  <th style="width:20%">점검자</th>
+                  <th style="width:20%">점검일</th>
+                  <th style="width:35%">내용</th>
+                  <th style="width:15%">결과</th>
+                  <th style="width:10%"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(ins, idx) in inspectionList"
+                  :key="ins.inspection_id || `new-${idx}`"
+                >
+                  <td>
+                    <input
+                      v-model="ins.inspector_id"
+                      class="form-control form-control-sm"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      v-model="ins.inspection_date"
+                      type="date"
+                      class="form-control form-control-sm"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      v-model="ins.contents"
+                      class="form-control form-control-sm"
+                    />
+                  </td>
+                  <td>
+                    <select
+                      v-model="ins.result"
+                      class="form-select form-select-sm"
+                    >
+                      <option value="정상">정상</option>
+                      <option value="이상 발견">이상 발견</option>
+                    </select>
+                  </td>
+                  <td class="text-nowrap">
+                    <!-- 저장: 단일 행만 API 호출, 전체 reload 제거 -->
+                    <button
+                      class="btn btn-sm btn-success me-1"
+                      @click="saveInspection(ins)"
+                    >
+                      저장
+                    </button>
+                    <button
+                      class="btn btn-sm btn-danger"
+                      @click="deleteInspection(ins)"
+                    >
+                      삭제
+                    </button>
+                  </td>
+                </tr>
+                <tr v-if="inspectionList.length===0">
+                  <td colspan="5" class="text-center py-3">이력이 없습니다.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -189,248 +326,184 @@
 
 <script>
 import axios from 'axios';
-import dayjs from 'dayjs';
 
 export default {
   name: 'Equipment',
   data() {
     return {
-      // 검색
       searchType: '',
       searchValue: '',
-      // 리스트
       equipmentList: [],
-      selectedEquipment: {},
-
+      selected: {},
+      typeList: [],
+      suitableList: [],
+      unitList: [],
       inspectionList: [],
-      selectedInspection: {},
-
-      // 모달 & 폼
-      showEqModal: false,
-      showInsModal: false,
-      savingEq: false,
-      savingIns: false,
-
-      eqForm: {},       // equipment form
-      insForm: {},      // inspection form
-
-      // 공통코드
-      suitableCodes: []
     };
   },
   computed: {
     filterPlaceholder() {
-      switch (this.searchType) {
-        case 'code': return '코드';
-        case 'name': return '명칭';
-        case 'type': return '유형';
-        case 'manu': return '제조사';
-        default:     return '전체 조회';
-      }
-    }
+      return (
+        { code: '장비코드', name: '장비명', type: '유형코드' }[
+          this.searchType
+        ] || ''
+      );
+    },
   },
   created() {
     this.loadEquipments();
-    this.loadSuitableCodes();
   },
   methods: {
-    /* 날짜 포맷 */
-    fmt(d) {
-      return d ? dayjs(d).format('YYYY-MM-DD') : '';
-    },
-
-    /* ───────── Equipments ───────── */
+    // 1) 장비 목록 + 공통코드
     async loadEquipments() {
       const params = {
         code: this.searchType === 'code' ? this.searchValue : '',
         name: this.searchType === 'name' ? this.searchValue : '',
         type: this.searchType === 'type' ? this.searchValue : '',
-        manu: this.searchType === 'manu' ? this.searchValue : ''
       };
       try {
-        const { data } = await axios.get('/api/equipments', { params });
-        this.equipmentList = data;
-        // 선택 초기화
-        this.selectedEquipment = {};
+        const res = await axios.get('/api/equipments', { params });
+        this.equipmentList = res.data;
+        this.clearDetail();
         this.inspectionList = [];
-        this.selectedInspection = {};
-      } catch (err) {
-        console.error('loadEquipments', err);
+      } catch {
         this.equipmentList = [];
       }
-    },
-    resetFilter() {
-      this.searchType = '';
-      this.searchValue = '';
-      this.loadEquipments();
-    },
-    isSelected(eq) {
-      return eq.equipment_code === this.selectedEquipment.equipment_code;
-    },
-    selectEquipment(eq) {
-      this.selectedEquipment = eq;
-      this.loadInspections();
-    },
-
-    /* 모달 열기/닫기 */
-    openEqModal() {
-      if (this.selectedEquipment.equipment_code) {
-        // 수정
-        this.eqForm = { ...this.selectedEquipment };
-      } else {
-        // 신규
-        this.eqForm = {
-          equipment_code: '',
-          equipment_name: '',
-          equipment_type: '',
-          install_date: '',
-          manufacturer: '',
-          next_inspection_dt: '',
-          is_suitable: 'D01',
-          qty: 0,
-          spec: ''
-        };
-      }
-      this.showEqModal = true;
-    },
-    closeEqModal() {
-      this.showEqModal = false;
-      this.eqForm = {};
-    },
-    resetEqForm() {
-      if (this.eqForm.equipment_code) {
-        // 수정 모드 → 원본 값 복구
-        this.eqForm = { ...this.selectedEquipment };
-      } else {
-        // 신규 모드 → 빈값
-        this.eqForm = {
-          equipment_code: '',
-          equipment_name: '',
-          equipment_type: '',
-          install_date: '',
-          manufacturer: '',
-          next_inspection_dt: '',
-          is_suitable: 'D01',
-          qty: 0,
-          spec: ''
-        };
-      }
-    },
-    async saveEquipment() {
-      this.savingEq = true;
       try {
-        await axios.post('/api/equipments', this.eqForm);
-        await this.loadEquipments();
-        this.showEqModal = false;
-      } catch (err) {
-        console.error('saveEquipment', err);
-      } finally {
-        this.savingEq = false;
-      }
-    },
-    async deleteEquipment() {
-      if (!confirm('삭제하시겠습니까?')) return;
-      try {
-        await axios.delete(`/api/equipments/${this.selectedEquipment.equipment_code}`);
-        await this.loadEquipments();
-      } catch (err) {
-        console.error('deleteEquipment', err);
+        const [t, s, u] = await Promise.all([
+          axios.get('/api/equipments/typeCode'),
+          axios.get('/api/equipments/suitableCode'),
+          axios.get('/api/equipments/unitCode'),
+        ]);
+        this.typeList = t.data;
+        this.suitableList = s.data;
+        this.unitList = u.data;
+      } catch {
+        this.typeList = this.suitableList = this.unitList = [];
       }
     },
 
-    /* ───────── Inspections ───────── */
-    async loadInspections() {
-      if (!this.selectedEquipment.equipment_code) return;
+    // 2) 상세 + 이력 로딩
+    selectEq(eq) {
+      this.selected = { ...eq, mode: 'edit' };
+      this.loadInspections(eq.equipment_code);
+    },
+    clearDetail() {
+      this.selected = { mode: 'reg' };
+    },
+    async loadInspections(equipmentCode) {
+      if (!equipmentCode) {
+        this.inspectionList = [];
+        return;
+      }
       try {
-        const { data } = await axios.get(`/api/equipment_inspections/${this.selectedEquipment.equipment_code}`);
-        this.inspectionList = data;
-        this.selectedInspection = {};
-      } catch (err) {
-        console.error('loadInspections', err);
+        const res = await axios.get(
+          `/api/equipments/inspectionsList/${equipmentCode}`
+        );
+        // 날짜 포맷 YYYY-MM-DD로 자르기
+        this.inspectionList = res.data.map((ins) => ({
+          ...ins,
+          inspection_date: ins.inspection_date
+            ? ins.inspection_date.slice(0, 10)
+            : '',
+        }));
+      } catch {
         this.inspectionList = [];
       }
     },
-    isInspectionSelected(ins) {
-      return ins.inspection_id === this.selectedInspection.inspection_id;
-    },
-    selectInspection(ins) {
-      this.selectedInspection = ins;
-    },
-    openInsModal() {
-      if (this.selectedInspection.inspection_id) {
-        // 수정
-        this.insForm = { ...this.selectedInspection };
-      } else {
-        // 신규
-        this.insForm = {
-          inspection_id: '',
-          inspection_date: dayjs().format('YYYY-MM-DD'),
-          inspector_id: '',
-          result: '',
-          equipment_code: this.selectedEquipment.equipment_code
-        };
+
+    // 3) 점검 이력 CRUD
+    addInspectionRow() {
+      if (!this.selected.equipment_code) {
+        return alert('먼저 장비를 선택하세요!');
       }
-      this.showInsModal = true;
+      this.inspectionList.push({
+        inspection_id: '',
+        inspection_date: '',
+        inspector_id: '',
+        contents: '',
+        result: '정상',
+        equipment_code: this.selected.equipment_code,
+      });
     },
-    closeInsModal() {
-      this.showInsModal = false;
-      this.insForm = {};
-    },
-    resetInsForm() {
-      if (this.insForm.inspection_id) {
-        this.insForm = { ...this.selectedInspection };
-      } else {
-        this.insForm = {
-          inspection_id: '',
-          inspection_date: dayjs().format('YYYY-MM-DD'),
-          inspector_id: '',
-          result: '',
-          equipment_code: this.selectedEquipment.equipment_code
-        };
-      }
-    },
-    async saveInspection() {
-      this.savingIns = true;
+    async saveInspection(ins) {
+      if (!ins.inspector_id) return alert('점검자를 입력하세요.');
+      if (!ins.inspection_date) return alert('점검일을 입력하세요.');
       try {
-        await axios.post('/api/equipment_inspections', this.insForm);
-        await this.loadInspections();
-        this.showInsModal = false;
+        const res = await axios.post('/api/equipments/saveInspection', ins);
+        // 신규 저장 시 inspection_id가 돌아온다면 할당
+        if (res.data.next_id) ins.inspection_id = res.data.next_id;
+        // **전체 reload 제거** → 여러 개를 순차 저장해도 리스트 유지
       } catch (err) {
-        console.error('saveInspection', err);
-      } finally {
-        this.savingIns = false;
+        console.error(err);
       }
     },
-    async deleteInspection() {
+    async deleteInspection(ins) {
+      // 새로 추가된 행이라 ID 없으면 배열에서만 제거
+      if (!ins.inspection_id) {
+        this.inspectionList = this.inspectionList.filter((i) => i !== ins);
+        return;
+      }
       if (!confirm('삭제하시겠습니까?')) return;
       try {
-        await axios.delete(`/api/equipment_inspections/${this.selectedInspection.inspection_id}`);
-        await this.loadInspections();
+        await axios.post('/api/equipments/deleteInspection', {
+          inspection_id: ins.inspection_id,
+        });
+        // 삭제 후 해당 행만 제거
+        this.inspectionList = this.inspectionList.filter(
+          (i) => i.inspection_id !== ins.inspection_id
+        );
       } catch (err) {
-        console.error('deleteInspection', err);
+        console.error(err);
       }
     },
 
-    /* ───────── 공통코드 ───────── */
-    async loadSuitableCodes() {
+    // 4) 장비 CRUD (기존)
+    async onCreate() {
+      if (!this.selected.equipment_name) return alert('장비명을 입력하세요.');
+      if (!this.selected.equipment_type) return alert('유형코드를 선택하세요.');
+      if (!this.selected.unit_code) return alert('단위코드를 선택하세요.');
       try {
-        const { data } = await axios.get('/api/equipments/suitableCodes');
-        this.suitableCodes = data;
+        await axios.post('/api/equipments', this.selected);
+        await this.loadEquipments();
       } catch (err) {
-        console.error('loadSuitableCodes', err);
-        this.suitableCodes = [];
+        console.error(err);
       }
-    }
-  }
+    },
+    async onDelete() {
+      if (!this.selected.equipment_code) return;
+      if (!confirm('삭제하시겠습니까?')) return;
+      try {
+        await axios.delete(
+          `/api/equipments/${this.selected.equipment_code}`
+        );
+        await this.loadEquipments();
+      } catch (err) {
+        console.error(err);
+      }
+    },
+
+    // 5) 유틸
+    formatDate(val) {
+      if (!val) return '';
+      const d = new Date(val);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    },
+  },
 };
 </script>
 
 <style scoped>
-.table-hover tbody tr:hover    { background:#f8f9fa; }
-.sticky-top th                 { position:sticky; top:0; background:#fff; z-index:10; }
-.modal-backdrop                { position:fixed; inset:0; background:rgba(0,0,0,.4); display:flex; justify-content:center; align-items:center; z-index:2000; }
-.modal-box                     { position:relative; background:#fff; padding:1.5rem; border-radius:8px; width:430px; max-width:90vw; box-shadow:0 0 10px rgba(0,0,0,.2); }
-.close-btn                     { position:absolute; top:.6rem; right:.8rem; font-size:1.4rem; background:none; border:none; cursor:pointer; opacity:.6; }
-.close-btn:hover               { opacity:1; }
-.table-active                  { background:#d0ebff; }
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+.sticky-top th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
 </style>

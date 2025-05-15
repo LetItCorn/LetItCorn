@@ -1,136 +1,247 @@
 // server/database/sqls/equipment.js
+// =================================
+//   설비(equipments) + 설비점검이력(equipment_inspections) SQL 정의
+// =================================
+/*------------------------------------------------------------------
+  0) 공통코드 (추가: 적합여부 코드 DD)
+------------------------------------------------------------------*/
+const equipmentTypeCode = `
+  SELECT code_name, code_values
+  FROM common_codes
+  WHERE code_group = 'LL'   -- 설비유형
+`;
 
-/* ─────────────── 장비(equipments) ──────────────── */
+const unitCode = `
+  SELECT code_name, code_values
+  FROM common_codes
+  WHERE code_group = 'UU'   -- 단위
+`;
 
-/** 1) 전체조회 + 필터 검색
- *    - is_suitable_name : DD 그룹 공통코드명(사용/미사용) */
+const suitableCode = `
+  SELECT code_name, code_values
+  FROM common_codes
+  WHERE code_group = 'DD'   -- 적합여부 (D01: 적합 / D02: 부적합 …)
+`;
+
+// ─────────────────────────────────────────────
+//  1) 설비 전체조회 + 조건검색 (code, name, type)
+// ─────────────────────────────────────────────
 const equipmentList = `
-  SELECT  e.equipment_code
-        , e.equipment_name
-        , e.equipment_type
-        , e.install_date
-        , e.manufacturer
-        , e.unit_code
-        , e.spec
-        , e.qty
-        , e.next_inspection_dt
-        , e.is_suitable
-        , ( SELECT code_name
-              FROM common_codes c
-             WHERE c.code_group  = 'DD'
-               AND c.code_values = e.is_suitable
-          ) AS is_suitable_name
-  FROM equipments e
-  WHERE 1=1
-    AND (? = '' OR e.equipment_code LIKE CONCAT('%', ?, '%'))
-    AND (? = '' OR e.equipment_name LIKE CONCAT('%', ?, '%'))
-    AND (? = '' OR e.equipment_type = ?)
-    AND (? = '' OR e.manufacturer   LIKE CONCAT('%', ?, '%'))
-  ORDER BY e.equipment_code
+  SELECT
+    A.equipment_code,
+    A.equipment_name,
+    A.equipment_type,
+    (SELECT code_name
+       FROM common_codes T0
+      WHERE T0.code_group = 'LL'
+        AND T0.code_values = A.equipment_type
+    ) AS type_name,
+    A.install_date,
+    A.manufacturer,
+    A.next_inspection_dt,
+    A.is_suitable,
+    A.unit_code,
+    (SELECT code_name
+       FROM common_codes T1
+      WHERE T1.code_group = 'UU'
+        AND T1.code_values = A.unit_code
+    ) AS unit_name,
+    A.spec,
+    A.qty
+  FROM equipments A
+  WHERE 1 = 1
+    AND (? = '' OR A.equipment_code LIKE CONCAT('%', ?, '%'))
+    AND (? = '' OR A.equipment_name LIKE CONCAT('%', ?, '%'))
+    AND (? = '' OR A.equipment_type = ?)
+  ORDER BY A.equipment_code
 `;
 
-/** 2) 단건조회 (equipment_code) + 공통코드명 */
+// 1-a) 코드별 조회
+const equipmentListByCode = `
+  SELECT
+    A.equipment_code,
+    A.equipment_name,
+    A.equipment_type,
+    T.code_name AS type_name,
+    A.install_date,
+    A.manufacturer,
+    A.next_inspection_dt,
+    A.is_suitable,
+    A.unit_code,
+    U.code_name AS unit_name,
+    A.spec,
+    A.qty
+  FROM equipments A
+  LEFT JOIN common_codes T
+    ON T.code_group = 'LL' AND T.code_values = A.equipment_type
+  LEFT JOIN common_codes U
+    ON U.code_group = 'UU' AND U.code_values = A.unit_code
+  WHERE A.equipment_code LIKE CONCAT('%', ?, '%')
+  ORDER BY A.equipment_code
+`;
+
+// 1-b) 명칭별 조회
+const equipmentListByName = `
+  SELECT
+    A.equipment_code,
+    A.equipment_name,
+    A.equipment_type,
+    T.code_name AS type_name,
+    A.install_date,
+    A.manufacturer,
+    A.next_inspection_dt,
+    A.is_suitable,
+    A.unit_code,
+    U.code_name AS unit_name,
+    A.spec,
+    A.qty
+  FROM equipments A
+  LEFT JOIN common_codes T
+    ON T.code_group = 'LL' AND T.code_values = A.equipment_type
+  LEFT JOIN common_codes U
+    ON U.code_group = 'UU' AND U.code_values = A.unit_code
+  WHERE A.equipment_name LIKE CONCAT('%', ?, '%')
+  ORDER BY A.equipment_code
+`;
+
+// 1-c) 유형별 조회
+const equipmentListByType = `
+  SELECT
+    A.equipment_code,
+    A.equipment_name,
+    A.equipment_type,
+    T.code_name AS type_name,
+    A.install_date,
+    A.manufacturer,
+    A.next_inspection_dt,
+    A.is_suitable,
+    A.unit_code,
+    U.code_name AS unit_name,
+    A.spec,
+    A.qty
+  FROM equipments A
+  LEFT JOIN common_codes T
+    ON T.code_group = 'LL' AND T.code_values = A.equipment_type
+  LEFT JOIN common_codes U
+    ON U.code_group = 'UU' AND U.code_values = A.unit_code
+  WHERE A.equipment_type = ?
+  ORDER BY A.equipment_code
+`;
+
+// ─────────────────────────────────────────────
+//  2) 설비 단건조회
+// ─────────────────────────────────────────────
 const equipmentInfo = `
-  SELECT  e.equipment_code
-        , e.equipment_name
-        , e.equipment_type
-        , e.install_date
-        , e.manufacturer
-        , e.unit_code
-        , e.spec
-        , e.qty
-        , e.next_inspection_dt
-        , e.is_suitable
-        , ( SELECT code_name
-              FROM common_codes c
-             WHERE c.code_group  = 'DD'
-               AND c.code_values = e.is_suitable
-          ) AS is_suitable_name
-  FROM equipments e
-  WHERE e.equipment_code = ?
+  SELECT
+    A.equipment_code,
+    A.equipment_name,
+    A.equipment_type,
+    T.code_name AS type_name,
+    A.install_date,
+    A.manufacturer,
+    A.next_inspection_dt,
+    A.is_suitable,
+    A.unit_code,
+    U.code_name AS unit_name,
+    A.spec,
+    A.qty
+  FROM equipments A
+  LEFT JOIN common_codes T
+    ON T.code_group = 'LL' AND T.code_values = A.equipment_type
+  LEFT JOIN common_codes U
+    ON U.code_group = 'UU' AND U.code_values = A.unit_code
+  WHERE A.equipment_code = ?
 `;
 
-/** 3) MERGE(INSERT + UPDATE) */
-const equipmentMerge = `
+// ─────────────────────────────────────────────
+//  3) 등록 / 수정 MERGE (설비)
+// ─────────────────────────────────────────────
+const equipmentInsert = `
   INSERT INTO equipments (
     equipment_code,
     equipment_name,
     equipment_type,
     install_date,
     manufacturer,
+    next_inspection_dt,
+    is_suitable,
     unit_code,
     spec,
-    qty,
-    next_inspection_dt,
-    is_suitable
+    qty
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   ON DUPLICATE KEY UPDATE
     equipment_name     = VALUES(equipment_name),
     equipment_type     = VALUES(equipment_type),
     install_date       = VALUES(install_date),
     manufacturer       = VALUES(manufacturer),
+    next_inspection_dt = VALUES(next_inspection_dt),
+    is_suitable        = VALUES(is_suitable),
     unit_code          = VALUES(unit_code),
     spec               = VALUES(spec),
-    qty                = VALUES(qty),
-    next_inspection_dt = VALUES(next_inspection_dt),
-    is_suitable        = VALUES(is_suitable)
+    qty                = VALUES(qty)
 `;
 
-/** 4) 삭제 */
+// ─────────────────────────────────────────────
+//  4) 설비 삭제
+// ─────────────────────────────────────────────
 const equipmentDelete = `
   DELETE FROM equipments
-   WHERE equipment_code = ?
+  WHERE equipment_code = ?
 `;
 
-/** 5) 다음 장비 코드 자동 생성 (EQ000001 → EQ000002) */
-const equipmentNextCode = `
-  SELECT CONCAT('EQ',
-         LPAD(
-           IFNULL(
-             MAX(CAST(SUBSTRING(equipment_code, 3) AS UNSIGNED)), 0
-           ) + 1, 6, '0')
-         ) AS next_code
-  FROM equipments
-`;
-
-/** 🔹 6) DD 그룹(사용/미사용) 코드 목록 - 셀렉트 박스용 */
-const suitableCodeList = `
-  SELECT code_values AS is_suitable
-       , code_name   AS is_suitable_name
-  FROM common_codes
-  WHERE code_group = 'DD'
-  ORDER BY code_rear
-`;
-
-/* ─────── 장비 점검 이력(equipment_inspections) ─────── */
-
-/** 1) 특정 장비의 점검 이력 목록 */
-const inspectionList = `
-  SELECT inspection_id
-       , inspection_date
-       , inspector_id
-       , contents
-       , result
-       , equipment_code
+// ─────────────────────────────────────────────
+//  5) 설비점검 이력 (특정 설비)
+// ─────────────────────────────────────────────
+const equipmentInspectionsList = `
+  SELECT
+    inspection_id,
+    inspection_date,
+    inspector_id,
+    contents,
+    result,
+    equipment_code
   FROM equipment_inspections
   WHERE equipment_code = ?
   ORDER BY inspection_date DESC
 `;
 
-/** 2) 단건조회 (inspection_id) */
-const inspectionInfo = `
-  SELECT inspection_id
-       , inspection_date
-       , inspector_id
-       , contents
-       , result
-       , equipment_code
-  FROM equipment_inspections
-  WHERE inspection_id = ?
+// ─────────────────────────────────────────────
+//  6-a) 신규 설비코드 생성용
+//       (예: 'EQ' + YYMMDD + 3자리 시퀀스)
+// ─────────────────────────────────────────────
+const equipmentNextCode = `
+  SELECT
+    CONCAT(
+      'EQ',
+      DATE_FORMAT(NOW(), '%y%m%d'),
+      LPAD(
+        IFNULL(MAX(CAST(SUBSTRING(equipment_code, 9) AS UNSIGNED)), 0) + 1,
+        3,
+        '0'
+      )
+    ) AS next_code
+  FROM equipments
+  WHERE SUBSTRING(equipment_code, 3, 6) = DATE_FORMAT(NOW(), '%y%m%d')
 `;
 
-/** 3) MERGE(INSERT + UPDATE) */
-const inspectionMerge = `
+// 6-b) 신규 점검ID 생성용 (예: 'INS000001' ...)
+const inspectionNextId = `
+  SELECT
+    CONCAT(
+      'INS',
+      LPAD(
+        IFNULL(MAX(CAST(SUBSTRING(inspection_id, 4) AS UNSIGNED)), 0) + 1,
+        6,
+        '0'
+      )
+    ) AS next_id
+  FROM equipment_inspections
+`;
+
+// ─────────────────────────────────────────────
+//  7) 점검 이력 MERGE (insert / update)
+// ─────────────────────────────────────────────
+const insertInspection = `
   INSERT INTO equipment_inspections (
     inspection_id,
     inspection_date,
@@ -147,37 +258,32 @@ const inspectionMerge = `
     equipment_code  = VALUES(equipment_code)
 `;
 
-/** 4) 삭제 */
-const inspectionDelete = `
+// 8) 점검 이력 삭제
+const deleteInspection = `
   DELETE FROM equipment_inspections
-   WHERE inspection_id = ?
+  WHERE inspection_id = ?
 `;
 
-/** 5) 다음 inspection_id 자동 생성 (IN0001 → IN0002) */
-const inspectionNextId = `
-  SELECT CONCAT('IN',
-         LPAD(
-           IFNULL(
-             MAX(CAST(SUBSTRING(inspection_id, 3) AS UNSIGNED)), 0
-           ) + 1, 4, '0')
-         ) AS next_id
-  FROM equipment_inspections
-`;
-
-/* ──────────── 모듈 내보내기 ──────────── */
+// ─────────────────────────────────────────────
+//  exports
+// ─────────────────────────────────────────────
 module.exports = {
-  /* 장비 */
+  /* 공통코드 */
+  equipmentTypeCode,
+  unitCode,
+  suitableCode,            // ⭐️ 새로 추가
+  /* 설비 CRUD */
   equipmentList,
+  equipmentListByCode,
+  equipmentListByName,
+  equipmentListByType,
   equipmentInfo,
-  equipmentMerge,
+  equipmentInsert,
   equipmentDelete,
   equipmentNextCode,
-  suitableCodeList,   // 🔹 추가 (DD 그룹 목록)
-
-  /* 점검 */
-  inspectionList,
-  inspectionInfo,
-  inspectionMerge,
-  inspectionDelete,
-  inspectionNextId
+  /* 점검 이력 */
+  equipmentInspectionsList,
+  inspectionNextId,
+  insertInspection,
+  deleteInspection,
 };
