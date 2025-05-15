@@ -36,6 +36,7 @@ import SFproduct from "../views/SFproduct.vue";
 import Material from "@/views/Material.vue";
 import ProductionInstInquiry from "@/views/ProductionInstInquiry.vue";
 import InsertSqt from "../views/Insertsqt.vue";
+import FinishedProduct from "@/views/FinishedProduct.vue";
 
 const routes = [
   {
@@ -241,6 +242,12 @@ const routes = [
     path: '/insertsqt',
     name: 'InsertSqt',
     component: InsertSqt
+  },
+  {
+    // 완제품 페이지
+    path: '/finishedproduct',
+    name: 'FinishedProduct',
+    component: FinishedProduct
   }
 ];
 

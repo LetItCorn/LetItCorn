@@ -44,6 +44,7 @@ const sqt = require('./sqls/Insertsqt.js');
 const customer = require('./sqls/customer.js');
 const instructionsOpen = require('./sqls/instructions_open.js');
 const materialmains = require('./sqls/materialmains.js');
+const finishedproduct = require('./sqls/finishedproduct.js');
 
 
 module.exports = {
@@ -91,5 +92,6 @@ module.exports = {
   ...sqt,
   ...customer,
   ...instructionsOpen,
-  ...materialmains
+  ...materialmains,
+  ...finishedproduct,
 }

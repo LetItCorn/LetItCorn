@@ -16,6 +16,15 @@ const menuConfig = {
     ],
     "완제품": [{
         name: "완제품 목록",
+        path: 'FinishedProduct'
+      }
+    ],
+    "완제품 입고": [{
+        name: "완제품 입고이력 조회",
+        path: '#'
+      },
+      {
+        name: "완제품 입고 등록",
         path: '#'
       }
     ],

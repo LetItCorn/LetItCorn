@@ -61,7 +61,8 @@ module.exports = {
 
     // 거래처 유형 조회
     selectClientType:
-    `SELECT code_name
+    `SELECT code_values, 
+            code_name
     FROM common_codes
     WHERE code_group = 'EE'`
 };
