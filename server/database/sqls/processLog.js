@@ -69,11 +69,17 @@ WHERE lot_cnt = ?
 const getQcTest = `
   SELECT  test_no
          ,test_feild
-         ,'' AS 
+         ,'' AS pr_status
          ,test_stand
          ,'' AS test_res
+         ,unit
   FROM test_qc
   WHERE test_target = ?
+`
+
+// 품질검사 이력 입력
+const regQcLog = `
+CALL INSERTQCLOG(?,?,?,?,?,?,?);
 `
 
  module.exports = {
@@ -84,5 +90,6 @@ const getQcTest = `
     regProLogDt,
     setResult,
     setInst,
-    getQcTest
+    getQcTest,
+    regQcLog
  };

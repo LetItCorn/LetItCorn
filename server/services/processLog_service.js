@@ -64,9 +64,9 @@ const regProLog = async(data)=>{
       res = await conn.query(selectSql,regData)
     }
     await conn.beginTransaction();
-
+    
     conn.commit();
-
+    
   }catch(err){
     if(conn) conn.rollback();
   }finally{
@@ -75,17 +75,37 @@ const regProLog = async(data)=>{
   return data
 }
 
+// 해당 공정의 품질검사 정보 조회
 const getQcTest = async(data)=>{
   let res = await mariadb.query('getQcTest',data)
-                         .catch(err=>{
-                          console.log(err);
-                         });
+  .catch(err=>{
+    console.log(err);
+  });
   return res
+}
+
+// 품질 검사 이력 저장 프로시저 실행
+const regQcLog = async(data)=>{
+  let selected = ['process_code','item_code','userId','test_res','lot_cnt','unit','test_res']
+  let rows=0;
+  for(eachData of data){
+  let dataAry = convertObjToAry(eachData,selected)
+  let res = await mariadb.query('regQcLog',dataAry)
+                        .catch(err=>{
+                          console.log(err);
+                        })
+                        console.log(res);
+  rows += res.affectedRows
+  }
+ 
+  console.log(rows);
+  return rows
 }
 
  module.exports = {
   getinst,
   getFlow,
   regProLog,
-  getQcTest
+  getQcTest,
+  regQcLog
  };
