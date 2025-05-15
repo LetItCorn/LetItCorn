@@ -40,6 +40,21 @@ const addSalesOrder = async (orderinfo) => {
     return result;
 };
 
+// 거래처 목록 조회
+const findAllClients = async () => {
+    let clients = await mariadb.query('selectClientList')
+        .catch(err => console.error(err));
+    return clients;
+};
+
+// 품목 목록 조회
+const findAllItems = async () => {
+    let items = await mariadb.query('selectItemList')
+        .catch(err => console.error(err));
+    return items;
+};
+
 module.exports = {
     addSalesOrder,
+    findAllClients,
 };
