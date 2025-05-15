@@ -111,7 +111,7 @@ export default {
   },
   data() {
     return {
-      orders: [],          // 원본 배열
+      orders: [],
       selectedOrders: [],
       showQualityModal: false,
       filterQuery: '',
@@ -120,11 +120,12 @@ export default {
   },
   computed: {
     allSelected() {
-      return this.filteredOrders.length > 0 &&
-            this.selectedOrders.length === this.filteredOrders.length;
+      return (
+        this.filteredOrders.length > 0 &&
+        this.selectedOrders.length === this.filteredOrders.length
+      );
     },
     filteredOrders() {
-      if (!Array.isArray(this.orders)) return [];
       return this.orders.filter(o => {
         const matchesQuery = this.filterQuery
           ? o.moder_id.includes(this.filterQuery) || o.mater_code.includes(this.filterQuery)
@@ -135,54 +136,56 @@ export default {
     }
   },
   async created() {
-    await this.loadOrders();
+    try {
+      const res = await axios.get('/api/m_orders');
+      this.orders = Array.isArray(res.data)
+        ? res.data
+        : (Array.isArray(res.data.list) ? res.data.list : []);
+    } catch (e) {
+      console.error('발주서 목록 조회 실패', e);
+      alert('목록 조회 중 오류가 발생했습니다.');
+    }
   },
   methods: {
-    async loadOrders() {
-      try {
-        const res = await axios.get('/api/m_orders');
-        this.orders = Array.isArray(res.data)
-          ? res.data
-          : (Array.isArray(res.data.list) ? res.data.list : []);
-      } catch (e) {
-        console.error('발주서 목록 조회 실패', e);
-        alert('목록 조회 중 오류가 발생했습니다.');
-        this.orders = [];
-      }
-    },
     toggleAll(evt) {
       this.selectedOrders = evt.target.checked ? [...this.filteredOrders] : [];
     },
+    /**
+     * 검사 결과를 한글 '적합/부적합'에서 'PASS/FAIL'로 매핑
+     * PASS인 발주서만 Pinia 스토어에 저장 후 입고 페이지로 이동
+     */
     async handleInspection(results) {
-      try {
-        await axios.post('/api/qc_inspections', results);
-        const pass = [], fail = [];
-        this.selectedOrders.forEach(o => {
-          const r = results.find(x => x.moder_id === o.moder_id && x.mater_code === o.mater_code);
-          (r.qc_result === 'PASS' ? pass : fail).push(o);
-        });
-        if (fail.length) {
-          await Promise.all(
-            fail.map(o => axios.post('/api/m_returns', {
-              return_id: `RT${Date.now()}`,
-              moder_id: o.moder_id,
-              mater_code: o.mater_code,
-              return_date: new Date().toISOString().slice(0,10),
-              manager: '현재사용자',
-              reason: 'QC 불합격',
-              status: 'REQUESTED'
-            }))
+      // 1) 한글 결과를 영문 상태로 변환
+      const normalized = results.map(r => ({
+        moder_id:   r.moder_id,
+        mater_code: r.mater_code,
+        qc_result:  r.qc_result === '적합' ? 'PASS' : 'FAIL'
+      }));
+
+      // 2) PASS인 항목만 필터링하여 Pinia store에 저장
+      const passOrders = normalized
+        .filter(r => r.qc_result === 'PASS')
+        .map(r => {
+          const o = this.orders.find(
+            x => x.moder_id === r.moder_id && x.mater_code === r.mater_code
           );
-        }
-        this.inboundStore.setPendingOrders(pass);
-        const keys = results.map(r => `${r.moder_id}-${r.mater_code}`);
-        this.orders = this.orders.filter(o => !keys.includes(`${o.moder_id}-${o.mater_code}`));
-        this.selectedOrders = [];
-        this.showQualityModal = false;
-        if (pass.length) this.$router.push('/m_inbound');
-      } catch (err) {
-        console.error('품질검사 처리 오류', err);
-        alert('품질검사 처리 중 오류가 발생했습니다.');
+          return {
+            moder_id:   r.moder_id,
+            mater_code: r.mater_code,
+            moder_qty:  o ? o.moder_qty : 0
+          };
+        });
+
+      // 3) Pinia store에 처리 대상 저장
+      this.inboundStore.setPendingOrders(passOrders);
+
+      // 4) 모달 닫고 선택 초기화
+      this.selectedOrders = [];
+      this.showQualityModal = false;
+
+      // 5) 적합 항목이 있으면 입고 처리 화면으로
+      if (passOrders.length) {
+        this.$router.push({ name: 'MInboundForm' });
       }
     }
   }

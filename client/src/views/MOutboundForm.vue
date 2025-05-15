@@ -3,7 +3,7 @@
   <div class="container py-4">
     <h2 class="text-center mb-4">자재 출고 처리</h2>
     <div class="row gx-4">
-      <!-- ──────────── 좌측: 생산지시 선택 ──────────── -->
+      <!-- 좌측: 생산지시 단일 선택 (J01) -->
       <div class="col-md-4">
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-light">
@@ -14,13 +14,7 @@
               <table class="table table-sm table-hover mb-0 text-center">
                 <thead class="table-secondary">
                   <tr>
-                    <th style="width:1%">
-                      <input
-                        type="checkbox"
-                        :checked="allInstSelected"
-                        @change="toggleAllInsts"
-                      />
-                    </th>
+                    <th style="width:1%"></th>
                     <th>지시번호</th>
                     <th>시작일</th>
                   </tr>
@@ -29,14 +23,14 @@
                   <tr
                     v-for="inst in instList"
                     :key="inst.inst_head"
-                    :class="{ 'table-active': selectedInsts.includes(inst.inst_head) }"
+                    :class="{ 'table-active': inst.inst_head === selectedInst }"
                   >
                     <td>
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name="instSelect"
                         :value="inst.inst_head"
-                        v-model="selectedInsts"
-                        @change="onInstChange"
+                        v-model="selectedInst"
                       />
                     </td>
                     <td>{{ inst.inst_head }}</td>
@@ -54,7 +48,7 @@
         </div>
       </div>
 
-      <!-- ──────────── 우측: BOM 자재 리스트 ──────────── -->
+      <!-- 우측: BOM 자재 리스트 -->
       <div class="col-md-8">
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-light">
@@ -74,7 +68,10 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="r in bomRows" :key="r.lot_cnt + '-' + r.mater_code">
+                  <tr
+                    v-for="r in bomRows"
+                    :key="r.lot_cnt + '-' + r.mater_code"
+                  >
                     <td>{{ r.mater_code }}</td>
                     <td class="text-start px-2">{{ r.mater_name }}</td>
                     <td>{{ r.unit }}</td>
@@ -92,12 +89,11 @@
             </div>
           </div>
         </div>
-
         <!-- 출고 실행 버튼 -->
         <div class="text-end">
           <button
             class="btn btn-success"
-            :disabled="!selectedInsts.length || !bomRows.length"
+            :disabled="!selectedInst || !bomRows.length"
             @click="processOutbound"
           >
             출고 실행
@@ -115,21 +111,12 @@ export default {
   name: 'MOutboundForm',
   data() {
     return {
-      instList: [],        // J01 상태 생산지시 목록
-      selectedInsts: [],   // 체크된 inst_head 배열
-      bomRows: []          // 선택 지시 기반 BOM 자재 리스트
+      instList: [],      // J01 상태 생산지시 목록
+      selectedInst: '',  // 단일 선택된 inst_head
+      bomRows: []        // 선택 지시 기반 BOM 자재 리스트
     };
   },
-  computed: {
-    allInstSelected() {
-      return (
-        this.instList.length > 0 &&
-        this.selectedInsts.length === this.instList.length
-      );
-    }
-  },
   async created() {
-    // 1) J01 상태인 생산지시 목록 조회
     try {
       const res = await axios.get('/api/instructions/open');
       this.instList = res.data;
@@ -137,34 +124,32 @@ export default {
       console.error('생산지시 조회 실패', e);
     }
   },
-  methods: {
-    toggleAllInsts(evt) {
-      this.selectedInsts = evt.target.checked
-        ? this.instList.map(i => i.inst_head)
-        : [];
-      this.onInstChange();
-    },
-    async onInstChange() {
-      // 단일 선택일 때만 처리(복수 선택 시 빈 리스트)
-      if (this.selectedInsts.length === 1) {
+  watch: {
+    // 지시 선택이 바뀔 때마다 BOM 자재 조회
+    selectedInst: {
+      async handler(instHead) {
+        if (!instHead) {
+          this.bomRows = [];
+          return;
+        }
         try {
-          const instHead = this.selectedInsts[0];
-          const res = await axios.get(
+          const { data } = await axios.get(
             `/api/outbound_candidates/instruction/${instHead}`
           );
-          this.bomRows = res.data;
+          this.bomRows = data;
         } catch (e) {
           console.error('BOM 자재 조회 실패', e);
           this.bomRows = [];
         }
-      } else {
-        this.bomRows = [];
       }
-    },
+    }
+  },
+  methods: {
     async processOutbound() {
-      // 선택 지시 하나만 처리
-      const instHead = this.selectedInsts[0];
+      const instHead = this.selectedInst;
       const today = new Date().toISOString().slice(0, 10);
+
+      // 일괄 출고용 payload 생성
       const records = this.bomRows.map(r => ({
         mout_id:      `${instHead}-${r.mater_code}-${Date.now()}`,
         lot_cnt:      r.lot_cnt,
@@ -174,25 +159,28 @@ export default {
         mout_checker: '현재사용자',
         mater_lot:    r.mater_lot
       }));
+
       try {
         const res = await axios.post('/api/m_outbound/instruction', {
           inst_head: instHead,
           records
         });
-        if (res.data.success) {
+        const { success, results } = res.data;
+
+        if (success) {
           alert('자재 출고가 완료되었습니다.');
-          // 초기화
-          this.selectedInsts = [];
+          // 초기화 및 목록 갱신
+          this.selectedInst = '';
           this.bomRows = [];
-          // 목록 다시 불러오기
           const tmp = await axios.get('/api/instructions/open');
           this.instList = tmp.data;
         } else {
-          alert('출고 실패: ' + (res.data.results.find(r=>!r.isSuccess)?.error || '알 수 없는 오류'));
+          const failed = results.find(r => !r.isSuccess);
+          alert(`출고 실패: ${failed.error || '알 수 없는 오류'}`);
         }
       } catch (e) {
-        console.error('출고 처리 오류', e);
-        alert('출고 처리 중 오류가 발생했습니다.');
+        console.error('서버 오류', e);
+        alert('서버 에러가 발생했습니다.');
       }
     }
   }

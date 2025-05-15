@@ -16,7 +16,7 @@ async function findAllOutbounds() {
 }
 
 async function findOutboundCandidates(instHead) {
-  return await mariadb.query('selectOutboundCandidatesByInst', [instHead]);
+  return await mariadb.query('selectOutboundCandidatesByInstHead', [instHead]);
 }
 
 async function addOutbound(info) {

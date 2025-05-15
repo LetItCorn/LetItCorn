@@ -13,4 +13,15 @@ router.get('/inst_headers', async (req, res, next) => {
   }
 });
 
+// J01 상태인 생산지시서만 조회
+router.get('/instructions/open', async (req, res, next) => {
+  try {
+    const list = await svc.findOpenInstructions();  // J01만
+    res.json(list);
+  } catch (err) {
+    next(err);
+  }
+});
+
+
 module.exports = router;
