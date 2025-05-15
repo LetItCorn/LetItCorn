@@ -19,8 +19,8 @@ const menuConfig = {
         path: 'FinishedProduct'
       }
     ],
-    "완제품 입고": [{
-        name: "완제품 입고이력 조회",
+    "완제품 입∙출고": [{
+        name: "완제품 입∙출고이력 조회",
         path: '#'
       },
       {
