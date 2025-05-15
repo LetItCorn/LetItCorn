@@ -119,6 +119,7 @@ export default {
   // 생산량, 불량량 저장시 공정 진행의 값 변경
   updateRow(e){
      // this.flowData[e.sequence_order-1] = e
+     //ag grid의 한계
     const updated = [...this.flowData]; // 새 배열로 복사
     updated[e.sequence_order - 1] = e;
     this.flowData = updated; // 새로운 배열로 할당하여 반응성 보장

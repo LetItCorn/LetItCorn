@@ -44,5 +44,15 @@ const express = require('express');
    console.log(result);
    res.send(result)
  })
+
+ // 품질검사 결과 저장
+ router.post('/regQcLog',async (req,res)=>{
+   let data = req.body
+   let result = await processService.regQcLog(data)
+                                    .catch(err=>{
+                                       console.log(err);
+                                    })
+   res.send(result)
+ })
  
  module.exports = router

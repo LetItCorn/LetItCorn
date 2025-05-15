@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible" class="modal-backdrop bg-close"  @click.self="confirmQc" >
+  <div v-if="visible" class="modal-backdrop bg-close"  @click.self="clickLayout" >
     <div class="modal-content">
       <div class="container row">
         <div class="col-11">
@@ -27,6 +27,7 @@ import {
 } from 'pinia';
 import axios from 'axios';
 import { checkQc } from '@/utils/checkQc';
+import { useUserStore } from '@/store/user';
 export default {
   props: ['visible'],
   components: {
@@ -41,6 +42,7 @@ export default {
       { field: 'test_stand', headerName: '검사기준', flex: 1 },
       { field: 'pr_status', headerName: '측정값', flex: 1, editable: true,},
       { field: 'test_res',  headerName: '결과', flex: 1},
+      { field: 'unit',  headerName: '단위', flex: 1},
       ]
     }
   },
@@ -48,23 +50,47 @@ export default {
   mounted() { },
   methods: {
     async getQcTest() {
-      console.log(this.processes.process_code);
+      // console.log(this.processes.process_code);
       let res = await axios.get(`api/getQcTest/${this.processes.process_code}`)
       this.rowData = res.data
     },
-    confirmQc() {
+    clickLayout(){
       this.$emit('modalClose')
     },
-    resQc(event) {
-      console.log(event);
-      let res = checkQc(event.data.pr_status,event.data.test_stand) 
+    async confirmQc() {
+      console.log(this.rowData);
+      let qcData = this.rowData
+      for(let i = 0;i<qcData.length;i++){
+        qcData[i].lot_cnt = this.inst.lot_cnt
+        qcData[i].item_code = this.processes.item_code
+        qcData[i].process_code = this.processes.process_code
+        qcData[i].userId = this.userId
+      }
+      let res = await axios.post(`api/regQcLog`,qcData)
+                            .catch(err=>{
+                              console.log(err);
+                            })
       console.log(res);
+      if(res > 0){
+        this.$emit('modalClose')
+      }else{
+        console.log('품질검사 실패');
+      }
+    },
+    resQc(event) {
+      // console.log(event);
+      let res = checkQc(event.data.pr_status,event.data.test_stand) 
+      // console.log(res);
       // console.log(this.rowData[event.rowIndex]);
-      this.rowData[event.rowIndex].test_res = res
+      let copyData = [...this.rowData]
+      copyData[event.rowIndex].test_res = res
+      this.rowData = copyData;
     }
   },
   computed: {
     ...mapState(useProcess, ['processes']),
+    ...mapState(useUserStore,['userId']),
+    ...mapState(useProcess,['inst'])
 
   },
   watch: {
