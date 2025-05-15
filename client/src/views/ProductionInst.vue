@@ -295,35 +295,37 @@ async function registerInst() {
     }
   } else {
     //일반적인 등록의 경우.
-    if (!first.plans_head) {
-      Swal.fire({
-        icon: "error",
-        title: "plans_head 누락",
-      });
-      return;
-    }
+    const isPlanBased = !!first.plans_head;
+
+    if (isPlanBased) {
     instHeader.value.plans_head = first.plans_head;
     instHeader.value.plan_start = first.plan_start;
     instHeader.value.plan_end = first.plan_end;
-    instHeader.value.inster = userStore.user.id || "관리자";
+  } else {
+    instHeader.value.plans_head = null;
+    instHeader.value.plan_start = first.plan_start || dayjs().format("YYYY-MM-DD");
+    instHeader.value.plan_end = first.plan_end || dayjs().add(1, "day").format("YYYY-MM-DD");
+  }
 
-    try {
-      await productionInstStore.registerInstData({
-        header: instHeader.value,
-        details: rowData,
-      });
+  instHeader.value.inster = userStore.user.id || "관리자";
 
-      Swal.fire({
-        icon: "success",
-        title: "등록 성공",
-      });
-    } catch (err) {
-      console.error(err);
-      Swal.fire({
-        icon: "error",
-        title: "등록 실패",
-      });
-    }
+  try {
+    await productionInstStore.registerInstData({
+      header: instHeader.value,
+      details: rowData,
+    });
+
+    Swal.fire({
+      icon: "success",
+      title: "등록 성공",
+    });
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: "error",
+      title: "등록 실패",
+    });
+   }
   }
 }
 </script>

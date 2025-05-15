@@ -25,8 +25,8 @@ JOIN items it ON i.item_code = it.item_code
 ORDER BY ph.plan_start DESC`;
 
 const insertInst= 
-`INSERT INTO inst (inst_no, lot_cnt, plans_vol, iord_no, process_header, inst_head, item_code, out_od, ins_stat)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+`INSERT INTO inst (inst_no, lot_cnt, plans_vol, iord_no, process_header, inst_head, item_code, item_name, out_od, ins_stat)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
 const updateInst = 
 `UPDATE inst
