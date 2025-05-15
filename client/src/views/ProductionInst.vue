@@ -3,6 +3,7 @@
     <div class="inst-wrapper">
       <div class="inst-header">
         <div class="button-group">
+          <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="addEmptyRow">행 추가</button>
           <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="resetAll">초기화</button>
           <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="selectPlan">생산계획조회</button>
           <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="registerInst">등록</button>
@@ -105,6 +106,31 @@ function onGridReady(params) {
   gridApi.value = params.api;
 }
 
+const addEmptyRow = () =>{
+  if (!gridApi.value) {
+    Swal.fire({
+      icon: "question",
+      title: "그리드가 아직 초기화되지 않았습니다.",
+    });
+    return;
+  }
+  const newRow = {
+    inst_no: '',            
+    plan_no: '',
+    lot_cnt: '', 
+    item_name: '',
+    plans_vol: '',
+    iord_no: '', 
+    porder_seq: '',
+    unassigned_count: '',
+    plan_start: '',
+    plan_end: '',
+    process_header: '',
+    out_od: ''
+  };
+  gridApi.value.applyTransaction({ add: [newRow] });
+};
+
 const columnDefs = ref([
   {
     field: "select",
@@ -128,7 +154,7 @@ const columnDefs = ref([
     flex: 2,
   },
   { field: "plan_no", headerName: "생산계획번호", flex: 2 },
-  { field: "item_name", headerName: "품목명", flex: 2 },
+  { field: "item_name", headerName: "품목명", flex: 2, editable: true },
   { field: "plans_vol", headerName: "생산계획량", flex: 1 },
   { field: "iord_no", headerName: "지시수량", editable: true, flex: 1 },
   {

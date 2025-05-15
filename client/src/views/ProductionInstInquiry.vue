@@ -24,7 +24,8 @@
   :rowData="planInst"
   rowSelection="multiple"
   @rowSelectionChanged="handleRowSelection"
-  @rowClicked="handleRowClick"/>
+  @rowClicked="handleRowClick"
+  :defaultColDef="defaultColDef"/>
 
   <!--상세정보-->
   <ag-grid-vue
@@ -33,7 +34,7 @@
   ref="detailGridRef"
   :columnDefs="detailColumnDefs"
   :rowData="detailList"
-  rowSelection="single" />
+  rowSelection="single"/>
 </div>
 </div>
 </template>
@@ -44,19 +45,22 @@ import { ref } from 'vue'
 import axios from 'axios'
 import Datepicker from "@vuepic/vue-datepicker"
 import { AgGridVue } from 'ag-grid-vue3'
+import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css"
 import { useInstStore } from "@/store/inst";
 import { useRouter } from "vue-router"
 import { storeToRefs } from 'pinia'
 import dayjs from 'dayjs'
 import Swal from "sweetalert2";
+import { ModuleRegistry, ClientSideRowModelModule } from 'ag-grid-community';
 
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 const router = useRouter();
 const productionInstStore = useInstStore();
 const { selectedInst, selectedQueryPlans } = storeToRefs(productionInstStore);
 // 날짜 검색 조건
-const startDate = ref("");
-const endDate = ref("");
+const startDate = ref(dayjs().subtract(7, "day").toDate());
+const endDate = ref(dayjs().toDate());
 //row Data 저장
 const detailList = ref([]);
 const planInst = ref([]);
@@ -110,6 +114,9 @@ const handleRowClick = async (event)=>{
   console.log(err);
   }
 }
+const defaultColDef = {
+  sortable: true,
+};
 
 //조회 
 const fetchPlanInst = async () => {
