@@ -37,6 +37,7 @@ import Material from "@/views/Material.vue";
 import ProductionInstInquiry from "@/views/ProductionInstInquiry.vue";
 import InsertSqt from "../views/Insertsqt.vue";
 import FinishedProduct from "@/views/FinishedProduct.vue";
+import CheckWFpdHistory from "@/views/CheckWFpdHistory.vue"; // check waringhouse finished product history
 
 const routes = [
   {
@@ -248,6 +249,12 @@ const routes = [
     path: '/finishedproduct',
     name: 'FinishedProduct',
     component: FinishedProduct
+  },
+  {
+    // check waringhouse finished product history 완제품 입출고이력 조회
+    path: '/checkwfpdhistory',
+    name: 'CheckWFpdHistory',
+    component: CheckWFpdHistory
   }
 ];
 
