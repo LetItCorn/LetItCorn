@@ -7,6 +7,7 @@ const selectInst =
         item_code, 
         iord_no, 
         ins_stat,
+        inst_no,
         '대기' as state,
         '' as cur_cnt        
   FROM inst_header h JOIN inst i
@@ -62,7 +63,7 @@ VALUES (?,?,STR_TO_DATE(?, '%H:%i'),STR_TO_DATE(?, '%H:%i'),?,?,?,?,?,?,?)
 const setInst = `
 UPDATE inst 
 SET ins_stat = 'J04' , res_cnt = ?
-WHERE lot_cnt = ?
+WHERE inst_no = ?
 `
 
 // 공정에 알맞는 품질 검사 조회

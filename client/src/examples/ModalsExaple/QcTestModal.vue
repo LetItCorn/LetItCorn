@@ -60,18 +60,24 @@ export default {
     async confirmQc() {
       console.log(this.rowData);
       let qcData = this.rowData
+      console.log(this.inst);
       for(let i = 0;i<qcData.length;i++){
         qcData[i].lot_cnt = this.inst.lot_cnt
         qcData[i].item_code = this.processes.item_code
         qcData[i].process_code = this.processes.process_code
         qcData[i].userId = this.userId
+        qcData[i].ac_cnt = this.processes.ac_cnt
+        qcData[i].sequence_order = this.processes.sequence_order
+        qcData[i].flowLength = this.flowLength
+        qcData[i].inst_no = this.inst.inst_no
       }
+      console.log(qcData);
       let res = await axios.post(`api/regQcLog`,qcData)
                             .catch(err=>{
                               console.log(err);
                             })
       console.log(res);
-      if(res > 0){
+      if(res.data > 0){
         this.$emit('modalClose')
       }else{
         console.log('품질검사 실패');
@@ -88,9 +94,9 @@ export default {
     }
   },
   computed: {
-    ...mapState(useProcess, ['processes']),
+    ...mapState(useProcess, ['processes','flowLength','inst']),
     ...mapState(useUserStore,['userId']),
-    ...mapState(useProcess,['inst'])
+    // ...mapState(useProcess,['inst'])
 
   },
   watch: {
