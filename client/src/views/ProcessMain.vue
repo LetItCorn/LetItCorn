@@ -147,13 +147,6 @@ export default {
     this.loadProcesses();
     this.loadUnitCodes();
   },
-  // watch: {
-  //   /* 단위코드가 변경되면 spec(단위 “이름”) 자동 반영 --------------------- */
-  //   'selected.unit_code'(val) {
-  //     const unit = this.unitList.find(u => u.code_values === val);
-  //     this.selected.spec = unit ? unit.code_name : '';
-  //   }
-  // },
   methods: {
     /* ============================== 조회 ============================== */
     async loadProcesses() {
@@ -172,7 +165,7 @@ export default {
     },
     async loadUnitCodes() {
       try {
-        const { data } = await axios.get('/api/processes/unitCode'); // UU 공통코드 재사용
+        const { data } = await axios.get('/api/unitCode'); // UU 공통코드 재사용
         this.unitList = data;
       } catch (err) {
         console.error('loadUnitCodes error', err);

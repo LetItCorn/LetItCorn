@@ -48,7 +48,7 @@ router.get('/processes/:process_code', async (req, res) => {
  * 2-1) 단위코드(공통코드 UU) 조회
  *    GET /items/unitCode
  */
-router.get('/processes/unitCode', async (req, res) => {
+router.get('/unitCode', async (req, res) => {
   try {
     const unitList = await processService.unitCode();
     res.json(unitList);
