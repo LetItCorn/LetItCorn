@@ -3,28 +3,48 @@
     <div class="inst-wrapper">
       <div class="inst-header">
         <div class="button-group">
-          <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="addEmptyRow">행 추가</button>
-          <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="resetAll">초기화</button>
-          <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="selectPlan">생산계획조회</button>
-          <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="registerInst">등록</button>
+          <button
+            class="bg-blue-500 px-3 py-1 rounded text-black"
+            @click="addEmptyRow"
+          >
+            행 추가
+          </button>
+          <button
+            class="bg-blue-500 px-3 py-1 rounded text-black"
+            @click="resetAll"
+          >
+            초기화
+          </button>
+          <button
+            class="bg-blue-500 px-3 py-1 rounded text-black"
+            @click="selectPlan"
+          >
+            생산계획조회
+          </button>
+          <button
+            class="bg-blue-500 px-3 py-1 rounded text-black"
+            @click="registerInst"
+          >
+            등록
+          </button>
         </div>
       </div>
     </div>
     <div class="grid-wrapper">
-    <ag-grid-vue
-      ref="gridRef"
-      class="ag-theme-alpine"
-      style="width: 100%; height: 500px"
-      domLayout="normal"
-      :columnDefs="columnDefs"
-      :rowData="selectedPlans"
-      :isRowSelectable="isRowSelectable"
-      rowSelection="multiple"
-      :rowMultiSelectWithClick="true"
-      :suppressRowClickSelection="true"
-      @grid-ready="onGridReady"
-    />
-  </div>
+      <ag-grid-vue
+        ref="gridRef"
+        class="ag-theme-alpine"
+        style="width: 100%; height: 500px"
+        domLayout="normal"
+        :columnDefs="columnDefs"
+        :rowData="selectedPlans"
+        :isRowSelectable="isRowSelectable"
+        rowSelection="multiple"
+        :rowMultiSelectWithClick="true"
+        :suppressRowClickSelection="true"
+        @grid-ready="onGridReady"
+      />
+    </div>
   </div>
   <PlanSelectModal v-if="isPlanModalOpen" />
 </template>
@@ -106,7 +126,7 @@ function onGridReady(params) {
   gridApi.value = params.api;
 }
 
-const addEmptyRow = () =>{
+const addEmptyRow = () => {
   if (!gridApi.value) {
     Swal.fire({
       icon: "question",
@@ -115,19 +135,19 @@ const addEmptyRow = () =>{
     return;
   }
   const newRow = {
-    inst_no: '',            
-    plan_no: '',
-    lot_cnt: '', 
-    item_name: '',
-    item_code: '',  
-    plans_vol: '',
-    iord_no: '', 
-    porder_seq: '',
-    unassigned_count: '',
-    plan_start: '',
-    plan_end: '',
-    process_header: '',
-    out_od: ''
+    inst_no: "",
+    plan_no: "",
+    lot_cnt: "",
+    item_name: "",
+    item_code: "",
+    plans_vol: "",
+    iord_no: "",
+    porder_seq: "",
+    unassigned_count: "",
+    plan_start: "",
+    plan_end: "",
+    process_header: "",
+    out_od: "",
   };
   gridApi.value.applyTransaction({ add: [newRow] });
 };
@@ -154,8 +174,9 @@ const columnDefs = ref([
     hide: route.query.mode !== "modify",
     flex: 2,
   },
-  { field: "plan_no", headerName: "생산계획번호", flex: 2 },
+  { field: "plan_no", headerName: "생산계획번호", flex: 2, editable: true },
   { field: "item_name", headerName: "품목명", flex: 2, editable: true },
+  { field: "item_code", headerName: "품목코드", flex: 1, hide: true },
   { field: "plans_vol", headerName: "생산계획량", flex: 1 },
   { field: "iord_no", headerName: "지시수량", editable: true, flex: 1 },
   {
@@ -246,8 +267,12 @@ async function registerInst() {
         typeof row.plan_end === "string"
           ? row.plan_end.split("T")[0]
           : row.plan_end;
-        row.item_code = row.item_code || '';
-        row.item_name = row.item_name || '';
+      row.item_code = row.item_code || "";
+      row.item_name = row.item_name || "";
+      row.plans_vol = row.plans_vol || "0"; 
+      row.iord_no = row.iord_no || "0";
+      row.process_header = row.process_header;
+      row.out_od = row.out_od || "N"; 
 
       rowData.push(row);
     }
@@ -301,34 +326,36 @@ async function registerInst() {
     const isPlanBased = !!first.plans_head;
 
     if (isPlanBased) {
-    instHeader.value.plans_head = first.plans_head;
-    instHeader.value.plan_start = first.plan_start;
-    instHeader.value.plan_end = first.plan_end;
-  } else {
-    instHeader.value.plans_head = null;
-    instHeader.value.plan_start = first.plan_start || dayjs().format("YYYY-MM-DD");
-    instHeader.value.plan_end = first.plan_end || dayjs().add(1, "day").format("YYYY-MM-DD");
-  }
+      instHeader.value.plans_head = first.plans_head;
+      instHeader.value.plan_start = first.plan_start;
+      instHeader.value.plan_end = first.plan_end;
+    } else {
+      instHeader.value.plans_head = null;
+      instHeader.value.plan_start =
+        first.plan_start || dayjs().format("YYYY-MM-DD");
+      instHeader.value.plan_end =
+        first.plan_end || dayjs().add(1, "day").format("YYYY-MM-DD");
+    }
 
-  instHeader.value.inster = userStore.user.id || "관리자";
+    instHeader.value.inster = userStore.user.id || "관리자";
 
-  try {
-    await productionInstStore.registerInstData({
-      header: instHeader.value,
-      details: rowData,
-    });
+    try {
+      await productionInstStore.registerInstData({
+        header: instHeader.value,
+        details: rowData,
+      });
 
-    Swal.fire({
-      icon: "success",
-      title: "등록 성공",
-    });
-  } catch (err) {
-    console.error(err);
-    Swal.fire({
-      icon: "error",
-      title: "등록 실패",
-    });
-   }
+      Swal.fire({
+        icon: "success",
+        title: "등록 성공",
+      });
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "등록 실패",
+      });
+    }
   }
 }
 </script>
