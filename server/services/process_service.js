@@ -72,6 +72,10 @@ const findProcess = async (processCode) => {
  * @param {object} process - 등록할 공정 정보
  */
 const createProcess = async (process) => {
+  // unitList → spec 세팅
+    const unitList = await unitCode();
+    process.spec = (unitList.find(u => u.code_values === process.unit_code) || {}).code_name || '';
+
   // 기본 파라미터 배열: 등록 시 null일 수 있는 코드 먼저 포함
   let params = [
     process.process_code,
