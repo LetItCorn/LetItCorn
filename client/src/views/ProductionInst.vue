@@ -119,6 +119,7 @@ const addEmptyRow = () =>{
     plan_no: '',
     lot_cnt: '', 
     item_name: '',
+    item_code: '',  
     plans_vol: '',
     iord_no: '', 
     porder_seq: '',
@@ -245,6 +246,8 @@ async function registerInst() {
         typeof row.plan_end === "string"
           ? row.plan_end.split("T")[0]
           : row.plan_end;
+        row.item_code = row.item_code || '';
+        row.item_name = row.item_name || '';
 
       rowData.push(row);
     }
