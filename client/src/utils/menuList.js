@@ -20,13 +20,17 @@ const menuConfig = {
       }
     ],
     "완제품 입∙출고": [{
-        name: "완제품 입∙출고이력 조회",
-        path: '#'
-      },
-      {
-        name: "완제품 입고 등록",
-        path: '#'
-      }
+      name: "완제품 품질검사",
+      path: 'QInspectionFinishedproduct'
+    },
+    {
+      name: "완제품 입고 등록",
+      path: 'InsertFinishedProduct'
+    },
+    {
+      name: "완제품 입∙출고이력 조회",
+      path: 'CheckWFpdHistory'
+    }
     ],
     "반품": [{
         name: "반품 목록",

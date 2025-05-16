@@ -60,6 +60,8 @@
   const IsqtRouter = require('./routers/Insertsqt_router.js'); // 출고량 등록 InsertSqt
   const CustomerRouter = require('./routers/customer_router.js'); // 거래처 Customer
   const FinishedProductRouter = require('./routers/finishedproduct_router.js'); // 완제품 FinishedProduct
+  const CheckWFpdhistory = require('./routers/checkwfpdhistory_router.js'); // 완제품 입출고 조회 CheckWFpdhistory
+  const QInspectionFproductRouter = require('./routers/qinspectionfinishedproduct_router.js'); // 완제품 품질검사 QInspectionFproduct
 
   //관리
   const userRouter = require('./routers/user_router.js');
@@ -105,6 +107,8 @@
   app.use('/', IsqtRouter);
   app.use('/', CustomerRouter);
   app.use('/', FinishedProductRouter);
+  app.use('/', CheckWFpdhistory);
+  app.use('/', QInspectionFproductRouter);
   //자재
   app.use('/', materialsRouter);
   app.use('/', lotRouter);

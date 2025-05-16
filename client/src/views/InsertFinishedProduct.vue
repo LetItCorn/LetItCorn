@@ -1,16 +1,17 @@
 <template>
-  <div class="checkwfpdhistory-container">
+  <div class="insertfinishedproduct-container">
     <div class="header-container">
       <div class="main-title">
-        <h2>완제품 입출고 이력 조회</h2>
+        <h2>완제품 입고 등록</h2>
       </div>
     </div>
   </div>
 </template>
 <script>
+
 </script>
 <style scoped>
-  .checkwfpdhistory-container {
+  .insertfinishedproduct-container {
   margin: 25px;
   color: #000 !important;
 }

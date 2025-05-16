@@ -45,6 +45,9 @@ const customer = require('./sqls/customer.js');
 const instructionsOpen = require('./sqls/instructions_open.js');
 const materialmains = require('./sqls/materialmains.js');
 const finishedproduct = require('./sqls/finishedproduct.js');
+const checkwfpdhistory = require('./sqls/checkwfpdhistory.js');
+const insertfproduct = require('./sqls/insertfinishedproduct.js');
+const qinspectionfproduct = require('./sqls/qinspectionfinishedproduct.js');
 
 
 module.exports = {
@@ -94,4 +97,7 @@ module.exports = {
   ...instructionsOpen,
   ...materialmains,
   ...finishedproduct,
+  ...checkwfpdhistory,
+  ...insertfproduct,
+  ...qinspectionfproduct,
 }
