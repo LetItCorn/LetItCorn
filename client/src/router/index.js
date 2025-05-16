@@ -38,6 +38,8 @@ import ProductionInstInquiry from "@/views/ProductionInstInquiry.vue";
 import InsertSqt from "../views/Insertsqt.vue";
 import FinishedProduct from "@/views/FinishedProduct.vue";
 import CheckWFpdHistory from "@/views/CheckWFpdHistory.vue"; // 완제품 입출고 이력 조회 check waringhouse finished product history
+import InsertFproduct from "@/views/InsertFinishedProduct.vue"; // 완제품 입고 등록
+import QInspectionFinishedproduct from "@/views/QInspectionFinishedProduct.vue"; // 완제품 품질검사
 
 const routes = [
   {
@@ -255,7 +257,19 @@ const routes = [
     path: '/checkwfpdhistory',
     name: 'CheckWFpdHistory',
     component: CheckWFpdHistory
-  }
+  },
+  {
+    // 완제품 입고 등록
+    path: '/insertfinishedproduct',
+    name: 'InsertFinishedProduct',
+    component: InsertFproduct
+  },
+  {
+    // 완제품 품질검사
+    path: '/qinspectionfinishedproduct',
+    name: 'QInspectionFinishedproduct',
+    component: QInspectionFinishedproduct
+  },
 ];
 
 const router = createRouter({
