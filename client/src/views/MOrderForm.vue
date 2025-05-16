@@ -7,7 +7,7 @@
     <div class="row mb-4">
       <!-- 기본 정보 카드 -->
       <div class="col-md-6">
-        <div class="card border-primary mb-3">
+        <div class="card border-primary mb-3 h-100">
           <div class="card-header bg-primary text-white">기본 정보</div>
           <div class="card-body">
             <table class="table table-sm table-borderless mb-0">
@@ -98,8 +98,8 @@
       </div>
 
       <!-- 등록 정보 카드 -->
-      <div class="col-md-6">
-        <div class="card border-secondary mb-3">
+      <div class="col-md-6 ">
+        <div class="card border-secondary mb-3 h-100">
           <div class="card-header bg-secondary text-white">등록 정보</div>
           <div class="card-body">
             <table class="table table-sm table-borderless mb-0">

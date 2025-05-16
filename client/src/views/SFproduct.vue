@@ -1,4 +1,4 @@
-// 이용진
+<!-- 이용진 -->
 <template>
   <div class="container-fluid py-4">
     <h2 class="text-center mb-4">반제품 생산지시 조회</h2>
