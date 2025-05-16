@@ -20,14 +20,14 @@ const regProLog = async(data)=>{
   let dtRes;
   console.log(data);
   // 첫등록시 공정실적을 생성하기위해 필요한 데이터
-  firstIncome = ['process_header','item_name','userId','item_code','iord_no','inst_head']
+  let firstIncome = ['process_header','item_name','userId','item_code','iord_no','inst_head']
   // 공정실적디테일을 등록하기 위한 데이터 
-  afterFirst =['lot_cnt','p_log_no','sta_time','end_time','ac_cnt','fault_cnt','process_code','process_name','userId','spec','unit_code']
-  // 지시의 수정을 위한 데이터
-  updateHead = ['ac_cnt','lot_cnt']
+  let afterFirst =['lot_cnt','p_log_no','sta_time','end_time','ac_cnt','fault_cnt','process_code','process_name','userId','spec','unit_code']
+ 
   try{
     conn = await mariadb.getConnection();
-    console.log(data.sequence_order)
+    await conn.beginTransaction();
+    // console.log(data.sequence_order)
     if(data.sequence_order == 1){
       let firstProcess = convertObjToAry(data,firstIncome)
       console.log(firstProcess);
@@ -49,21 +49,20 @@ const regProLog = async(data)=>{
       selectSql = await mariadb.selectedQuery('regProLogDt',regData)
       dtRes = await conn.query(selectSql,regData)
       Object.assign(res,dtRes[0])
-    }else if(data.sequence_order == data.flowLength){
-      //마지막 공정 실적 저장시 지시 테이블 업데이트
-      let regData = convertObjToAry(data, afterFirst)
-      selectSql = await mariadb.selectedQuery('regProLogDt',regData)
-      res = await conn.query(selectSql,regData)
-      let updated = convertObjToAry(data, updateHead)
-      selectSql = await mariadb.selectedQuery('setInst',updated)
-      dtRes = await conn.query(selectSql,updated)
+    // }else if(data.sequence_order == data.flowLength){
+    //   //마지막 공정 실적 저장시 지시 테이블 업데이트
+    //   let regData = convertObjToAry(data, afterFirst)
+    //   selectSql = await mariadb.selectedQuery('regProLogDt',regData)
+    //   res = await conn.query(selectSql,regData)
+    //   let updated = convertObjToAry(data, updateHead)
+    //   selectSql = await mariadb.selectedQuery('setInst',updated)
+    //   dtRes = await conn.query(selectSql,updated)
     }else{
       // 일반 공정 실적 저장
       let regData = convertObjToAry(data, afterFirst)
       selectSql = await mariadb.selectedQuery('regProLogDt',regData)
       res = await conn.query(selectSql,regData)
     }
-    await conn.beginTransaction();
     
     conn.commit();
     
@@ -78,28 +77,63 @@ const regProLog = async(data)=>{
 // 해당 공정의 품질검사 정보 조회
 const getQcTest = async(data)=>{
   let res = await mariadb.query('getQcTest',data)
-  .catch(err=>{
-    console.log(err);
-  });
+                        .catch(err=>{
+                          console.log(err);
+                        });
   return res
 }
 
 // 품질 검사 이력 저장 프로시저 실행
 const regQcLog = async(data)=>{
-  let selected = ['process_code','item_code','userId','test_res','lot_cnt','unit','test_res']
+  let selected = ['process_code','item_code','userId','test_res','lot_cnt','unit','pr_status']
   let rows=0;
-  for(eachData of data){
-  let dataAry = convertObjToAry(eachData,selected)
-  let res = await mariadb.query('regQcLog',dataAry)
-                        .catch(err=>{
-                          console.log(err);
-                        })
-                        console.log(res);
-  rows += res.affectedRows
+  let conn ; 
+  let res
+  let updateHead = ['ac_cnt','inst_no']
+  try {
+    conn = await mariadb.getConnection()
+    await conn.beginTransaction()
+     // 지시의 수정을 위한 데이터
+    console.log(data);
+    // console.log(data[0].sequence_order);
+    // console.log(data[0].flowLength);
+    // console.log(data[0].sequence_order === data[0].flowLength);
+    if(data[0].sequence_order === data[0].flowLength){
+      for(eachData of data){
+        let dataAry = convertObjToAry(eachData,selected)
+        console.log('dataAry 출력');
+        console.log(dataAry);
+        selectSql = await mariadb.selectedQuery('regQcLog',dataAry)
+        console.log(selectSql);
+        let res = await conn.query(selectSql,dataAry)
+        console.log('입력 결과 출력');
+        console.log(res);
+        rows += res.affectedRows
+        }
+        let updated = convertObjToAry(data[0], updateHead)
+          selectSql = await mariadb.selectedQuery('setInst',updated)
+          let dtRes = await conn.query(selectSql,updated)
+          console.log(dtRes);
+        // if(dtRes.affectedRows = 0){
+        //   throw error
+        // }
+    }else{
+      for(eachData of data){
+        let dataAry = convertObjToAry(eachData,selected)
+        selectSql = await mariadb.selectedQuery('regQcLog',dataAry)
+        console.log(selectSql);
+        let res = await conn.query(selectSql,dataAry)
+        rows += res.affectedRows
+        }
+    }
+     
+    conn.commit();
+    return rows
+  } catch (error) {
+    if(conn) conn.rollback();
+  }finally{
+    if(conn) conn.release();
   }
- 
-  console.log(rows);
-  return rows
 }
 
  module.exports = {

@@ -100,6 +100,7 @@ export default {
     // 선택한 생산지시의 품목에 일치하는 공정흐름 업뎃
     async getInstData(data){
       this.setOrderQty('')
+      console.log(data);
       this.instData = data
       let procFlow = this.instData.item_code
       let res = await axios.get(`api/getFlow/${procFlow}`)
