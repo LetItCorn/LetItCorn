@@ -131,37 +131,9 @@
   border: none !important;
 }
 
-.btn-select {
-  background-color: #0000ff !important;
-  color: #fff !important;
-  width: 100px !important;
-  border: none !important;
-}
-
-.btn-update {
-  background-color: #28a745 !important;
-  color: #fff !important;
-  width: 100px !important;
-  border: none !important;
-}
-
-.btn-delete {
-  background-color: #dc3545 !important;
-  color: #fff !important;
-  width: 100px !important;
-  border: none !important;
-}
-
-.btn-insert {
-  background-color: #fbff00 !important;
-  color: #000 !important;
-  width: 100px !important;
-  border: none !important;
-}
-
 .order-table {
-overflow-x: auto;
-margin-bottom: 20px;
+  overflow-x: auto;
+  margin-bottom: 20px;
 }
 
 table {
