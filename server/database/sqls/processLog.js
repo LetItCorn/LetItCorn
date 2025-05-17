@@ -9,7 +9,7 @@ const selectInst =
         ins_stat,
         inst_no,
         '대기' as state,
-        '' as cur_cnt        
+        0 as cur_cnt        
   FROM inst_header h JOIN inst i
                       ON  h.inst_head = i.inst_head
   WHERE inst_stat = 'J02'
@@ -83,6 +83,13 @@ const regQcLog = `
 CALL INSERTQCLOG(?,?,?,?,?,?,?);
 `
 
+//최종 생산지시 완료 업데이트
+const updateInHead = `
+UPDATE inst_header
+SET inst_stat = 'J04'
+WHERE inst_head = ?
+`
+
  module.exports = {
     selectInst,
     getFlow,
@@ -92,5 +99,6 @@ CALL INSERTQCLOG(?,?,?,?,?,?,?);
     setResult,
     setInst,
     getQcTest,
-    regQcLog
+    regQcLog,
+    updateInHead
  };

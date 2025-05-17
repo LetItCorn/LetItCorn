@@ -13,21 +13,31 @@
          <!-- 첫공정인지 확인(pinia에 확인) -> 새로운 공정실적 저장 -->
         <button class="btn btn-success" @click="saveBtn">저장</button>
       </div>
-      <div class="mb-3">
+      
+      <div class="mb-3 row">
         <!-- v-if 사용 혼합살균충전 공정에선 L 붙이고 지시량에서 12 곱. pinia 사용 이전 공정의 생산량 저장, 불러내서 다음 공정의 최대 생산량 변화주기-->
         <!-- <label v-if="orderQty" class="form-label">최대 생산량: {{ orderQty }}</label> -->
         <label  class="form-label">생산수량</label>
-        <input class="form-control" v-model="manuFac" placeholder="생산수량" type="number" default="0">
+        <div class="col-8">
+        <input class="form-control text-end" v-model="manuFac" placeholder="생산수량" type="number" default="0">
+        </div>
+        <div class="col-4 py-2">
+        <span>{{ processes.spec }}</span>
+        </div>
       </div>
-      <div class="mb-3">
+      <div class="mb-3 row">
         <label class="form-label">불량수량</label>
-        <input class="form-control" v-model="manuErr" placeholder="불량수량" type="number" default="0">
+        <div class="col-8">
+          <input class="form-control text-end" v-model="manuErr" placeholder="불량수량" type="number" default="0">
+        </div>
+        <div class="col-4 py-2">
+          <span>{{ processes.spec }}</span>
+        </div>
       </div>
     </div>
-
     <div class="col-4 d-flex align-items-center justify-content-center">
-  <button class="btn btn-warning py-5 px-5" @click="showModal = true">품질검사</button>
-<QcTestModal :visible="showModal" @modalClose="showModal = false" />
+  <button class="btn btn-warning py-5 px-5" @click="turnShowModal">품질검사</button>
+<QcTestModal :visible="showModal" @modalClose="turnShowModal" />
 </div>
   </div>
 </template>
@@ -42,22 +52,23 @@
   } from 'pinia';
   import axios from 'axios';
   import QcTestModal from '@/examples/ModalsExaple/QcTestModal.vue';
+import Swal from 'sweetalert2';
   export default {
-    emits : ['setRow'],
+    emits : ['setRow','setResQty'],
     components: {
       QcTestModal
     },
     data() {
       return {
-        manuFac : 0,
-        manuErr : 0,
+        manuFac : '',
+        manuErr : '',
         showModal : false,
       };
     },
     created() {},
     mounted() {},
     methods: {
-      ...mapActions(useProcess,['setInst']),
+      ...mapActions(useProcess,['setInst','turnStatProcess','turnStatFlow']),
      async  saveBtn(){
       // 저장버튼 클릭시 상기 정보를 공정 상세 테이블에 저장
         // console.log(this.processes);
@@ -67,13 +78,17 @@
        
         this.processes.ac_cnt = this.manuFac
         this.processes.fault_cnt = this.manuErr
+            if(this.manuErr==''){
+              this.manuErr = 0
+            }
+            if(this.manuFac ==''){
+              this.manuFac = 0
+            }
         data.ac_cnt = this.manuFac
         data.fault_cnt = this.manuErr
         data.sta_time = this.getTime()
         data.end_time = this.getTime(this.processes.duration_min)
         data.pr_status = '종료'
-        // console.log('공정');
-        // console.log(this.inst);
         Object.assign(comData,this.processes,this.inst)
         console.log(comData);
         comData.userId= this.userId
@@ -85,13 +100,26 @@
                               .catch(err=>{
                                 console.log(err);
                               })
-        // console.log('결과');
-        // console.log(res);
-        this.inst.p_log_no = res.data.p_log_no
-        this.setInst(this.inst)
-        // console.log(this.inst);
-        this.manuErr = 0
-        this.manuFac = 0
+                              console.log(res);
+        if(res.data.result == 'success'){
+          this.inst.p_log_no = res.data.p_log_no
+          this.setInst(this.inst)
+          if(this.processes.sequence_order == 1){
+            // 첫공정 실행시 흐름 시작표기
+            this.turnStatFlow()
+          }
+          this.turnStatProcess()
+        }else{
+          //sweetalrt
+          Swal.fire({
+            title: "저장 실패",
+            text: "공정 결과 저장중 문제가 발생했습니다.",
+            icon: "question"
+          });
+        };
+  
+        this.manuErr = ''
+        this.manuFac = ''
       },
       // 가공 시간 계산 함수
       getTime(minutes=0){
@@ -100,12 +128,36 @@
         const hh = String(newTime.getHours()).padStart(2, '0');
         const mm = String(newTime.getMinutes()).padStart(2, '0');
         return `${hh}:${mm}`
+      },
+      // 모달 상태 변화
+      turnShowModal(){
+        if(this.statProcess){
+          if(!this.statFlow){
+            this.$emit('setResQty')
+          }
+          this.showModal = this.showModal == true ? false : true;
+        }else{
+           Swal.fire({
+            title: `공정`,
+            text: `공정 이 진행되지 않았습니다.`,
+            icon: "question"
+          });
+        }
       }
     },
     computed: {
-  ...mapState(useProcess, ['processes', 'orderQty','inst','flowLength']),
-  ...mapState(useUserStore,['userId'])
+  ...mapState(useProcess, ['statFlow','statProcess','processes', 'orderQty','inst','flowLength']),
+  ...mapState(useUserStore,['userId']),
+
 }
   }
 </script>
-<style scoped />
+<style scoped>
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+</style>

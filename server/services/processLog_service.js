@@ -18,6 +18,7 @@ const regProLog = async(data)=>{
   let conn;
   let res;
   let dtRes;
+  let result;
   console.log(data);
   // 첫등록시 공정실적을 생성하기위해 필요한 데이터
   let firstIncome = ['process_header','item_name','userId','item_code','iord_no','inst_head']
@@ -65,13 +66,14 @@ const regProLog = async(data)=>{
     }
     
     conn.commit();
-    
+    data.result = 'success'
   }catch(err){
     if(conn) conn.rollback();
+    data.result = 'fail'
   }finally{
     if(conn) conn.release();
+    return data
   }
-  return data
 }
 
 // 해당 공정의 품질검사 정보 조회
@@ -94,29 +96,19 @@ const regQcLog = async(data)=>{
     conn = await mariadb.getConnection()
     await conn.beginTransaction()
      // 지시의 수정을 위한 데이터
-    console.log(data);
     // console.log(data[0].sequence_order);
     // console.log(data[0].flowLength);
     // console.log(data[0].sequence_order === data[0].flowLength);
     if(data[0].sequence_order === data[0].flowLength){
       for(eachData of data){
         let dataAry = convertObjToAry(eachData,selected)
-        console.log('dataAry 출력');
-        console.log(dataAry);
         selectSql = await mariadb.selectedQuery('regQcLog',dataAry)
-        console.log(selectSql);
         let res = await conn.query(selectSql,dataAry)
-        console.log('입력 결과 출력');
-        console.log(res);
         rows += res.affectedRows
         }
         let updated = convertObjToAry(data[0], updateHead)
           selectSql = await mariadb.selectedQuery('setInst',updated)
           let dtRes = await conn.query(selectSql,updated)
-          console.log(dtRes);
-        // if(dtRes.affectedRows = 0){
-        //   throw error
-        // }
     }else{
       for(eachData of data){
         let dataAry = convertObjToAry(eachData,selected)
@@ -136,10 +128,21 @@ const regQcLog = async(data)=>{
   }
 }
 
+const updateInHead = async (data) => {
+  let upData = []
+  upData.push(data)
+  let result = await mariadb.query('updateInHead',upData)
+                            .catch(err=>{
+                              console.log(err);
+                            })
+  return result
+}
+
  module.exports = {
   getinst,
   getFlow,
   regProLog,
   getQcTest,
-  regQcLog
+  regQcLog,
+  updateInHead
  };

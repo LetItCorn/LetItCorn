@@ -17,7 +17,7 @@
       </div>
       <div class="col-md-6">
         <div class="card h-100">
-          <proController  @setRow="updateRow"/>
+          <proController  @setRow="updateRow" @setResQty="setResQty"/>
         </div>
       </div>
     </div>
@@ -44,7 +44,7 @@ import Grid from '@/components/Grid.vue';
 import axios from 'axios';
 import proController from '@/components/proController.vue';
 import { useProcess } from '@/store/processStat';
-import { mapActions } from 'pinia';
+import { mapActions, mapState } from 'pinia';
 export default {
   data() {
     return {
@@ -86,7 +86,7 @@ export default {
     this.getInst()
   },
   methods : {
-    ...mapActions(useProcess, ['setProCode','setOrderQty','setInst','setFlowLength']),
+    ...mapActions(useProcess, ['setProCode','setOrderQty','setInst','setFlowLength','setStatProcess','setStatFlow']),
     // 생산지시 조회 쿼리 실행 함수
     async getInst() {
       let res = await axios.get(`api/proce`)
@@ -111,6 +111,7 @@ export default {
       this.setInst(this.instData)
       // console.log(res.data);
       this.flowData = res.data
+      this.setProCode(res.data[0])
     },
     // 라벨용 pinia
     onFlowClicked(e) {
@@ -131,8 +132,38 @@ export default {
     this.setProCode({})
     this.setInst({})
     this.setOrderQty(0)
+    this.setStatFlow()
+    this.setStatProcess()
+  },
+  // 마지막 공정의 품질검사가 끝났을때 최상단에 위치한 grid의 진행상태와 현 생산량을 바꾼다
+  async setResQty(){
+    let copyData = this.rowData
+    let cnt = 0;
+    for(let i = 0;i < copyData.length;i++){
+      if(copyData[i].state == '종료'){
+        cnt++
+      }
+      if(copyData[i].item_code == this.processes.item_code){
+        copyData[i].ac_cnt = this.processes.ac_cnt
+        copyData[i].state = '종료'
+      }
+    }
+    console.log(cnt);
+    this.rowData = copyData
+    if(this.rowData.length = cnt){
+      let res = await axios.put('api/updateInHead',this.instHead)
+                           .catch(err=>{
+                            console.log(err);
+                           })
+                           console.log("결과");
+                           console.log(res.data);
+    }
+
   }
   },
+  computed : {
+    ...mapState(useProcess,['processes'])
+  },  
   watch :{
     
   }

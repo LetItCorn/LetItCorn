@@ -54,5 +54,16 @@ const express = require('express');
                                     })
    res.send(result)
  })
- 
+
+ //최종 생산지시 헤더 완료
+ router.put('/processes', async (req,res)=>{
+   let data = req.body
+   let result = await processService.updateInHead(data)
+                                    .catch(err=>{
+                                       console.log(err);
+                                    })
+   res.send(result)
+ })
+
+
  module.exports = router
