@@ -23,6 +23,7 @@ import {
   useProcess
 } from '@/store/processStat';
 import {
+  mapActions,
   mapState
 } from 'pinia';
 import axios from 'axios';
@@ -49,11 +50,13 @@ export default {
   created() { },
   mounted() { },
   methods: {
+    ...mapActions(useProcess,['turnStatProcess']),
     async getQcTest() {
       // console.log(this.processes.process_code);
       let res = await axios.get(`api/getQcTest/${this.processes.process_code}`)
       this.rowData = res.data
     },
+    // 모달 바깥 클릭시 모달창 종료 버튼
     clickLayout(){
       this.$emit('modalClose')
     },
@@ -78,7 +81,13 @@ export default {
                             })
       console.log(res);
       if(res.data > 0){
+        this.turnStatProcess()
+        this.setCurrnetSeq(this.currentSeq + 1)
         this.$emit('modalClose')
+        if(this.processes.sequence_order == this.flowLength ){
+              // 마지막 공정 실행시 흐름 종료 표기
+              this.turnStatFlow()
+            }
       }else{
         console.log('품질검사 실패');
       }
@@ -94,7 +103,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(useProcess, ['processes','flowLength','inst']),
+    ...mapState(useProcess, ['processes','flowLength','inst','currentSeq']),
     ...mapState(useUserStore,['userId']),
     // ...mapState(useProcess,['inst'])
 
@@ -129,6 +138,5 @@ export default {
   margin-left: 266px;
   width: 70%;
   height: 60%;
-
 }
 </style>

@@ -13,6 +13,8 @@
     useProcess
   } from '@/store/processStat';
   import { mapActions } from 'pinia';
+  import { mapState } from 'pinia';
+  import Swal from 'sweetalert2';
   export default {
     name: 'Grid',
     props: {
@@ -33,23 +35,50 @@
         },
       };
     },
+    computed : {
+      ...mapState(useProcess,['inst','currentSeq','processes','statProcess','flowLength','statFlow'])
+    },
     methods: {
-      ...mapActions(useProcess,['setCurrnetSeq','setProCode']),
+      ...mapActions(useProcess,['setCurrnetSeq','setProCode','setCurrentSeq']),
       onCellClicked(e) {
         // console.log(e.data);
         // console.log(e.data.hasOwnProperty('lot_cnt'));
         // 생산지시 그리드일 경우
         if (e.data.hasOwnProperty('lot_cnt')) {
-          this.$emit('passInst', e.data);
-          this.setCurrnetSeq(0)
-          this.setProCode({})
+          if(this.statFlow == true){
+            Swal.fire({
+              icon: "error",
+              title: "공정을 완료하세요!",
+              text: `${this.inst.item_name}의 생산 공정을 완료하세요!`,
+             });
+          }else{
+            this.$emit('passInst', e.data);
+            this.setCurrnetSeq(1)
+          }
         }
         // 공정 클릭일 경우
         else if (e.data.hasOwnProperty('process_code')) {
           // console.log(e.data);
         // 공정진행 순서 강제 pinia 에 seq정보 저장, 현재 메소드에서 검사,
-          this.$emit('setController',e.data)
-          this.setCurrnetSeq(e.data.sequence_order - 1)
+        if(this.statProcess == true){ 
+          Swal.fire({
+              icon: "error",
+              title: "품질검사 필요!",
+              text: `${this.processes.process_name} 공정의 품질검사가 필요합니다. `,
+             });
+        }  
+        else if (this.currentSeq != e.data.sequence_order){
+            console.log(e.data.sequence_order);
+            Swal.fire({
+              icon: "error",
+              title: "공정순서를 지켜주세요!",
+              text: `${this.processes.process_name} 공정을 먼저 진행 해야합니다. `,
+             });
+            
+          }else{
+           
+            this.$emit('setController',e.data)
+          }
         }
       },
     },
