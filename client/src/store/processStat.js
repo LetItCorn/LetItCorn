@@ -18,7 +18,7 @@ export const useProcess = defineStore('flow', {
     prCode : state => state.processes,
     getOrderQty : state => state.orderQty,
     getSeq : state => state.currentSeq,
-    getFlowLengh : state => state.flowLength,
+    getFlowLength : state => state.flowLength,
     getStatProcess : state => state.statProcess,
     getStatFlow : state => state.statFlow,
   },
@@ -34,7 +34,7 @@ export const useProcess = defineStore('flow', {
     setOrderQty(qty) {
       this.orderQty = qty;
     },
-    setCurrnetSeq(seq){
+    setCurrentSeq(seq){
       this.currentSeq = seq
     },
     setFlowLength(data){

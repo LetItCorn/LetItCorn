@@ -84,7 +84,9 @@ export default {
     // console.log('created');
     //생산지시 정보 화면 출력
     this.getInst()
-  },
+  }, computed : {
+    ...mapState(useProcess,['processes','orderQty','inst'])
+  }, 
   methods : {
     ...mapActions(useProcess, ['setProCode','setOrderQty','setInst','setFlowLength','setStatProcess','setStatFlow']),
     // 생산지시 조회 쿼리 실행 함수
@@ -116,7 +118,11 @@ export default {
     // 라벨용 pinia
     onFlowClicked(e) {
     this.setProCode(e); // 공정 정보 저장
-    this.setOrderQty(this.instData.iord_no); // 지시량 저장
+    if(e.process_code == 'PC001' || e.process_code == 'PC098'){
+      this.setOrderQty(this.instData.iord_no * 12); // 지시량 저장
+    }else if (e.process_code ==  'PC004' || e.process_code == 'PC099'){
+      this.setOrderQty(this.orderQty/12); // 지시량 저장
+    }
   },
   // 생산량, 불량량 저장시 공정 진행의 값 변경
   updateRow(e){
@@ -137,19 +143,16 @@ export default {
   },
   // 마지막 공정의 품질검사가 끝났을때 최상단에 위치한 grid의 진행상태와 현 생산량을 바꾼다
   async setResQty(){
-    let copyData = this.rowData
-    let cnt = 0;
-    for(let i = 0;i < copyData.length;i++){
-      if(copyData[i].state == '종료'){
-        cnt++
-      }
-      if(copyData[i].item_code == this.processes.item_code){
-        copyData[i].ac_cnt = this.processes.ac_cnt
-        copyData[i].state = '종료'
-      }
+     const updated = this.rowData.map(row => ({ ...row }));  
+  let cnt = 1;
+  for (let i = 0; i < updated.length; i++) {
+    if (updated[i].state === '종료') cnt++;
+    if (updated[i].lot_cnt === this.inst.lot_cnt) {
+      updated[i].ac_cnt = this.processes.ac_cnt;
+      updated[i].state = '종료';
     }
-    console.log(cnt);
-    this.rowData = copyData
+  }
+  this.rowData = updated; 
     if(this.rowData.length = cnt){
       let res = await axios.put('api/updateInHead',this.instHead)
                            .catch(err=>{
@@ -159,11 +162,9 @@ export default {
                            console.log(res.data);
     }
 
-  }
   },
-  computed : {
-    ...mapState(useProcess,['processes'])
-  },  
+  },
+  
   watch :{
     
   }

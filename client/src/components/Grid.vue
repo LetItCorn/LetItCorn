@@ -39,7 +39,7 @@
       ...mapState(useProcess,['inst','currentSeq','processes','statProcess','flowLength','statFlow'])
     },
     methods: {
-      ...mapActions(useProcess,['setCurrnetSeq','setProCode','setCurrentSeq']),
+      ...mapActions(useProcess,['setProCode','setCurrentSeq']),
       onCellClicked(e) {
         // console.log(e.data);
         // console.log(e.data.hasOwnProperty('lot_cnt'));
@@ -53,21 +53,27 @@
              });
           }else{
             this.$emit('passInst', e.data);
-            this.setCurrnetSeq(1)
+            this.setCurrentSeq(1)
           }
         }
         // 공정 클릭일 경우
         else if (e.data.hasOwnProperty('process_code')) {
           // console.log(e.data);
         // 공정진행 순서 강제 pinia 에 seq정보 저장, 현재 메소드에서 검사,
-        if(this.statProcess == true){ 
+        if(this.currentSeq > this.flowLength){
+          Swal.fire({
+            icon: "error",
+            title: "전체공정이 완료되었습니다!",
+            text: `${this.inst.item_name}의 전체공정이 완료되었습니다. `,
+           });
+           return;
+          }else if(this.statProcess == true){ 
           Swal.fire({
               icon: "error",
               title: "품질검사 필요!",
               text: `${this.processes.process_name} 공정의 품질검사가 필요합니다. `,
              });
-        }  
-        else if (this.currentSeq != e.data.sequence_order){
+        }else if (this.currentSeq != e.data.sequence_order){
             console.log(e.data.sequence_order);
             Swal.fire({
               icon: "error",
@@ -76,7 +82,7 @@
              });
             
           }else{
-           
+           console.log(e.data);
             this.$emit('setController',e.data)
           }
         }

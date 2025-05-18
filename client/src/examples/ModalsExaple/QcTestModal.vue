@@ -50,7 +50,7 @@ export default {
   created() { },
   mounted() { },
   methods: {
-    ...mapActions(useProcess,['turnStatProcess']),
+    ...mapActions(useProcess,['turnStatProcess','setCurrnetSeq','turnStatFlow']),
     async getQcTest() {
       // console.log(this.processes.process_code);
       let res = await axios.get(`api/getQcTest/${this.processes.process_code}`)
@@ -60,6 +60,7 @@ export default {
     clickLayout(){
       this.$emit('modalClose')
     },
+    // 품질검사 결과 등록
     async confirmQc() {
       console.log(this.rowData);
       let qcData = this.rowData
@@ -81,13 +82,13 @@ export default {
                             })
       console.log(res);
       if(res.data > 0){
-        this.turnStatProcess()
         this.setCurrnetSeq(this.currentSeq + 1)
-        this.$emit('modalClose')
         if(this.processes.sequence_order == this.flowLength ){
               // 마지막 공정 실행시 흐름 종료 표기
               this.turnStatFlow()
+             
             }
+        this.$emit('modalClose')
       }else{
         console.log('품질검사 실패');
       }
