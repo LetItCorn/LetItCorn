@@ -14,41 +14,30 @@
                   <th>검사번호</th>
                   <th>검사항목</th>
                   <th>기준값</th>
+                  <th>단위</th>
                   <th>측정값</th>
                   <th>판정</th>
-                  <th>비고</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, idx) in testItems" :key="item.test_no">
+                <tr v-for="item in testItems" :key="item.test_no">
                   <td>{{ item.test_no }}</td>
-                  <td>{{ item.test_feild }}</td>
+                  <td>{{ item.test_field }}</td>
                   <td>{{ item.test_stand }}</td>
+                  <td>{{ item.unit }}</td>
                   <td>
                     <input
                       v-model="item.test_res"
                       type="text"
                       class="form-control form-control-sm"
                       placeholder="값 입력"
+                      @input="setResult(item)"
                     />
                   </td>
                   <td>
-                    <select
-                      v-model="item.test_stat"
-                      class="form-select form-select-sm"
-                    >
-                      <option disabled value="">선택</option>
-                      <option value="적합">적합</option>
-                      <option value="부적합">부적합</option>
-                    </select>
-                  </td>
-                  <td>
-                    <input
-                      v-model="item.test_etc"
-                      type="text"
-                      class="form-control form-control-sm"
-                      placeholder="비고"
-                    />
+                    <span :class="{'text-success': item.test_stat === 'PASS', 'text-danger': item.test_stat === 'FAIL'}">
+                      {{ item.test_stat }}
+                    </span>
                   </td>
                 </tr>
               </tbody>
@@ -69,6 +58,10 @@
 </template>
 
 <script>
+import axios from 'axios';
+import { checkQc } from '@/utils/checkQc';
+import { useInboundStore } from '@/store/inbound';
+
 export default {
   name: 'QualityInspectionModal',
   props: {
@@ -80,38 +73,80 @@ export default {
   },
   data() {
     return {
-      testItems: [
-        { test_no: 'QC011', test_feild: '온도 검사',   test_res: '', test_stat: '', test_etc: '', test_stand: '≤4℃' },
-        { test_no: 'QC012', test_feild: 'pH 측정',     test_res: '', test_stat: '', test_etc: '', test_stand: '6.5~6.8' },
-        { test_no: 'QC013', test_feild: '고형분 검사', test_res: '', test_stat: '', test_etc: '', test_stand: '36~38%' },
-        { test_no: 'QC014', test_feild: '유지방 검사', test_res: '', test_stat: '', test_etc: '', test_stand: '10~12%' },
-        { test_no: 'QC015', test_feild: '미생물 검사', test_res: '', test_stat: '', test_etc: '', test_stand: '총호기성생균수 ≤10⁴ CFU/g' }
-      ]
+      testItems: []
     };
   },
   computed: {
     canComplete() {
-      return this.orders.length > 0 && this.testItems.every(item => item.test_res && item.test_stat);
+      return this.orders.length > 0 &&
+        this.testItems.every(item => item.test_res && item.test_stat);
+    }
+  },
+  async created() {
+    try {
+      const res = await axios.get('/api/test_qc');
+      const allowed = ['QC011','QC012','QC013','QC014','QC015'];
+      this.testItems = res.data
+        .filter(item => allowed.includes(item.test_no))
+        .map(item => ({
+          test_no: item.test_no,
+          test_field: item.test_field,
+          test_stand: item.test_stand,
+          unit: item.unit,
+          test_res: '',
+          test_stat: ''
+        }));
+    } catch (e) {
+      console.error('품질검사 항목 조회 실패', e);
     }
   },
   methods: {
-    completeInspection() {
-      const payload = [];
-      this.orders.forEach(order => {
-        this.testItems.forEach(item => {
-          payload.push({
-            qc_no:      item.test_no,
-            moder_id:   order.moder_id,
-            mater_code: order.mater_code,
-            qc_date:    new Date().toISOString().slice(0,10),
-            qc_result:  item.test_stat,
-            inspector:  this.$session ? this.$session.userId : 'unknown',
-            test_res:   item.test_res,
-            test_etc:   item.test_etc
-          });
-        });
-      });
-      this.$emit('inspect', payload);
+    setResult(item) {
+      if (!item.test_res) {
+        item.test_stat = '';
+        return;
+      }
+      const result = checkQc(item.test_res, item.test_stand);
+      item.test_stat = result.toUpperCase();
+    },
+    async completeInspection() {
+      // QC 결과 서버에 저장
+      const payload = this.orders.flatMap(order =>
+        this.testItems.map(item => ({
+          qc_no: item.test_no,
+          moder_id: order.moder_id,
+          mater_code: order.mater_code,
+          qc_date: new Date().toISOString().slice(0, 10),
+          qc_result: item.test_stat,
+          inspector: this.$session ? this.$session.userId : 'unknown',
+          test_res: item.test_res
+        }))
+      );
+      try {
+        await axios.post('/api/qc_inspections', payload);
+      } catch (e) {
+        console.error('QC 저장 실패', e);
+        alert('QC 저장 중 오류가 발생했습니다.');
+        return;
+      }
+
+      // Pinia 스토어에 PASS된 발주서 저장
+      const inboundStore = useInboundStore();
+      const passOrders = this.orders
+        .filter(order =>
+          this.testItems.every(item =>
+            checkQc(item.test_res, item.test_stand) === 'pass'
+          )
+        )
+        .map(order => ({
+          moder_id: order.moder_id,
+          mater_code: order.mater_code,
+          moder_qty: order.moder_qty
+        }));
+      inboundStore.setPendingOrders(passOrders);
+
+      // 입고 처리 페이지로 이동
+      this.$router.push({ name: 'MInboundForm' });
       this.close();
     },
     close() {
