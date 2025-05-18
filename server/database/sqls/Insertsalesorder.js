@@ -30,4 +30,10 @@ module.exports = {
     item_name,
     item_type
   FROM items`,
+
+  generateSalesOrderCode :
+  `CALL GENSALESORDERCODE(@result);
+  SELECT @result AS sorder_code`,
+
+
 }
