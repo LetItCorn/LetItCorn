@@ -1,215 +1,50 @@
-<!-- src/views/Employees.vue -->
 <template>
   <div class="container-fluid vh-100 py-3 d-flex flex-column">
-    <!-- 1) 상단 조회·필터 바 -->
+    <!-- 1) 상단 필터 바 -->
     <div class="row mb-3">
       <div class="col-12">
         <div class="card">
-          <div class="card-body d-flex align-items-center">
-            <div class="ms-auto d-flex align-items-center">
-              <!-- 필터 타입 선택 -->
-              <select
-                v-model="searchType"
-                class="form-select form-select-sm me-2"
-                style="width:140px"
-              >
-                <option value="">[선택 없음]</option>
-                <option value="id">사원ID</option>
-                <option value="name">이름</option>
-                <option value="user">사용자ID</option>
-              </select>
-
-              <!-- 필터 입력 -->
-              <input
-                v-model="searchValue"
-                :placeholder="filterPlaceholder"
-                class="form-control form-control-sm me-2"
-                style="width:200px"
-              />
-
-              <!-- 조회 / 초기화 -->
-              <button @click="loadEmployees" class="btn btn-sm btn-primary me-2" style="width:80px">
-                조회
-              </button>
-              <button @click="resetFilter" class="btn btn-sm btn-outline-secondary" style="width:80px">
-                초기화
-              </button>
-            </div>
+          <div class="card-body d-flex align-items-center justify-content-end">
+            <EmployeeFilter
+              v-model:searchType="searchType"
+              v-model:searchValue="searchValue"
+              @search="loadEmployees"
+              @reset="resetFilter"
+            />
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 3) 하단: 리스트(좌 2/3) / 상세(우 1/3) -->
+    <!-- 2) 하단 좌우 레이아웃 -->
     <div class="row flex-grow-1 gx-3">
-      <!-- 좌측 리스트 -->
+      <!-- 좌측: 리스트 -->
       <div class="col-md-8 h-100">
         <div class="card h-100">
           <div class="card-header">사원 리스트</div>
           <div class="card-body p-0 overflow-auto">
-            <table class="table table-hover table-sm mb-0">
-              <thead class="thead-light sticky-top">
-                <tr>
-                  <th>사원ID</th>
-                  <th>이름</th>
-                  <th>사용자ID</th>
-                  <th>휴대폰</th>
-                  <th>입사일</th>
-                  <th>퇴사일</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="emp in employeeList"
-                  :key="emp.emp_id"
-                  @click="selectEmp(emp)"
-                  :class="{ 'table-active': emp.emp_id === selected.emp_id }"
-                  style="cursor:pointer"
-                >
-                  <td>{{ emp.emp_id }}</td>
-                  <td>{{ emp.emp_name }}</td>
-                  <td>{{ emp.user_id }}</td>
-                  <td>{{ emp.user_phone }}</td>
-                  <td>{{ formatDate(emp.hire_date) }}</td>
-                  <td>{{ formatDate(emp.retire_date) }}</td>
-                </tr>
-                <tr v-if="employeeList.length === 0">
-                  <td colspan="6" class="text-center py-4">데이터가 없습니다.</td>
-                </tr>
-              </tbody>
-            </table>
+            <EmployeeList
+              :employees="employeeList"
+              :selectedId="selected.emp_id"
+              @select="selectEmp"
+            />
           </div>
         </div>
       </div>
 
-      <!-- 우측 상세 -->
+      <!-- 우측: 상세 -->
       <div class="col-md-4 h-100">
         <div class="card h-100">
           <div class="card-header">사원 상세 정보</div>
           <div class="card-body overflow-auto">
-            <table class="table table-borderless mb-3">
-              <tbody>
-                <tr>
-                  <th>사원ID</th>
-                  <td>
-                    <input
-                      v-model="selected.emp_id"
-                      class="form-control form-control-sm"
-                      readonly
-                      placeholder="ID 입력"
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <th>이름</th>
-                  <td><input v-model="selected.emp_name" class="form-control form-control-sm" /></td>
-                </tr>
-                <tr>
-                  <th>사용자ID</th>
-                  <td><input v-model="selected.user_id" class="form-control form-control-sm" /></td>
-                </tr>
-                <tr>
-                  <th>비밀번호</th>
-                  <td><input v-model="selected.user_passd" class="form-control form-control-sm" /></td>
-                </tr>
-                <tr>
-                  <th>휴대폰</th>
-                  <td><input v-model="selected.user_phone" class="form-control form-control-sm" /></td>
-                </tr>
-                <tr>
-                  <th>주소</th>
-                  <td><input v-model="selected.user_addr" class="form-control form-control-sm" /></td>
-                </tr>
-                <tr>
-                  <th>이메일</th>
-                  <td><input v-model="selected.user_email" class="form-control form-control-sm" /></td>
-                </tr>
-                <tr>
-                  <th>생년월일</th>
-                  <td>
-                    <input
-                      v-model="selected.user_birth"
-                      type="date"
-                      class="form-control form-control-sm"
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <th>성별</th>
-                  <td>
-                    <select v-model="selected.user_gender" class="form-select form-select-sm">
-                      <option value="">선택</option>
-                      <option value="M">M</option>
-                      <option value="F">F</option>
-                    </select>
-                  </td>
-                </tr>
-                <tr>
-                  <th>권한코드</th>
-                  <td>                      
-                       <select v-model="selected.role_code" class="form-select form-select-sm">
-                        <option value="">선택</option>
-                        <option v-for="code in codeList" :key="code.code_values" :value="code.code_values">
-                          {{ code.code_name }}
-                        </option>
-                      </select>
-                  </td>
-                </tr>
-                <tr>
-                  <th>근무상태코드</th>
-                  <td>
-                    <select v-model="selected.status_code" class="form-select form-select-sm">
-                        <option value="">선택</option>
-                        <option v-for="code in workList" :key="code.code_values" :value="code.code_values">
-                          {{ code.code_name }}
-                        </option>
-                      </select>
-                  </td>
-                </tr>
-                <tr>
-                  <th>입사일</th>
-                  <td>
-                    <input
-                      v-model="selected.hire_date"
-                      type="date"
-                      class="form-control form-control-sm"
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <th>퇴사일</th>
-                  <td>
-                    <input
-                      v-model="selected.retire_date"
-                      type="date"
-                      class="form-control form-control-sm"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <!-- CRUD 버튼 -->
-            <div class="d-flex gap-2">
-              <button class="btn btn-outline-secondary flex-grow-1" @click="clearDetail">
-                초기화
-              </button>
-              <button
-                class="btn btn-success flex-grow-1"
-                @click="onCreate"
-                
-              >
-                등록
-              </button>
-              
-              <button
-                class="btn btn-danger flex-grow-1"
-                @click="onDelete"
-                :disabled="!selected.emp_id || selected.mode == 'reg'"
-              >
-                삭제
-              </button>
-            </div>
+            <EmployeeDetail
+              :emp="selected"
+              :codeList="codeList"
+              :workList="workList"
+              @create="onCreate"
+              @delete="onDelete"
+              @clear="clearDetail"
+            />
           </div>
         </div>
       </div>
@@ -219,9 +54,17 @@
 
 <script>
 import axios from 'axios';
+import EmployeeFilter from './components/EmployeeFilter.vue';
+import EmployeeList from './components/EmployeeList.vue';
+import EmployeeDetail from './components/EmployeeDetail.vue';
 
 export default {
   name: 'Employees',
+  components: {
+    EmployeeFilter,
+    EmployeeList,
+    EmployeeDetail,
+  },
   data() {
     return {
       searchType: '',
@@ -231,19 +74,6 @@ export default {
       codeList: [],
       workList: [],
     };
-  },
-  computed: {
-    count() {
-      return this.employeeList.length;
-    },
-    filterPlaceholder() {
-      switch (this.searchType) {
-        case 'id': return '사원ID';
-        case 'name': return '이름';
-        case 'user': return '사용자ID';
-        default: return '';
-      }
-    }
   },
   created() {
     this.loadEmployees();
@@ -255,6 +85,7 @@ export default {
         name: this.searchType === 'name' ? this.searchValue : '',
         userId: this.searchType === 'user' ? this.searchValue : ''
       };
+
       try {
         const res = await axios.get('/api/employees', { params });
         this.employeeList = res.data;
@@ -268,7 +99,7 @@ export default {
         const codeList = await axios.get('/api/employees/userCode');
         this.codeList = codeList.data;
       } catch (err) {
-        console.error('loadEmployees error', err);
+        console.error('userCode load error', err);
         this.codeList = [];
       }
 
@@ -276,7 +107,7 @@ export default {
         const workList = await axios.get('/api/employees/workCode');
         this.workList = workList.data;
       } catch (err) {
-        console.error('loadEmployees error', err);
+        console.error('workCode load error', err);
         this.workList = [];
       }
     },
@@ -308,19 +139,9 @@ export default {
         console.error('onCreate error', err);
       }
     },
-    async onUpdate() {
-      if (!this.selected.emp_id) return;
-      try {
-        await axios.put(`/api/employees/${this.selected.emp_id}`, this.selected);
-        await this.loadEmployees();
-      } catch (err) {
-        console.error('onUpdate error', err);
-      }
-    },
     async onDelete() {
       if (!this.selected.emp_id) return;
-      
-      // 🔽 확인창 추가
+
       const confirmDelete = confirm('정말 삭제하시겠습니까?');
       if (!confirmDelete) return;
 
@@ -330,14 +151,6 @@ export default {
       } catch (err) {
         console.error('onDelete error', err);
       }
-    },
-    formatDate(val) {
-      if (!val) return '';
-      const d = new Date(val);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
     }
   }
 };
