@@ -39,7 +39,7 @@
       ...mapState(useProcess,['inst','currentSeq','processes','statProcess','flowLength','statFlow'])
     },
     methods: {
-      ...mapActions(useProcess,['setCurrnetSeq','setProCode','setCurrentSeq']),
+      ...mapActions(useProcess,['setProCode','setCurrentSeq']),
       onCellClicked(e) {
         // console.log(e.data);
         // console.log(e.data.hasOwnProperty('lot_cnt'));
@@ -53,7 +53,7 @@
              });
           }else{
             this.$emit('passInst', e.data);
-            this.setCurrnetSeq(1)
+            this.setCurrentSeq(1)
           }
         }
         // 공정 클릭일 경우
