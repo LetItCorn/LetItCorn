@@ -1,16 +1,15 @@
 // server/services/qc_service.js
-const mariadb = require('../database/mapper.js');
-const { insertQC } = require('../database/sqls/qcInspections.js');
+const {query} = require('../database/mapper.js');
+const { insertQC,selectTestQcList } = require('../database/sqls/qcInspections.js');
 
-/**
- * 품질 검사 결과들을 한 건씩 qc_inspections에 저장
- * @param {Array<{moder_id:string,mater_code:string,qc_result:string}>} results
- * @param {string} inspector 검사자 ID
- */
+// 시헝항목 전체 조회
+async function findAllTestQC() {
+  return await query('selectTestQcList', []);
+}
+
+// 품질검사 결과 저장
 async function addQCInspections(results, inspector) {
-  // 오늘 날짜 (YYYY-MM-DD)
-  const now = new Date();
-  const qcDate = now.toISOString().slice(0, 10);
+  const qcDate = new Date().toISOString().slice(0, 10);
 
   for (const r of results) {
     // 고유 QC 번호 생성: QC + 타임스탬프 + 난수
@@ -27,11 +26,11 @@ async function addQCInspections(results, inspector) {
       r.qc_result,
       inspector
     ];
-
-    await mariadb.query('insertQC', params);
+    await query('insertQC', params);
   }
 }
 
 module.exports = {
-  addQCInspections
+  addQCInspections,
+  findAllTestQC
 };

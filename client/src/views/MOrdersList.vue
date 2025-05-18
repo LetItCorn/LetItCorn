@@ -1,3 +1,4 @@
+<!-- client/src/views/MOrdersList.vue -->
 <template>
   <div class="container-fluid py-4">
     <h2 class="text-center mb-4">발주서 조회</h2>

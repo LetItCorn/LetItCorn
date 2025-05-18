@@ -3,6 +3,15 @@ const express = require('express');
 const router = express.Router();
 const qcService = require('../services/qc_service.js');
 
+router.get('/test_qc', async (req, res, next) => {
+  try {
+    const items = await qcService.findAllTestQC();
+    res.json(items);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // 품질검사 결과 일괄 저장
 // 요청 바디로 아래 배열을 전달:
 // [
@@ -20,5 +29,7 @@ router.post('/qc_inspections', async (req, res) => {
     res.status(500).send({ error: '품질검사 저장 중 오류가 발생했습니다.' });
   }
 });
+
+
 
 module.exports = router;

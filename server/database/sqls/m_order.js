@@ -23,8 +23,8 @@ SELECT
   IFNULL((
     SELECT SUM(i.min_qty)
       FROM m_inbound i
-     WHERE i.moder_id   = h.moder_id
-       AND i.mater_code = d.mater_code
+      WHERE i.moder_id   = h.moder_id
+      AND i.mater_code = d.mater_code
   ), 0)                              AS received_qty,
 
   /* ── 입고 상태 계산 ── */
@@ -33,16 +33,16 @@ SELECT
       IFNULL((
         SELECT SUM(i.min_qty)
           FROM m_inbound i
-         WHERE i.moder_id   = h.moder_id
-           AND i.mater_code = d.mater_code
+          WHERE i.moder_id   = h.moder_id
+          AND i.mater_code = d.mater_code
       ),0) = 0
     THEN 'PENDING'                   -- 전혀 입고되지 않음
     WHEN
       IFNULL((
         SELECT SUM(i.min_qty)
           FROM m_inbound i
-         WHERE i.moder_id   = h.moder_id
-           AND i.mater_code = d.mater_code
+          WHERE i.moder_id   = h.moder_id
+          AND i.mater_code = d.mater_code
       ),0) < d.qty
     THEN 'PARTIAL'                   -- 일부 입고
     ELSE 'COMPLETE'                  -- 전량 입고
@@ -73,7 +73,6 @@ FROM m_order
 WHERE moder_id = ?
 `;
 
-/* ⬇⬇⬇  오류 원인이었던 부분 수정 ⬇⬇⬇ */
 const insertMOrder = `
 INSERT INTO m_order (
   moder_id,
