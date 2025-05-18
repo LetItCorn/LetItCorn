@@ -35,18 +35,11 @@
                     <td><input type="text"
                         v-model="isd.test_res"
                         placeholder="수치값 입력"
+                        @input="checkQuality(isd)"
                         >
                     </td>
                     <td>{{ isd.unit }}</td>
-                    <td><select
-                        v-model="isd.test_stat"
-                        class="form-select form-select-sm"
-                        >
-                        <option disabled value="">선택</option>
-                        <option value="적합">적합</option>
-                        <option value="부적합">부적합</option>
-                      </select>
-                    </td>
+                    <td>{{ isd.test_stat }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -63,6 +56,7 @@
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { checkQc } from '@/utils/checkQc';
 
   export default {
   name: 'QInspectionPDModal',
@@ -105,11 +99,44 @@ import Swal from 'sweetalert2';
         });
       }
     },
+    // 품질검사 판정함수
+    checkQuality(isd){
+      // 측정값이 입력되지 않았을 때
+      if(!isd.test_res || isd.test_res === ''){
+        isd.test_stat = '';
+        return;
+      }
+      try{
+        if(isd.test_stand && isd.test_stand.includes('~')){
+          const result = checkQc(isd.test_res, isd.test_stand);
+          isd.test_stat = result === 'pass' ? '적합' : '부적합';
+        }
+      } catch (error) {
+        console.error('검사 기준값을 확인하는 중 오류 발생:', error);
+        Swal.fire({
+          icon: 'error',
+          title: '검사 기준값 오류',
+          text: '검사 기준값을 확인해주세요.'
+        });
+      }
+    },
     close() {
       this.inspectionData = [];
       this.$emit('close');
     },
     completeInspection() {
+      Swal.fire({
+        title: '검사 완료',
+        text: '검사를 완료하시겠습니까?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '확인',
+        cancelButtonText: '취소'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.submitInspection();
+        }
+      });
       // 검사 완료 로직
       this.$emit('complete', this.orders);
       this.close();

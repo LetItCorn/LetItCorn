@@ -36,4 +36,20 @@ router.get('/items', async (req, res) => {
     }
 });
 
+router.get('/salesorders/generate-scode', async (req, res) => {
+    try {
+        const result = await isoService.generateSalesOrderCode();
+        res.send({ 
+            isSuccessed: true,
+            sorderCode: result 
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ 
+            isSuccessed: false,
+            message: '주문번호 생성에 실패했습니다.' 
+        });
+    }
+});
+
 module.exports = router;

@@ -81,27 +81,28 @@ export default {
       selectedItem: '',
       clients: [],
       items: [],
+      isLoading: false
     };
   },
   created() {
     this.fetchClients();
     this.fetchItems();
-    this.orderData.sorderCode = this.generateOrderCode();
   },
   methods: {
     // 주문번호 생성
-    generateOrderCode() {
-      // 주문번호 생성 로직: SON + 년도(2자리) + 월(2자리) + 일(2자리) + 순번(3자리)
-      const now = new Date();
-      const year = now.getFullYear().toString().slice(2);
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
+    // generateOrderCode() {
+    //   // 주문번호 생성 로직: SON + 년도(2자리) + 월(2자리) + 일(2자리) + 순번(3자리)
+    //   const now = new Date();
+    //   const year = now.getFullYear().toString().slice(2);
+    //   const month = String(now.getMonth() + 1).padStart(2, '0');
+    //   const day = String(now.getDate()).padStart(2, '0');
       
-      // 랜덤 숫자 3자리 (실제로는 DB에서 순차 번호를 가져와야 함)
-      const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    //   // 랜덤 숫자 3자리 (실제로는 DB에서 순차 번호를 가져와야 함)
+    //   const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
       
-      return `SON${year}${month}${day}${randomNum}`;
-    },
+    //   return `SON${year}${month}${day}${randomNum}`;
+    // },
+
     // 오늘 날짜 가져오기
     getTodayDate() {
       //const now = new Date(); // 현재 날짜 date 객체 생성
@@ -167,7 +168,7 @@ export default {
       }
 
       let obj ={
-        sorder_code:this.orderData.sorderCode,
+        // sorder_code:this.orderData.sorderCode,
         client_code:this.orderData.clientCode,
         item_code:this.orderData.itemCode,
         delivery_date:this.orderData.deliveryDate,
@@ -227,7 +228,7 @@ export default {
         return false;
       }
       
-      if (!this.orderData.sorderCount || this.orderData.sorderCount <= 100) {
+      if (!this.orderData.sorderCount || this.orderData.sorderCount <= 99) {
         Swal.fire({
           icon: 'warning',
           title: '입력 오류',

@@ -596,6 +596,7 @@ td {
   display: flex !important;
   align-items: center;
   justify-content: center;
+  background: rgba(0,0,0,0.5);
 }
 
 .modal-content {

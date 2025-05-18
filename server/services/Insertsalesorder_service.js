@@ -4,6 +4,12 @@ const { convertObjToAry } = require('../utils/converts.js');
 
 // 주문서 등록
 const addSalesOrder = async (orderinfo) => {
+
+    const sorderCode = await generateSalesOrderCode();
+    console.log('생성된 주문번호 : ', sorderCode);
+
+    orderinfo.sorder_code = sorderCode;
+
     let insertOrder = [
         'sorder_code',
         'client_code',
@@ -54,7 +60,50 @@ const findAllItems = async () => {
     return items;
 };
 
+// 주문번호 생성 함수 - getConnection 사용
+const generateSalesOrderCode = async () => {
+    let conn;
+    try {
+        // 연결 가져오기
+        conn = await mariadb.getConnection();
+        
+        // 프로시저 호출
+        await conn.query('CALL GENSALESORDERCODE(@result)');
+        
+        // 결과 조회
+        const rows = await conn.query('SELECT @result AS sorder_code');
+        
+        if (rows && rows.length > 0 && rows[0].sorder_code) {
+            return rows[0].sorder_code;
+        } else {
+            // 결과가 없으면 대체 코드 생성
+            return generateFallbackCode();
+        }
+    } catch (err) {
+        console.error('주문번호 생성 중 오류 발생:', err);
+        // 오류 발생 시 대체 코드 생성
+        return generateFallbackCode();
+    } finally {
+        // 연결 반환
+        if (conn) {
+            conn.release();
+        }
+    }
+};
+
+// 대체 주문번호 생성 함수
+const generateFallbackCode = () => {
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(2);
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    return `SON${year}${month}${day}${randomNum}`;
+};
+
 module.exports = {
     addSalesOrder,
     findAllClients,
+    findAllItems,
+    generateSalesOrderCode
 };

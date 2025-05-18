@@ -13,6 +13,11 @@
       </div>
     </div>
 
+    <div v-if ="activefilter" class="active-filter">
+      <span>적용된 필터 : <strong>{{  activefilter }}</strong></span>
+      <button class="btn btn-clear-filter" @click="clearFilter">X</button>
+    </div>
+
     <div class="order-table">
       <table>
         <thead>
@@ -26,11 +31,20 @@
             <th>이메일</th>
             <th>주소</th>
             <th>거래처 담당자</th>
-            <th>거래처 유형</th>
+            <th class="type-header">
+              거래처 유형
+              <div class="dropdown">
+                <button class="dropdown-btn" @click="toggleTypeDropdown">▼</button>
+                <div class="dropdown-content" v-if="typeDropdownOpen">
+                  <a href="#" @click.prevent="filterByType('')">전체</a>
+                  <a v-for="type in uniqueClientTypes" :key="type" href="#" @click.prevent="filterByType(type)">{{ type }}</a>
+                </div>
+              </div>
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="cut in customer" :key="cut.client_code">
+          <tr v-for="cut in filteredCustomer" :key="cut.client_code">
             <td><input type="checkbox" v-model="cut.selected"></td>
             <td>{{ cut.client_code }}</td>
             <td>{{ cut.client_name }}</td>
@@ -195,6 +209,9 @@
       searchModalVisible: false,
       updateModalVisible: false,
       insertModalVisible: false,
+      typeDropdownOpen: false,
+      selectedType: '', // 선택된 거래처 유형
+      activefilter: '', // 활성화 필터 표시 테이블 상단
       selectAll: false,
       currentPage: 1,
       selectedCustomer: null,
@@ -234,20 +251,39 @@
     };
   },
   computed: {
-    
+    filteredCustomer() {
+      if(!this.selectedType){
+        return this.customer;
+      }
+      return this.customer.filter(cut => cut.code_name === this.selectedType);
+    },
+    uniqueClientTypes() {
+      const types = new Set(this.customer.map(cut => cut.code_name));
+      return Array.from(types);
+    },
   },
   created() {
     this.fetchAllCustomer();
     this.fetchClientType();
-    this.insertParams.clientCode = this.generateClientCode();
   },
   methods: {
     // 거래처번호 생성
     generateClientCode() {
-      // 랜덤 숫자 3자리 (실제로는 DB에서 순차 번호를 가져와야 함)
-      const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-      
-      return `CUT${randomNum}`;
+      // 거래처 목록이 없을 경우
+      if (!this.customer || this.customer.length === 0) {
+        return 'CUT001';
+      }
+
+      const codeNumbers = this.customer.map(cut => {
+        const numPart = cut.client_code.substring(3);
+        return parseInt(numPart, 10);
+      });
+
+      const maxCodeNumber = Math.max(...codeNumbers);
+      const nextCodeNumber = maxCodeNumber + 1;
+      const formattedCodeNumber = nextCodeNumber.toString().padStart(3, '0');
+
+      return `CUT${formattedCodeNumber}`;
     },
     async fetchAllCustomer() {
       try {
@@ -265,6 +301,21 @@
           text: '거래처 목록을 불러오는데 실패했어요.'
         });
       }
+    },
+    toggleTypeDropdown() {
+      this.typeDropdownOpen = !this.typeDropdownOpen;
+    },
+    filterByType(type) {
+      this.selectedType = type;
+      this.activefilter = type || '';
+      this.typeDropdownOpen = false;
+
+      this.selectAll = false;
+      this.toggleSelectAll();
+    },
+    clearFilter() {
+      this.selectedType = '';
+      this.activefilter = '';
     },
     toggleSelectAll() {
       this.customer.forEach(cut => {
@@ -285,6 +336,8 @@
       console.log('insertModalVisible called'); // 호출 확인
       this.insertModalVisible = true;
       console.log('insertModalVisible:', this.insertModalVisible); // 상태 변경 확인
+
+      this.insertParams.clientCode = this.generateClientCode();
     },
     resetSearchParams() { // 조회 검색 조건 초기화
       this.searchParams = {
@@ -510,6 +563,8 @@
       }
 
       console.log(obj);
+
+      this.resetInsertParams();
       
       try {
         let response = await axios.post('/api/customer', obj);
@@ -531,7 +586,6 @@
           });
         }
         this.insertModalVisible = false;
-
         // 목록 새로고침
         this.fetchAllCustomer();
       } catch (error) {
@@ -555,6 +609,19 @@
         return false;
       }
       return true;
+    },
+    resetInsertParams() {
+      this.insertParams = {
+        clientCode: '',
+        clientName: '',
+        clientCeo: '',
+        clientPhone: '',
+        clientEmail: '',
+        clientAddress: '',
+        clientMgr: '',
+        codeValues: '',
+        codeName: '',
+      };
     },
     // 배경 클릭 시에만 모달 닫기
     closeModalOnBackgroundClick(event) {
@@ -649,9 +716,73 @@
   border: none !important;
 }
 
+/* 활성화된 필터 표시 영역 스타일 */
+.active-filter {
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-clear-filter {
+  background: none !important;
+  border: none !important;
+  color: #000 !important;
+  font-size: 18px;
+  cursor: pointer;
+  width: 75px;
+}
+
+.btn-clear-filter:hover {
+  color: #dc3545 !important;
+}
+
+/* 드롭다운 스타일 */
+.type-header {
+  position: relative;
+}
+
+.dropdown {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.dropdown-btn {
+  background: none;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.dropdown-content {
+  position: absolute;
+  right: 0;
+  background-color: #f9f9f9;
+  min-width: 120px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 8px 12px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+
 .order-table {
-overflow-x: auto;
-margin-bottom: 20px;
+  overflow-x: auto;
+  margin-bottom: 20px;
 }
 
 table {
@@ -682,6 +813,7 @@ td {
   display: flex !important;
   align-items: center;
   justify-content: center;
+  background: rgba(0,0,0,0.5);
 }
 
 .modal-content {
