@@ -7,19 +7,19 @@
   </div>
   <div class="card-body container row">
     <div class="col-8" style="border-right: 1px solid #555;">
-      <div class="mb-3 text-end">
-        <!-- 저장버튼 클릭시  불량 수량이 0보다 크면 사유를 입력해야한다.
-         공정흐름의 공정 갯수를 pinia에 저장해 뒀다가, 저장 버튼 클릭 때 마다 현재 seq와 비교해서 공정 실적 저장 하다가 마지막 공정 완료시 지시의 상태 변경-->
-         <!-- 첫공정인지 확인(pinia에 확인) -> 새로운 공정실적 저장 -->
+      <div class="mb-3 text-end d-flex align-items-center justify-content-end gap-3">
+       
+        <span class="text-primary fw-bold">
+          
+          최대 생산 가능량: {{ orderQty }} {{ processes.spec }}
+        </span>
         <button class="btn btn-success" @click="saveBtn">저장</button>
       </div>
       
       <div class="mb-3 row">
-        <!-- v-if 사용 혼합살균충전 공정에선 L 붙이고 지시량에서 12 곱. pinia 사용 이전 공정의 생산량 저장, 불러내서 다음 공정의 최대 생산량 변화주기-->
-        <!-- <label v-if="orderQty" class="form-label">최대 생산량: {{ orderQty }}</label> -->
         <label  class="form-label">생산수량</label>
         <div class="col-8">
-        <input class="form-control text-end" v-model="manuFac" placeholder="생산수량" type="number" default="0">
+        <input class="form-control text-end" min="0" v-model="manuFac" placeholder="생산수량" type="number" default="0">
         </div>
         <div class="col-4 py-2">
         <span>{{ processes.spec }}</span>
@@ -28,7 +28,7 @@
       <div class="mb-3 row">
         <label class="form-label">불량수량</label>
         <div class="col-8">
-          <input class="form-control text-end" v-model="manuErr" placeholder="불량수량" type="number" default="0">
+          <input class="form-control text-end" min="0" v-model="manuErr" placeholder="불량수량" type="number" default="0">
         </div>
         <div class="col-4 py-2">
           <span>{{ processes.spec }}</span>
@@ -37,7 +37,7 @@
     </div>
     <div class="col-4 d-flex align-items-center justify-content-center">
   <button class="btn btn-warning py-5 px-5" @click="turnShowModal">품질검사</button>
-<QcTestModal :visible="showModal" @modalClose="turnShowModal" />
+<QcTestModal :visible="showModal" @modalClose="turnShowModal"/>
 </div>
   </div>
 </template>
@@ -67,6 +67,14 @@ import Swal from 'sweetalert2';
     },
     created() {},
     mounted() {},
+    watch: {
+      manuErr(newVal) {
+        if (this.processes.unit_code == 'U03'&& newVal > 0) {
+          this.manuFac = 0;
+          this.manuErr = this.orderQty ; // 최대 생산량 사용
+        }
+      }
+    },
     methods: {
       ...mapActions(useProcess,['setInst','turnStatProcess','turnStatFlow']),
      async  saveBtn(){
@@ -132,8 +140,11 @@ import Swal from 'sweetalert2';
       // 모달 상태 변화
       turnShowModal(){
         if(this.statProcess){
-          if(!this.statFlow){
+          if(this.statFlow == false){
             this.$emit('setResQty')
+          }
+          if(this.showModal == true){
+            this.turnStatProcess()
           }
           this.showModal = this.showModal == true ? false : true;
         }else{
@@ -143,7 +154,7 @@ import Swal from 'sweetalert2';
             icon: "question"
           });
         }
-      }
+      },
     },
     computed: {
   ...mapState(useProcess, ['statFlow','statProcess','processes', 'orderQty','inst','flowLength']),
