@@ -50,7 +50,7 @@ export default {
   created() { },
   mounted() { },
   methods: {
-    ...mapActions(useProcess,['turnStatProcess','setCurrnetSeq','turnStatFlow']),
+    ...mapActions(useProcess,['turnStatProcess','setCurrentSeq','turnStatFlow']),
     async getQcTest() {
       // console.log(this.processes.process_code);
       let res = await axios.get(`api/getQcTest/${this.processes.process_code}`)
@@ -82,7 +82,7 @@ export default {
                             })
       console.log(res);
       if(res.data > 0){
-        this.setCurrnetSeq(this.currentSeq + 1)
+        this.setCurrentSeq(this.currentSeq + 1)
         if(this.processes.sequence_order == this.flowLength ){
               // 마지막 공정 실행시 흐름 종료 표기
               this.turnStatFlow()

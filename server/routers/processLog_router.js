@@ -56,8 +56,8 @@ const express = require('express');
  })
 
  //최종 생산지시 헤더 완료
- router.put('/processes', async (req,res)=>{
-   let data = req.body
+ router.put('/updateInHead', async (req,res)=>{
+   let data = req.body.instHead
    let result = await processService.updateInHead(data)
                                     .catch(err=>{
                                        console.log(err);

@@ -129,6 +129,7 @@ const regQcLog = async(data)=>{
 }
 
 const updateInHead = async (data) => {
+  console.log(data);
   let upData = []
   upData.push(data)
   let result = await mariadb.query('updateInHead',upData)
