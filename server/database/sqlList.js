@@ -48,6 +48,7 @@ const finishedproduct = require('./sqls/finishedproduct.js');
 const checkwfpdhistory = require('./sqls/checkwfpdhistory.js');
 const insertfproduct = require('./sqls/insertfinishedproduct.js');
 const qinspectionfproduct = require('./sqls/qinspectionfinishedproduct.js');
+const processLog = require('./sqls/prLog.js');
 
 
 module.exports = {
@@ -100,4 +101,5 @@ module.exports = {
   ...checkwfpdhistory,
   ...insertfproduct,
   ...qinspectionfproduct,
+  ...processLog,
 }
