@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid vh-100 py-3 d-flex flex-column">
+  <div class="container-fluid py-3">
     <!-- 1) 상단 필터 -->
     <div class="row mb-3">
       <div class="col-12">
@@ -16,13 +16,13 @@
       </div>
     </div>
 
-    <!-- 2) 리스트 / 상세 영역 -->
-    <div class="row flex-grow-1 gx-3">
+    <!-- 2) 리스트 / 상세 영역 (높이 고정) -->
+    <div class="row gx-3" style="height: 70vh;">
       <!-- 2-1) 자재 리스트 -->
-      <div class="col-md-7 h-100">
-        <div class="card h-100">
-          <div class="card-header">자재 리스트</div>
-          <div class="card-body p-0 overflow-auto">
+      <div class="col-md-7 h-100 d-flex flex-column">
+        <div class="card list-card flex-fill">
+          <div class="card-header py-2"><strong>자재 리스트</strong></div>
+          <div class="card-body p-0 list-scroll flex-grow-1">
             <MaterialList
               :materialList="materialList"
               :selectedCode="selected.mater_code"
@@ -33,9 +33,9 @@
       </div>
 
       <!-- 2-2) 자재 상세 -->
-      <div class="col-md-5 h-100">
-        <div class="card h-100">
-          <div class="card-header">자재 상세 정보</div>
+      <div class="col-md-5 h-100 d-flex flex-column">
+        <div class="card flex-fill">
+          <div class="card-header py-2"><strong>자재 상세 정보</strong></div>
           <div class="card-body overflow-auto">
             <MaterialDetail
               :mat="selected"
@@ -166,16 +166,19 @@ export default {
 </script>
 
 <style scoped>
-.sticky-top th {
+/* 리스트 카드 레이아웃 -------------------------- */
+.list-card   { display: flex; flex-direction: column; height: 100%; }
+.list-scroll { overflow: auto; }
+
+/* 테이블 헤더 고정 ----------------------------- */
+table thead th {
   position: sticky;
   top: 0;
-  background: white;
-  z-index: 10;
+  background: #f8f9fa;
+  z-index: 1;
 }
-.table-active {
-  background-color: #d0ebff;
-}
-.table-hover tbody tr:hover {
-  background-color: #f8f9fa;
-}
+
+/* 행 강조 ------------------------------ */
+.table-active { background-color: #d0ebff; }
+.table-hover tbody tr:hover { background-color: #f8f9fa; }
 </style>

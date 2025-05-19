@@ -1,7 +1,6 @@
-<!-- src/views/components/DefectList.vue -->
 <template>
   <table class="table table-hover table-sm mb-0">
-    <thead class="thead-light sticky-top">
+    <thead class="thead-light">
       <tr>
         <th>코드</th>
         <th>유형</th>
@@ -43,3 +42,21 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* 헤더 고정 */
+thead th {
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  z-index: 1;
+}
+
+/* 선택 강조 및 호버 */
+.table-active {
+  background-color: #d0ebff;
+}
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+</style>

@@ -143,6 +143,11 @@ const itemDelete = `
   WHERE item_code = ?
 `;
 
+// 5) 품목 삭제시 공정 흐름 삭제
+const flowsDelete = `
+  DELETE FROM item_process_flows
+  WHERE item_code = ?
+`;
 // =====================================================================
 
 // 5) 공정 흐름 리스트 (특정 품목)
@@ -220,6 +225,7 @@ module.exports = {
   getNextProcessHeader,
   insertProcessItem,
   deleteProcessItem,
+  flowsDelete
 };
 
 

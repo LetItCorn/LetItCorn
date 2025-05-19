@@ -189,6 +189,13 @@ const equipmentDelete = `
   WHERE equipment_code = ?
 `;
 
+//4-1) 설비 삭제 (점검이력 연관 삭제)
+const inspectionDelete = `
+  DELETE FROM equipment_inspections
+  WHERE equipment_code = ?
+`;
+
+
 // ─────────────────────────────────────────────
 //  5) 설비점검 이력 (특정 설비)
 // ─────────────────────────────────────────────
@@ -291,4 +298,5 @@ module.exports = {
   inspectionNextId,
   insertInspection,
   deleteInspection,
+  inspectionDelete
 };

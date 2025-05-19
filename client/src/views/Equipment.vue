@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid vh-100 py-3 d-flex flex-column">
+  <div class="container-fluid py-3">
     <!-- 1) 필터 -->
     <div class="row mb-3">
       <div class="col-12">
@@ -16,13 +16,13 @@
       </div>
     </div>
 
-    <!-- 2) 리스트 / 상세 -->
-    <div class="row flex-grow-1 gx-3">
+    <!-- 2) 리스트 / 상세 (높이 고정) -->
+    <div class="row gx-3" style="height:100vh;">
       <!-- 좌측: 장비 리스트 -->
-      <div class="col-md-8 h-100">
-        <div class="card h-100">
-          <div class="card-header">장비 리스트 ({{ equipmentList.length }})</div>
-          <div class="card-body p-0 overflow-auto">
+      <div class="col-md-8 h-100 d-flex flex-column">
+        <div class="card list-card flex-fill">
+          <div class="card-header py-2"><strong>장비 리스트</strong></div>
+          <div class="card-body p-0 list-scroll flex-grow-1">
             <EquipmentList
               :equipmentList="equipmentList"
               :selectedCode="selected.equipment_code"
@@ -32,10 +32,10 @@
         </div>
       </div>
 
-      <!-- 우측: 상세 정보 + 점검 이력 -->
+      <!-- 우측: 상세 + 점검이력 -->
       <div class="col-md-4 h-100 d-flex flex-column">
-        <div class="card flex-grow-1 mb-2">
-          <div class="card-header">장비 상세 정보</div>
+        <div class="card flex-fill mb-2">
+          <div class="card-header py-2"><strong>장비 상세 정보</strong></div>
           <div class="card-body overflow-auto">
             <EquipmentDetail
               :eq="selected"
@@ -49,13 +49,18 @@
           </div>
         </div>
 
-        <InspectionHistory
-          :inspectionList="inspectionList"
-          @add="addInspectionRow"
-          @save="saveInspection"
-          @delete="deleteInspection"
-          @reload="loadInspections(selected.equipment_code)"
-        />
+        <!-- 점검 이력 카드 -->
+        <div class="card" style="height:45%;">
+          <div class="card-body p-0 overflow-auto">
+            <InspectionHistory
+              :inspectionList="inspectionList"
+              @add="addInspectionRow"
+              @save="saveInspection"
+              @delete="deleteInspection"
+              @reload="loadInspections(selected.equipment_code)"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -225,16 +230,19 @@ export default {
 </script>
 
 <style scoped>
-.table-hover tbody tr:hover {
-  background-color: #f8f9fa;
-}
-.sticky-top th {
+/* 리스트 카드 고정 높이 및 스크롤 처리 */
+.list-card   { display: flex; flex-direction: column; height: 100%; }
+.list-scroll { overflow: auto; }
+
+/* 테이블 헤더 고정 */
+table thead th {
   position: sticky;
   top: 0;
-  background: white;
-  z-index: 10;
+  background: #f8f9fa;
+  z-index: 1;
 }
-.table-active {
-  background-color: #d0ebff;
-}
+
+/* 선택/호버 색상 */
+.table-active { background-color: #d0ebff; }
+.table-hover tbody tr:hover { background-color: #f8f9fa; }
 </style>

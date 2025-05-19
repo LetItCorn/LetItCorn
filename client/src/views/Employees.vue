@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid vh-100 py-3 d-flex flex-column">
+  <div class="container-fluid py-3" style="height: 100vh">
     <!-- 1) 상단 필터 바 -->
     <div class="row mb-3">
       <div class="col-12">
@@ -16,13 +16,13 @@
       </div>
     </div>
 
-    <!-- 2) 하단 좌우 레이아웃 -->
-    <div class="row flex-grow-1 gx-3">
-      <!-- 좌측: 리스트 -->
+    <!-- 2) 하단 좌우 카드 레이아웃 -->
+    <div class="row gx-3" style="height: calc(100% - 150px)">
+      <!-- ◀ 좌측: 리스트 -->
       <div class="col-md-8 h-100">
-        <div class="card h-100">
-          <div class="card-header">사원 리스트</div>
-          <div class="card-body p-0 overflow-auto">
+        <div class="card h-100 d-flex flex-column">
+          <div class="card-header py-2"><strong>사원 리스트</strong></div>
+          <div class="card-body p-0 flex-fill overflow-auto">
             <EmployeeList
               :employees="employeeList"
               :selectedId="selected.emp_id"
@@ -32,11 +32,11 @@
         </div>
       </div>
 
-      <!-- 우측: 상세 -->
+      <!-- ▶ 우측: 상세 -->
       <div class="col-md-4 h-100">
-        <div class="card h-100">
-          <div class="card-header">사원 상세 정보</div>
-          <div class="card-body overflow-auto">
+        <div class="card h-100 d-flex flex-column">
+          <div class="card-header py-2"><strong>사원 상세</strong></div>
+          <div class="card-body flex-fill overflow-auto">
             <EmployeeDetail
               :emp="selected"
               :codeList="codeList"
