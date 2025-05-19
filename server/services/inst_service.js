@@ -152,62 +152,46 @@ const modifyInst = async (instNo, instInfo) => {
     conn = await mariadb.getConnection();
     await conn.beginTransaction();
 
-    // plans_head가 안나와서 inst 테이블에서 땡겨오기용
+    // plans_head가 없으면 inst 테이블에서 조회
     if (!instInfo.plans_head) {
-        const [row] = await conn.query(
-          `SELECT ih.plans_head 
-          FROM inst i
-          JOIN inst_header ih ON i.inst_head = ih.inst_head
-          WHERE i.inst_no = ?`,
-          [instNo]
-        );    
-    if (!row) throw new Error("plans_head 조회 실패");
-    instInfo.plans_head = row.plans_head;
-  }
-    // inst 테이블 업데이트
-    const data = [
-      instInfo.lot_cnt,
-      instInfo.process_header,
-      instInfo.out_od,
-      instNo,
-    ];
-    const resInst = await conn.query(
-      "UPDATE inst SET lot_cnt = ?, process_header = ?, out_od = ? WHERE inst_no = ?",
-      data
-    );
-    // plan_header 날짜 업데이트
-    await conn.query(
-      `
-      UPDATE plan_header
-      SET plan_start = ?, plan_end = ?
-      WHERE plans_head = ?
-    `,
-      [instInfo.plan_start, instInfo.plan_end, instInfo.plans_head]
-    );
-    
-    //inst_header도 plan_start와 맞춰서 inst_start 동기화
-    await conn.query(
-      `UPDATE inst_header
-       SET inst_start = ?
-       WHERE inst_head = (
-         SELECT i.inst_head
+      const [row] = await conn.query(
+        `SELECT ih.plans_head 
          FROM inst i
-         WHERE i.inst_no = ?
-       )`,
+         JOIN inst_header ih ON i.inst_head = ih.inst_head
+         WHERE i.inst_no = ?`,
+        [instNo]
+      );
+      if (!row) throw new Error("plans_head 조회 실패");
+      instInfo.plans_head = row.plans_head;
+    }
+    // inst 테이블 수정
+    await conn.query(
+      "UPDATE inst SET lot_cnt = ?, iord_no = ?, process_header = ?, out_od = ? WHERE inst_no = ?",
+      [instInfo.lot_cnt, instInfo.iord_no, instInfo.process_header, instInfo.out_od, instNo]
+    );
+    // plan_header 날짜 동기화
+    if (instInfo.plans_head) {
+      await conn.query(
+        "UPDATE plan_header SET plan_start = ?, plan_end = ? WHERE plans_head = ?",
+        [instInfo.plan_start, instInfo.plan_end, instInfo.plans_head]
+      );
+    // inst_header 날짜 동기화
+    await conn.query(
+      `UPDATE inst_header SET inst_start = ?
+       WHERE inst_head = (SELECT inst_head FROM inst WHERE inst_no = ?)`,
       [instInfo.plan_start, instNo]
     );
-
+  }
     await conn.commit();
-
     return {
-      isUpdated: resInst.affectedRows > 0,
-      instInfo,
+      isUpdated: true,
+      instInfo
     };
   } catch (err) {
     await conn.rollback();
     throw err;
   } finally {
-    conn.release();
+    if (conn) conn.release();
   }
 };
 
