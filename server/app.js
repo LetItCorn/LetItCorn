@@ -58,6 +58,9 @@
   const instHeaderRouter = require('./routers/inst_header_router.js');
   const clientsRouter = require('./routers/clients_router.js');
   const instructionsRouter = require('./routers/instructions_router.js');
+  const semiOutboundRouter = require('./routers/semi_outbound_router.js');
+  const semiQcRouter = require('./routers/semi_qc_router.js');
+  const semiInboundRouter = require('./routers/semi_inbound_router.js');
   //영업
   const SoRouter = require('./routers/salesorder_router.js'); // 주문서 SalesOrder
   const IsoRouter = require('./routers/Insertsalesorder_router.js'); // 주문서 등록 InsertSalesOrder
@@ -128,7 +131,9 @@
   app.use('/api', instHeaderRouter );
   app.use('/api', clientsRouter);
   app.use('/api', instructionsRouter);
-
+  app.use('/api', semiOutboundRouter);
+  app.use('/api', semiQcRouter);
+  app.use('/api', semiInboundRouter);
   
 app.get("/", function (req, res, next) {
   res.sendFile(path.join(__dirname, "./public", "index.html"));

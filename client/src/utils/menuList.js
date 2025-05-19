@@ -109,8 +109,12 @@ const menuConfig = {
     ],
     "반제품": [
       {
-        name: "반제품 생산지시 조회",
-        path: 'sf_product'
+        name: "반제품 자재출고 처리 페이지",
+        path: 'semi-outbound'
+      },
+      {
+        name: "반제품 입고 처리 페이지",
+        path: "semi-inbound"
       },
     ],
     "자재품질": [{

@@ -20,8 +20,8 @@ FROM plans p
 JOIN plan_header ph ON p.plans_head = ph.plans_head
 JOIN items i ON p.item_code = i.item_code
 WHERE ph.plan_stat = 'K01'
- AND (? IS NULL OR ph.plan_start >= ?)
- AND (? IS NULL OR ph.plan_end <= ?)
+  AND (? IS NULL OR ph.plans_reg >= ?)
+  AND (? IS NULL OR ph.plans_reg <= ?)
 ORDER BY ph.plan_start DESC`;
 
 module.exports = {

@@ -1,38 +1,19 @@
 <template>
   <div class="modal-box">
     <div class="filter-row justify-end">
-      <label for="filter" class="font-bold">검색조건</label>
-      <select v-model="selected2" id="filter" class="small-select">
-        <option
-          v-for="(item, index) in selectList"
-          :key="index"
-          :value="item.value"
-        >
-          {{ item.name }}
-        </option>
-      </select>
+      <label for="filter" class="font-bold">주문서 작성일자</label>
       <Datepicker
-        v-if="selected2 === '작성일자'"
         v-model="startDate"
         class="datepicker-input"
         :teleport="true"
         :format="'yy-MM-dd'"
       />
       <Datepicker
-        v-if="selected2 === '작성일자'"
         v-model="endDate"
         class="datepicker-input"
         :teleport="true"
         :format="'yy-MM-dd'"
       />
-      <Datepicker
-        v-if="selected2 === '종료일자'"
-        v-model="endDate"
-        class="datepicker-input"
-        :teleport="true"
-        :format="'yy-MM-dd'"
-      />
-
       <div class="button-group">
         <button @click="handleSearch">조회</button>
         <button @click="handleSelect">선택</button>
@@ -65,13 +46,14 @@ import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import { ModuleRegistry, ClientSideRowModelModule } from "ag-grid-community";
 import Swal from "sweetalert2";
+import dayjs from "dayjs";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const productionPlanStore = useProductionPlanStore();
 const emit = defineEmits(["selectOrder"]);
 const selected2 = ref("작성일자");
-const startDate = ref(new Date());
+const startDate = ref(dayjs().subtract(7, "day").toDate());
 const endDate = ref(new Date());
 const selectPlan = ref([]);
 const gridRef = ref(null);

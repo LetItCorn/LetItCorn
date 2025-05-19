@@ -41,7 +41,7 @@
 
 <script setup>
 //composition api 해보겠습니다이
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import Datepicker from "@vuepic/vue-datepicker"
 import { AgGridVue } from 'ag-grid-vue3'
@@ -49,6 +49,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css"
 import { useInstStore } from "@/store/inst";
 import { useRouter } from "vue-router"
+import { useRoute } from "vue-router";
 import { storeToRefs } from 'pinia'
 import dayjs from 'dayjs'
 import Swal from "sweetalert2";
@@ -56,6 +57,7 @@ import { ModuleRegistry, ClientSideRowModelModule } from 'ag-grid-community';
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 const router = useRouter();
+const route = useRoute(); 
 const productionInstStore = useInstStore();
 const { selectedInst, selectedQueryPlans } = storeToRefs(productionInstStore);
 // 날짜 검색 조건
@@ -95,12 +97,36 @@ const detailColumnDefs = [
 { field: "process_header_label", headerName: "공정", flex: 1}
 ]; 
 
-const handleRowSelection = () => {
+onMounted(async ()=> {
+  if (route.query.refreshed === "1") {
+    await fetchPlanInst();
+    router.replace({ name: "ProductionInstInquiry" });
+  }
+})
+
+const handleRowSelection = async() => {
   const selectedNodes = mainGridRef.value.api.getSelectedNodes();
   const selectedData = selectedNodes.map(node => node.data);
   console.log("선택된 항목:", selectedData);
   productionInstStore.setSelectedQueryPlans(selectedData);
-}
+   //체크된 row가 하나라면 상세정보 조회도 자동 수행
+   if (selectedData.length === 1) {
+    const instNo = selectedData[0].inst_no;
+    productionInstStore.setSelectedInst(selectedData[0]);
+
+    try {
+      const res = await axios.get(`/api/instHead/${instNo}`);
+      detailList.value = res.data;
+    } catch (err) {
+      console.error("상세 조회 실패:", err);
+      detailList.value = [];
+    }
+  } else {
+    //2개 이상 체크 시 상세는 비움
+    detailList.value = [];
+    productionInstStore.setSelectedInst(null);
+  }
+};
 const handleRowClick = async (event)=>{  
   let instNo = event.data.inst_no;
   productionInstStore.setSelectedInst(event.data);
@@ -208,17 +234,19 @@ if (invalid){
       icon: "warning", 
       title:`'${invalid.inst_head}'은(는) 대기 상태가 아니므로 삭제할 수 없습니다.`,
     });
-}
+  }
 for (const inst of selectedQueryPlans.value) {
-  await axios.delete(`/api/instHead/${inst.inst_head}`)
-}
-Swal.fire({
-      icon: "success", 
-      title:"삭제가 완료되었습니다.",
-    });
-await fetchPlanInst();
-productionInstStore.setSelectedQueryPlans([]);
-}
+    try {
+      await axios.delete(`/api/instHead/${inst.inst_head}`);
+    } catch (err) {
+      console.error("삭제 실패:", err);
+      return Swal.fire({ icon: "error", title: "삭제 중 오류 발생" });
+    }
+  }  
+  Swal.fire({ icon: "success", title: "삭제가 완료되었습니다." });
+  await fetchPlanInst(); // 목록 새로고침
+  productionInstStore.setSelectedQueryPlans([]);
+};
 </script>
 
 <style scoped>

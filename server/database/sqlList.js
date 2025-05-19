@@ -49,6 +49,11 @@ const checkwfpdhistory = require('./sqls/checkwfpdhistory.js');
 const insertfproduct = require('./sqls/insertfinishedproduct.js');
 const qinspectionfproduct = require('./sqls/qinspectionfinishedproduct.js');
 const processLog = require('./sqls/prLog.js');
+const semiOutbound   = require('./sqls/semi_outbound.js');
+const semiQc = require('./sqls/semi_qc.js');
+const semiInboundSql = require('./sqls/semi_inbound.js');
+const semiProductSql = require('./sqls/semi_product.js');
+
 
 
 module.exports = {
@@ -102,4 +107,7 @@ module.exports = {
   ...insertfproduct,
   ...qinspectionfproduct,
   ...processLog,
+  ...semiOutbound,
+  ...semiQc,
+  ...semiInboundSql,
 }

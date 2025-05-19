@@ -91,6 +91,13 @@ onMounted(async () => {
     try {
       const res = await axios.get(`/api/instHead/${instNo}`);
       const data = Array.isArray(res.data) ? res.data : [res.data];
+      if (!data || data.length === 0) {
+        Swal.fire({
+          icon: "error",
+          title: "조회된 수정 대상이 없습니다.",
+        });
+        return;
+      }
       // 공정코드 변환
       const processLabelMap = {
         Z01: "완공정",
@@ -98,10 +105,12 @@ onMounted(async () => {
       };
       const labelMapped = data.map((row) => ({
         ...row,
+        plan_no: row.plan_no || "",
         process_header:
           processLabelMap[row.process_header] || row.process_header,
       }));
       productionInstStore.setSelectedPlans(labelMapped);
+      console.log(labelMapped);
     } catch (err) {
       console.error("수정용 데이터 조회 실패:", err);
       Swal.fire({
@@ -269,10 +278,10 @@ async function registerInst() {
           : row.plan_end;
       row.item_code = row.item_code || "";
       row.item_name = row.item_name || "";
-      row.plans_vol = row.plans_vol || "0"; 
+      row.plans_vol = row.plans_vol || "0";
       row.iord_no = row.iord_no || "0";
       row.process_header = row.process_header;
-      row.out_od = row.out_od || "N"; 
+      row.out_od = row.out_od || "N";
 
       rowData.push(row);
     }
@@ -311,7 +320,6 @@ async function registerInst() {
         Swal.fire({
           icon: "warning",
           title: "수정 실패",
-          text: "DB 반영 없음",
         });
       }
     } catch (err) {
@@ -348,6 +356,11 @@ async function registerInst() {
       Swal.fire({
         icon: "success",
         title: "등록 성공",
+      }).then(() => {
+        router.push({
+          name: "ProductionInstInquiry",
+          query: { refreshed: "1" },
+        });
       });
     } catch (err) {
       console.error(err);

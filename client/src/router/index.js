@@ -44,6 +44,8 @@ import ProcessLog from "@/views/ProcessLog.vue";
 import QcLog from "@/views/QcLog.vue";
 import Machin from "@/views/Machin.vue";
 import Fault from "@/views/Fault.vue";
+import SemiOutbound from "@/views/SemiOutbound.vue";
+import SemiInbound from '@/views/SemiInbound.vue';
 
 const routes = [
   {
@@ -296,6 +298,17 @@ const routes = [
     path: '/Machin',
     name: 'Machin',
     component: Machin
+  },
+  // 반제품 자재 출고 페이지
+  {
+    path: '/semi-outbound',
+    name: 'SemiOutbound',
+    component: SemiOutbound
+  },
+  {
+    path: '/semi-inbound',
+    name: 'SemiInbound',
+    component: SemiInbound
   },
 ];
 

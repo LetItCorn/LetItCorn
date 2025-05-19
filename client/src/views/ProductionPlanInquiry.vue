@@ -1,63 +1,63 @@
 <!-- 생산계획 조회 화면-->
 <template>
-    <div class="plan-search-header">
-      <label class="font-bold whitespace-nowrap">등록일자</label>
-      <!--계획 작성기준 날짜 설정 후 조회가능-->
-      <Datepicker
-        v-model="dateRange"
-        range
-        :format="'yyyy-MM-dd'"
-        :teleport="true"
-        class="datepicker-input"
-      />
-      <button
-        @click="fetchPlanList"
-        class="bg-blue-500 px-3 py-1 rounded text-black"
-      >
-        조회
-      </button>
-      <button
-        @click="deletePlans"
-        class="bg-red-500 px-3 py-1 rounded text-black"
-      >
-        삭제
-      </button>
-      <button
-        @click="modifyPlans"
-        class="bg-red-500 px-3 py-1 rounded text-black"
-      >
-        수정
-      </button>
-    </div>
-    <div class="grid-wrapper">
-      <!--단편 정보 출력 그리드-->
+  <div class="plan-search-header">
+    <label class="font-bold whitespace-nowrap">등록일자</label>
+    <!--계획 작성기준 날짜 설정 후 조회가능-->
+    <Datepicker
+      v-model="dateRange"
+      range
+      :format="'yyyy-MM-dd'"
+      :teleport="true"
+      class="datepicker-input"
+    />
+    <button
+      @click="fetchPlanList"
+      class="bg-blue-500 px-3 py-1 rounded text-black"
+    >
+      조회
+    </button>
+    <button
+      @click="deletePlans"
+      class="bg-red-500 px-3 py-1 rounded text-black"
+    >
+      삭제
+    </button>
+    <button
+      @click="modifyPlans"
+      class="bg-red-500 px-3 py-1 rounded text-black"
+    >
+      수정
+    </button>
+  </div>
+  <div class="grid-wrapper">
+    <!--단편 정보 출력 그리드-->
+    <ag-grid-vue
+      class="ag-theme-alpine"
+      style="width: 80%; height: 500px"
+      ref="mainGridRef"
+      :columnDefs="planColumnDefs"
+      :rowData="planList"
+      rowSelection="multiple"
+      :modules="[ClientSideRowModelModule]"
+      @rowSelectionChanged="handleRowSelection"
+      @grid-ready="onGridReady"
+      @rowClicked="handleRowClick"
+    />
+    <!--상세 정보 출력 그리드-->
+    <div v-show="selectedPlan.length > 0">
+      <h3 class="font-bold mt-4">세부 생산계획</h3>
       <ag-grid-vue
         class="ag-theme-alpine"
-        style="width: 80%; height: 500px"
-        ref="mainGridRef"
-        :columnDefs="planColumnDefs"
-        :rowData="planList"
-        rowSelection="multiple"
+        style="width: 80%; height: 200px"
+        ref="detailGridRef"
+        :columnDefs="detailColumnDefs"
+        :rowData="detailList"
+        rowSelection="single"
         :modules="[ClientSideRowModelModule]"
-        @rowSelectionChanged="handleRowSelection"
-        @grid-ready="onGridReady"
-        @rowClicked="handleRowClick"
+        @grid-ready="onDetailGridReady"
       />
-      <!--상세 정보 출력 그리드-->
-      <div v-show="selectedPlan.length > 0">
-        <h3 class="font-bold mt-4">세부 생산계획</h3>
-        <ag-grid-vue
-          class="ag-theme-alpine"
-          style="width: 80%; height: 200px"
-          ref="detailGridRef"
-          :columnDefs="detailColumnDefs"
-          :rowData="detailList"
-          rowSelection="single"
-          :modules="[ClientSideRowModelModule]"
-          @grid-ready="onDetailGridReady"
-        />
-      </div>
     </div>
+  </div>
 </template>
 
 <script setup>
@@ -98,10 +98,10 @@ const onDetailGridReady = (params) => {
   detailGridApi.value = params.api;
 };
 
-const statusMap={
+const statusMap = {
   K01: "대기",
   K02: "진행중",
-  K03: "완료"
+  K03: "완료",
 };
 
 // ref/reactive 값이 바뀔 때 특정 로직 실행
@@ -144,30 +144,33 @@ const planColumnDefs = [
   {
     headerName: "지시상태",
     field: "plan_stat",
-    valueFormatter: params => statusMap[params.value] || params.value,
-    flex: 1
-  }
+    valueFormatter: (params) => statusMap[params.value] || params.value,
+    flex: 1,
+  },
 ];
 
 const detailColumnDefs = [
   { headerName: "생산계획번호", field: "plan_no", flex: 2 },
-  { headerName: "품목명", field: "item_name", flex: 2  },
-  { headerName: "주문수량", field: "sorder_count", flex: 1  },
-  { headerName: "생산계획수량", field: "plans_vol", flex: 2  },
+  { headerName: "품목명", field: "item_name", flex: 2 },
+  { headerName: "주문수량", field: "sorder_count", flex: 1 },
+  { headerName: "생산계획수량", field: "plans_vol", flex: 2 },
   {
     headerName: "납기일",
     field: "delivery_date",
-    valueFormatter: (params) => formatDate(params.value), flex: 2 
+    valueFormatter: (params) => formatDate(params.value),
+    flex: 2,
   },
   {
     headerName: "생산시작일",
     field: "plan_start",
-    valueFormatter: (params) => formatDate(params.value), flex: 2 
+    valueFormatter: (params) => formatDate(params.value),
+    flex: 2,
   },
   {
     headerName: "생산종료일",
     field: "plan_end",
-    valueFormatter: (params) => formatDate(params.value), flex: 2 
+    valueFormatter: (params) => formatDate(params.value),
+    flex: 2,
   },
 ];
 
@@ -187,7 +190,12 @@ const fetchPlanList = async () => {
       params: { startDate, endDate },
     });
     console.log("받아온 planList 데이터:", res.data);
-    planList.value = res.data;
+    planList.value = res.data.reduce((acc, cur) => {
+      if (!acc.some((item) => item.plans_head === cur.plans_head)) {
+        acc.push(cur);
+      }
+      return acc;
+    }, []);
     selectedPlan.value = [];
     detailList.value = [];
     store.updateSearchDate(dateRange.value);
@@ -279,6 +287,10 @@ const deletePlans = async () => {
   for (const plan of selectedPlan.value) {
     await axios.delete(`/api/plans/${plan.plans_head}`);
   }
+  Swal.fire({
+    icon: "success",
+    title: "삭제가 완료되었습니다.",
+  });
   await fetchPlanList();
 };
 </script>
