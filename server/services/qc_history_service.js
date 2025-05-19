@@ -15,8 +15,16 @@ async function deleteQC(qc_no) {
   return res && res.affectedRows > 0;
 }
 
+// 발주서별 품질 검사 요약 조회
+async function findAllOrderSummary() {
+  return await db.query('selectQcOrderSummary', []);
+}
+
+
+
 module.exports = {
   findAllQCHistory,
   findSelectedQCHistory,
-  deleteQC
+  deleteQC,
+  findAllOrderSummary,
 };

@@ -1,115 +1,74 @@
 <template>
   <div class="container py-4">
-    <h2 class="text-center mb-4">자재 품질검사 이력 조회</h2>
+    <h2 class="text-center mb-4">자재 품질검사 발주서 이력 조회</h2>
 
-    <!-- 검색 및 액션 버튼 -->
     <div class="d-flex align-items-center mb-3 gap-2">
       <input
-        v-model="searchNo"
+        v-model="searchOrder"
         type="text"
         class="form-control form-control-sm w-auto"
-        placeholder="검사번호 검색"
+        placeholder="발주ID 검색"
       />
-      <input
-        v-model="startDate"
-        type="date"
-        class="form-control form-control-sm w-auto"
-      />
-      <span>~</span>
-      <input
-        v-model="endDate"
-        type="date"
-        class="form-control form-control-sm w-auto"
-      />
-
-      <!-- 선택 삭제 -->
       <button
         class="btn btn-sm btn-danger"
         :disabled="!selected.length"
-        @click="deleteSelected"
+        @click="deleteSelectedOrders"
       >
         삭제
       </button>
-
-      <!-- 선택 엑셀 다운로드 -->
       <button
         class="btn btn-sm btn-success ms-auto"
         :disabled="!selected.length"
-        @click="exportSelected"
+        @click="exportSelectedOrders"
       >
         선택 엑셀 다운로드
       </button>
     </div>
 
-    <!-- 이력 테이블 -->
     <div class="table-responsive">
-      <table class="table table-bordered text-center modern-table mb-0">
-        <thead>
+      <table class="table table-hover align-middle text-center mb-0">
+        <thead class="table-primary">
           <tr>
             <th style="width:1%">
-              <input
-                type="checkbox"
-                :checked="allSelected"
-                @change="toggleAll"
-              />
+              <input type="checkbox" :checked="allSelected" @change="toggleAll" />
             </th>
-            <th>검사번호</th>
-            <th>검사항목</th>
-            <th>기준값</th>
-            <th>단위</th>
-            <th>판정</th>
-            <th>검사일자</th>
+            <th>발주ID</th>
+            <th>발주일자</th>
+            <th>총검사항목</th>
+            <th>합격여부</th>
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="item in pagedHistory"
-            :key="item.qc_no"
-          >
+          <tr v-for="item in filteredOrders" :key="item.moder_id">
             <td>
-              <input
-                type="checkbox"
-                v-model="selected"
-                :value="item.qc_no"
-              />
+              <input type="checkbox" v-model="selected" :value="item.moder_id" />
             </td>
-            <td>{{ item.qc_no }}</td>
-            <td>{{ item.test_field }}</td>
-            <td>{{ item.test_stand }}</td>
-            <td>{{ item.unit }}</td>
+            <td>{{ item.moder_id }}</td>
+            <td>{{ item.moder_date }}</td>
+            <td>{{ item.total_items }}</td>
             <td>
               <span
+                class="fw-bold"
                 :class="{
-                  'text-success': item.qc_result === 'PASS',
-                  'text-danger':  item.qc_result === 'FAIL'
+                  'text-success': item.overall_result === 'PASS',
+                  'text-danger': item.overall_result === 'FAIL'
                 }"
               >
-                {{ item.qc_result }}
+                {{ item.overall_result }}
               </span>
             </td>
-            <td>{{ item.qc_date }}</td>
           </tr>
-          <tr v-if="filteredHistory.length === 0">
-            <td colspan="7" class="text-muted">조회된 이력이 없습니다.</td>
+          <tr v-if="filteredOrders.length === 0">
+            <td colspan="5" class="text-muted">조회된 발주서가 없습니다.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- 페이지네이션 -->
     <nav v-if="pagesCount > 1" class="mt-3">
       <ul class="pagination justify-content-center mb-0">
-        <li
-          class="page-item"
-          :class="{ disabled: currentPage === 1 }"
-        >
-          <a
-            class="page-link"
-            href="#"
-            @click.prevent="changePage(currentPage - 1)"
-          >
-            이전
-          </a>
+        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+          <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">이전</a>
         </li>
         <li
           class="page-item"
@@ -117,25 +76,10 @@
           :key="n"
           :class="{ active: n === currentPage }"
         >
-          <a
-            class="page-link"
-            href="#"
-            @click.prevent="changePage(n)"
-          >
-            {{ n }}
-          </a>
+          <a class="page-link" href="#" @click.prevent="changePage(n)">{{ n }}</a>
         </li>
-        <li
-          class="page-item"
-          :class="{ disabled: currentPage === pagesCount }"
-        >
-          <a
-            class="page-link"
-            href="#"
-            @click.prevent="changePage(currentPage + 1)"
-          >
-            다음
-          </a>
+        <li class="page-item" :class="{ disabled: currentPage === pagesCount }">
+          <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">다음</a>
         </li>
       </ul>
     </nav>
@@ -146,80 +90,51 @@
 import axios from 'axios';
 
 export default {
-  name: 'QCHistory',
+  name: 'QCHistoryOrderList',
   data() {
     return {
-      historyList: [],      // merged QC 이력
-      testItems: [],        // 테스트 항목 메타
-      selected: [],         // 체크된 QC 번호
-      searchNo: '',         // 검사번호 검색어
-      startDate: '',        // 시작일
-      endDate: '',          // 종료일
-      currentPage: 1,       // 현재 페이지
-      pageSize: 10,         // 페이지당 항목 수
-      allowed: ['QC011','QC012','QC013','QC014','QC015']  // 모달과 동일
+      orders: [],
+      selected: [],
+      searchOrder: '',
+      currentPage: 1,
+      pageSize: 10
     };
   },
   computed: {
-    filteredHistory() {
-      return this.historyList.filter(r => {
-        const byNo = this.searchNo
-          ? r.qc_no.includes(this.searchNo)
-          : true;
-        const byStart = this.startDate
-          ? r.qc_date >= this.startDate
-          : true;
-        const byEnd = this.endDate
-          ? r.qc_date <= this.endDate
-          : true;
-        return byNo && byStart && byEnd;
-      });
+    filteredOrders() {
+      return this.orders.filter(o =>
+        this.searchOrder
+          ? o.moder_id.includes(this.searchOrder)
+          : true
+      );
     },
     pagesCount() {
-      return Math.ceil(this.filteredHistory.length / this.pageSize);
+      return Math.ceil(this.filteredOrders.length / this.pageSize);
     },
-    pagedHistory() {
+    pagedOrders() {
       const start = (this.currentPage - 1) * this.pageSize;
-      return this.filteredHistory.slice(start, start + this.pageSize);
+      return this.filteredOrders.slice(start, start + this.pageSize);
     },
     allSelected() {
       return (
-        this.pagedHistory.length > 0 &&
-        this.pagedHistory.every(item =>
-          this.selected.includes(item.qc_no)
-        )
+        this.pagedOrders.length &&
+        this.pagedOrders.every(o => this.selected.includes(o.moder_id))
       );
     }
   },
   async created() {
     try {
-      // 이력 + 테스트 항목 메타 동시 조회
-      const [histRes, qcRes] = await Promise.all([
-        axios.get('/api/qc_history'),
-        axios.get('/api/test_qc')
-      ]);
-      this.testItems = qcRes.data;
-      // QC011~QC015만 필터링 해 메타 정보 병합
-      this.historyList = histRes.data
-        .filter(r => this.allowed.includes(r.qc_no))
-        .map(r => {
-          const meta = this.testItems.find(q => q.test_no === r.qc_no) || {};
-          return {
-            ...r,
-            test_field: meta.test_field,
-            test_stand: meta.test_stand,
-            unit:       meta.unit
-          };
-        });
+      const res = await axios.get('/api/qc_order_summary');
+      this.orders = Array.isArray(res.data) ? res.data : [];
     } catch (e) {
-      console.error('이력 또는 항목 조회 실패', e);
-      alert('품질검사 이력 조회 중 오류가 발생했습니다.');
+      console.error('발주서 이력 조회 실패', e);
+      alert('이력 조회 중 오류가 발생했습니다.');
     }
   },
   methods: {
     toggleAll(evt) {
       this.selected = evt.target.checked
-        ? this.pagedHistory.map(item => item.qc_no)
+        ? this.pagedOrders.map(o => o.moder_id)
         : [];
     },
     changePage(page) {
@@ -228,97 +143,53 @@ export default {
       this.selected = [];
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
-    async deleteSelected() {
+    async deleteSelectedOrders() {
       if (!this.selected.length) return;
-      if (!confirm(`선택한 ${this.selected.length}개 이력을 삭제하시겠습니까?`)) {
-        return;
-      }
+      if (!confirm(`선택한 ${this.selected.length}개 발주서를 삭제하시겠습니까?`)) return;
       try {
         await Promise.all(
           this.selected.map(id =>
-            axios.delete(`/api/qc_inspections/${id}`)
+            axios.delete(`/api/qc_inspections/order/${id}`)
           )
         );
-        // 삭제 후 다시 로드
-        await this.reloadHistory();
-        this.selected = [];
+        await this.reload();
       } catch (e) {
         console.error('삭제 실패', e);
         alert('삭제 중 오류가 발생했습니다.');
       }
     },
-    async exportSelected() {
+    async exportSelectedOrders() {
       if (!this.selected.length) return;
       try {
         const res = await axios.post(
-          '/api/qc_history/export',
+          '/api/qc_order_summary/export',
           { ids: this.selected },
           { responseType: 'blob' }
         );
         const url = window.URL.createObjectURL(new Blob([res.data]));
         const a = document.createElement('a');
         a.href = url;
-        a.setAttribute('download', 'QC_History_Selected.xlsx');
+        a.setAttribute('download', 'QC_Order_Summary.xlsx');
         document.body.appendChild(a);
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
       } catch (e) {
-        console.error('선택 엑셀 다운로드 실패', e);
-        alert('엑셀 내보내기 중 오류가 발생했습니다.');
+        console.error('엑셀 다운로드 실패', e);
+        alert('엑셀 다운로드 중 오류가 발생했습니다.');
       }
     },
-    async reloadHistory() {
-      // 삭제 후 다시 데이터 로드
-      const histRes = await axios.get('/api/qc_history');
-      this.historyList = histRes.data
-        .filter(r => this.allowed.includes(r.qc_no))
-        .map(r => {
-          const meta = this.testItems.find(
-            q => q.test_no === r.qc_no
-          ) || {};
-          return {
-            ...r,
-            test_field: meta.test_field,
-            test_stand: meta.test_stand,
-            unit:       meta.unit
-          };
-        });
+    async reload() {
+      const res = await axios.get('/api/qc_order_summary');
+      this.orders = Array.isArray(res.data) ? res.data : [];
+      this.selected = [];
     }
   }
 };
 </script>
 
 <style scoped>
-/* 기존 QCHistory 스타일 유지 */
-.modern-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  border: 1px solid #e0e0e0;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-.modern-table thead th {
-  background-color: #f4f6f8;
-  color: #333;
-  font-weight: 600;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e0e0e0;
-}
-.modern-table tbody td {
-  padding: 0.75rem 1rem;
-  color: #555;
-}
-.modern-table tbody tr:nth-child(even) {
-  background-color: #fafbfc;
-}
-.modern-table tbody tr:hover {
-  background-color: #eef6ff;
-}
-.pagination .page-item.disabled .page-link {
-  pointer-events: none;
-  opacity: 0.6;
+.table-primary {
+  background-color: #f8f9fa;
 }
 </style>

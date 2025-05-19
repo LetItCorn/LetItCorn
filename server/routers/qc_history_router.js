@@ -24,46 +24,41 @@ router.delete('/qc_inspections/:qc_no', async (req, res, next) => {
   }
 });
 
-// 3) 엑셀 내보내기 (전체 or 선택)
-router.post('/qc_history/export', async (req, res, next) => {
+// 발주서별 요약 조회
+router.get('/qc_order_summary', async (req, res, next) => {
   try {
-    const { ids } = req.body;
-    const data = (Array.isArray(ids) && ids.length > 0)
-      ? await qcService.findSelectedQCHistory(ids)
-      : await qcService.findAllQCHistory();
-
-    const workbook = new ExcelJS.Workbook();
-    const ws = workbook.addWorksheet('QC_History');
-    ws.columns = [
-      { header: '#', key: 'idx', width: 5 },
-      { header: 'QC 번호', key: 'qc_no', width: 20 },
-      { header: '발주ID', key: 'moder_id', width: 20 },
-      { header: '자재코드', key: 'mater_code', width: 15 },
-      { header: '자재명', key: 'mater_name', width: 20 },
-      { header: '검사일자', key: 'qc_date', width: 15 },
-      { header: '결과', key: 'qc_result', width: 10 },
-      { header: '검사자', key: 'inspector', width: 15 },
-    ];
-
-    data.forEach((row, i) => {
-      ws.addRow({
-        idx: i + 1,
-        ...row
-      });
-    });
-
-    res.setHeader('Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    );
-    res.setHeader('Content-Disposition',
-      'attachment; filename="QC_History.xlsx"'
-    );
-
-    await workbook.xlsx.write(res);
-    res.end();
+    const list = await qcService.findAllOrderSummary();
+    res.json(list);
   } catch (err) {
     next(err);
   }
 });
+
+
+// (5) 발주서별 요약 엑셀 다운로드
+router.post('/qc_order_summary/export', async (req, res, next) => {
+    try {
+      const data = await qcService.findAllOrderSummary();
+      const workbook = new ExcelJS.Workbook();
+      const ws = workbook.addWorksheet('QC_Order_Summary');
+      ws.columns = [
+        { header: '발주ID',        key: 'moder_id',       width: 15 },
+        { header: '발주일자',      key: 'moder_date',     width: 15 },
+        { header: '총검사항목',     key: 'total_items',    width: 10 },
+        { header: '합격여부',      key: 'overall_result', width: 10 },
+      ];
+      data.forEach(row => ws.addRow(row));
+      res.setHeader('Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      res.setHeader('Content-Disposition',
+        'attachment; filename=\"QC_Order_Summary.xlsx\"'
+      );
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (err) {
+      next(err);
+    }
+  });
 
 module.exports = router;

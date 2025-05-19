@@ -1,4 +1,3 @@
-<!-- client/src/views/MOutboundForm.vue -->
 <template>
   <div class="container py-4">
     <h2 class="text-center mb-4">자재 출고 처리</h2>
@@ -63,8 +62,6 @@
                     <th>자재명</th>
                     <th>단위</th>
                     <th>필요수량</th>
-                    <th>가용수량</th>
-                    <th>LOT 번호</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -76,11 +73,9 @@
                     <td class="text-start px-2">{{ r.mater_name }}</td>
                     <td>{{ r.unit }}</td>
                     <td>{{ r.required_qty }}</td>
-                    <td>{{ r.available_qty }}</td>
-                    <td>{{ r.mater_lot }}</td>
                   </tr>
                   <tr v-if="!bomRows.length">
-                    <td colspan="6" class="text-muted py-4">
+                    <td colspan="5" class="text-muted py-4">
                       왼쪽에서 생산지시를 선택하세요.
                     </td>
                   </tr>
