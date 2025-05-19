@@ -40,6 +40,10 @@ import FinishedProduct from "@/views/FinishedProduct.vue";
 import CheckWFpdHistory from "@/views/CheckWFpdHistory.vue"; // 완제품 입출고 이력 조회 check waringhouse finished product history
 import InsertFproduct from "@/views/InsertFinishedProduct.vue"; // 완제품 입고 등록
 import QInspectionFproduct from "@/views/QInspectionFinishedProduct.vue"; // 완제품 품질검사
+import ProcessLog from "@/views/ProcessLog.vue";
+import QcLog from "@/views/QcLog.vue";
+import Machin from "@/views/Machin.vue";
+import Fault from "@/views/Fault.vue";
 
 const routes = [
   {
@@ -269,6 +273,29 @@ const routes = [
     path: '/qinspectionfinishedproduct',
     name: 'QInspectionFinishedproduct',
     component: QInspectionFproduct
+  },{
+    // 공정결과
+    path: '/ProcessLogView',
+    name: 'ProcessLogView',
+    component: ProcessLog
+  },
+  {
+    // 품질검사 조회
+    path: '/QcLog',
+    name: 'QcLog',
+    component: QcLog
+  },
+  {
+    // 불량 조회
+    path: '/Fault',
+    name: 'Fault',
+    component: Fault
+  },
+  {
+    //  공정 관리
+    path: '/Machin',
+    name: 'Machin',
+    component: Machin
   },
 ];
 

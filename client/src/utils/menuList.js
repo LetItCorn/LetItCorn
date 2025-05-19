@@ -39,30 +39,6 @@ const menuConfig = {
     ],
   },
   생산: {
-    "공정관리": [{
-        name: "공정진행",
-        path: 'process'
-      }, {
-        name: "공정이력조회",
-        path: '#'
-      },
-
-    ],
-    "품질관리": [{
-        name: "품질검사조회",
-        path: '#'
-      }, {
-        name: "불량관리",
-        path: '#'
-      },
-
-    ],
-    "설비관리": [{
-        name: "설비 현황",
-        path: '#'
-      },
-
-    ],
     "생산계획": [{
         name: "조회",
         path: 'plans'
@@ -79,6 +55,31 @@ const menuConfig = {
       name: "작성",
       path: 'inst'
     }, ],
+    "공정관리": [{
+        name: "공정진행",
+        path: 'process'
+      }, {
+        name: "공정이력조회",
+        path: 'ProcessLogView'
+      },
+
+    ],
+    "품질관리": [{
+        name: "품질검사조회",
+        path: 'QcLog'
+      }, {
+        name: "불량관리",
+        path: 'Fault'
+      },
+
+    ],
+    "설비관리": [{
+        name: "설비 현황",
+        path: 'Machin'
+      },
+
+    ],
+    
   },
   자재: {
     "자재재고": [{
