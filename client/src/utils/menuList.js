@@ -84,10 +84,7 @@ const menuConfig = {
     "자재재고": [{
         name: "조회",
         path: 'leeTest'
-      }, {
-        name: "LOT조회",
-        path: '#'
-      },
+      }, 
       {
         name: "자재발주",
         path: 'm_orders'
@@ -95,10 +92,6 @@ const menuConfig = {
       {
         name: "발주서 조회",
         path: 'm_orderslist'
-      },
-      {
-        name: "반제품 생산지시 조회",
-        path: 'sf_product'
       },
     ],
     "자재 입∙출고": [{
@@ -112,6 +105,12 @@ const menuConfig = {
       name: "조회",
       path: 'm_movement'
     }
+    ],
+    "반제품": [
+      {
+        name: "반제품 생산지시 조회",
+        path: 'sf_product'
+      },
     ],
     "자재품질": [{
       name: "조회",

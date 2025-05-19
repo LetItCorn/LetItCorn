@@ -98,7 +98,7 @@
       </div>
 
       <!-- 등록 정보 카드 -->
-      <div class="col-md-6 ">
+      <div class="col-md-6">
         <div class="card border-secondary mb-3 h-100">
           <div class="card-header bg-secondary text-white">등록 정보</div>
           <div class="card-body">
@@ -189,7 +189,6 @@
                 <th>자재코드</th>
                 <th>자재명</th>
                 <th>규격</th>
-                <th>단위</th>
                 <th>수량</th>
                 <th>단가</th>
                 <th>공급가액</th>
@@ -203,6 +202,7 @@
                   <select
                     v-model="row.mater_code"
                     class="form-select form-select-sm"
+                    @change="onMaterChange(row)"
                   >
                     <option value="" disabled>선택</option>
                     <option
@@ -214,18 +214,44 @@
                     </option>
                   </select>
                 </td>
-                <td>{{ materials.find(m => m.mater_code === row.mater_code)?.mater_name || '-' }}</td>
-                <td><input v-model="row.spec" type="text" class="form-control form-control-sm" /></td>
-                <td><input v-model="row.unit" type="text" class="form-control form-control-sm" /></td>
-                <td><input v-model.number="row.qty" type="number" min="0" class="form-control form-control-sm" /></td>
-                <td><input v-model.number="row.unit_price" type="number" min="0" class="form-control form-control-sm" /></td>
-                <td>{{ formatCurrency(row.qty * row.unit_price) }}</td>
-                <td>{{ formatCurrency(row.qty * row.unit_price * 0.1) }}</td>
+                <td>
+                  {{
+                    materials.find(m => m.mater_code === row.mater_code)
+                      ?.mater_name || '-'
+                  }}
+                </td>
+                <td>
+                  <input
+                    v-model="row.spec"
+                    type="text"
+                    class="form-control form-control-sm"
+                    readonly
+                  />
+                </td>
+                <td>
+                  <input
+                    v-model.number="row.qty"
+                    type="number"
+                    min="1"
+                    class="form-control form-control-sm"
+                    @input="onQtyChange(row)"
+                  />
+                </td>
+                <td>
+                  <input
+                    v-model.number="row.unit_price"
+                    type="number"
+                    class="form-control form-control-sm"
+                    readonly
+                  />
+                </td>
+                <td>{{ formatCurrency(row.supply_amount) }}</td>
+                <td>{{ formatCurrency(row.tax_amount) }}</td>
               </tr>
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="6" class="text-end"><strong>합계:</strong></td>
+                <td colspan="5" class="text-end"><strong>합계:</strong></td>
                 <td colspan="3">
                   <strong>{{ formatCurrency(totalSupply) }}</strong> /
                   <strong>{{ formatCurrency(totalTax) }}</strong>
@@ -235,15 +261,31 @@
           </table>
         </div>
         <div class="p-2 text-end">
-          <button @click="addRow" class="btn btn-outline-primary btn-sm">행 추가</button>
+          <button
+            @click="addRow"
+            class="btn btn-outline-primary btn-sm"
+          >
+            행 추가
+          </button>
         </div>
       </div>
     </div>
 
     <!-- 등록 / 취소 버튼 -->
     <div class="text-center">
-      <button @click="submitForm" :disabled="!canSubmit" class="btn btn-success me-3">등록</button>
-      <button @click="$router.push({ name: 'MOrdersList' })" class="btn btn-danger">취소</button>
+      <button
+        @click="submitForm"
+        :disabled="!canSubmit"
+        class="btn btn-success me-3"
+      >
+        등록
+      </button>
+      <button
+        @click="$router.push({ name: 'MOrdersList' })"
+        class="btn btn-danger"
+      >
+        취소
+      </button>
     </div>
   </div>
 </template>
@@ -259,12 +301,12 @@ export default {
   components: { VueDatePicker },
   data() {
     return {
-      clients: [],        // 거래처 목록
-      materials: [],      // 자재 목록
+      clients: [],
+      materials: [],
       form: {
         moder_id: '',
-        client_code: '',   // 선택된 거래처 코드
-        moder_req: '',     // 요청자
+        client_code: '',
+        moder_req: '',
         reference: '',
         moder_date: null,
         due_date: null,
@@ -279,109 +321,129 @@ export default {
       rows: Array.from({ length: 3 }, () => ({
         mater_code: '',
         spec: '',
-        unit: '',
-        qty: 0,
-        unit_price: 0
+        qty: 1,
+        unit_price: 0,
+        supply_amount: 0,
+        tax_amount: 0
       }))
     };
   },
   computed: {
     dateFormat() { return 'yyyy-MM-dd'; },
-    totalSupply() { return this.rows.reduce((sum, r) => sum + r.qty * r.unit_price, 0); },
-    totalTax() { return this.totalSupply * 0.1; },
-    canSubmit() {
-      return (
-        this.form.moder_id &&
-        this.form.client_code &&
-        this.form.moder_req &&
-        this.rows.some(r => r.mater_code)
-      );
-    }
+    totalSupply() { return this.rows.reduce((sum, r) => sum + r.supply_amount, 0); },
+    totalTax()    { return this.rows.reduce((sum, r) => sum + r.tax_amount, 0); },
+    canSubmit()   { return this.form.moder_id && this.form.client_code && this.rows.some(r => r.mater_code); }
   },
+
+  // ← 이 부분을 추가하세요.
   watch: {
     'form.client_code'(newCode) {
       const client = this.clients.find(c => c.client_code === newCode);
       if (client) {
-        this.form.receiver = client.client_name;
-        this.form.partner_name = client.client_name;
-        this.form.ceo_name = client.client_ceo;      // client_ceo 필드 사용
-        this.form.address = client.client_address;  // client_address 필드 사용
+        this.form.partner_name  = client.client_name;
+        this.form.ceo_name      = client.client_ceo;      // DB 필드명에 맞춰 사용
+        this.form.address       = client.client_address;
         this.form.business_type = client.code_name;
-        this.form.contact = client.client_phone;     // client_phone 필드 사용
+        this.form.contact       = client.client_phone;
       } else {
-        this.form.receiver = '';
         this.form.partner_name = '';
-        this.form.ceo_name = '';
-        this.form.address = '';
-        this.form.business_type = '';
-        this.form.contact = '';
+        this.form.ceo_name     = '';
+        this.form.address      = '';
+        this.form.business_type= '';
+        this.form.contact      = '';
       }
     }
   },
-  async created() {
-    // 발주ID 및 등록번호 자동 생성(매번 고유하도록 날짜+타임스탬프 사용)
-    const prefix = 'MORD';
-    // 'yyMMdd' 포맷을 사용하여 연월일 생성
-    const date = useDates.dateFormat(new Date(), 'yyyyMMdd');
-    // 밀리초 단위 타임스태프로 고유값 생성
-    const timestamp = Date.now();
-    const code = `${prefix}${date}${timestamp}`;
-    this.form.moder_id = code;
-    this.form.reg_number = code;
 
-    // 거래처 목록 조회
-    try {
-      const resC = await axios.get('/api/m_clients');
-      this.clients = resC.data;
-      console.log('▶ clients API result', resC.data);
-      console.log('clients=', this.clients);
-    } catch (e) {
-      console.error('거래처 목록 조회 실패', e);
-      alert('거래처 목록을 불러오는 중 오류가 발생했습니다.');
-    }
-    // 자재 목록 조회
-    try {
-      const resM = await axios.get('/api/materials/stock');
-      this.materials = resM.data;
-    } catch (e) {
-      console.error('자재 목록 조회 실패', e);
-      alert('자재 목록을 불러오는 중 오류가 발생했습니다.');
-    }
-  },
   methods: {
-    formatCurrency(val) { return val.toLocaleString(); },
+    formatCurrency(val) {
+      return val != null ? val.toLocaleString() : '0';
+    },
     addRow() {
-      this.rows.push({ mater_code: '', spec: '', unit: '', qty: 0, unit_price: 0 });
+      this.rows.push({
+        mater_code: '',
+        spec: '',
+        qty: 1,
+        unit_price: 0,
+        supply_amount: 0,
+        tax_amount: 0
+      });
+    },
+    onMaterChange(row) {
+      const mat = this.materials.find(m => m.mater_code === row.mater_code);
+      if (mat) {
+        row.spec          = mat.spec || '';
+        row.unit_price    = mat.m_price || 0;
+        row.qty           = 1;
+        row.supply_amount = row.qty * row.unit_price;
+        row.tax_amount    = Math.floor(row.supply_amount * 0.1);
+      }
+    },
+    onQtyChange(row) {
+      row.supply_amount = row.qty * row.unit_price;
+      row.tax_amount    = Math.floor(row.supply_amount * 0.1);
     },
     async submitForm() {
       try {
-        const md = useDates.dateFormat(this.form.moder_date, this.dateFormat);
-        const dd = useDates.dateFormat(this.form.due_date, this.dateFormat);
-        await axios.post('/api/m_orders', {
-          header: {
-            ...this.form,
-            moder_date: md,
-            due_date: dd
-          },
-          details: this.rows
-            .filter(r => r.mater_code)
-            .map(r => ({
-              mater_code:    r.mater_code,
-              product_name:  this.materials.find(m => m.mater_code === r.mater_code)?.mater_name || '',
-              spec:          r.spec,
-              unit:          r.unit,
-              qty:           r.qty,
-              unit_price:    r.unit_price,
-              supply_amount: r.qty * r.unit_price,
-              tax_amount:    r.qty * r.unit_price * 0.1
-            }))
-        });
+        const header = {
+          ...this.form,
+          moder_date: useDates.dateFormat(this.form.moder_date, this.dateFormat),
+          due_date:   useDates.dateFormat(this.form.due_date,   this.dateFormat)
+        };
+        const details = this.rows
+          .filter(r => r.mater_code)
+          .map(r => ({
+            mater_code:    r.mater_code,
+            product_name:  this.materials.find(m => m.mater_code === r.mater_code)?.mater_name || '',
+            spec:           r.spec,
+            unit:           '',
+            qty:            r.qty,
+            unit_price:     r.unit_price,
+            supply_amount:  r.supply_amount,
+            tax_amount:     r.tax_amount
+          }));
+        await axios.post('/api/m_orders', { header, details });
         this.$router.push({ name: 'MOrdersList' });
       } catch (err) {
         console.error('발주서 등록 실패:', err.response?.data || err);
         alert('발주서 등록 중 오류가 발생했습니다.');
       }
     }
+  },
+
+  async created() {
+    // 발주ID 및 등록번호 자동 생성
+    const prefix    = 'MORD';
+    const date      = useDates.dateFormat(new Date(), 'yyyyMMdd');
+    const timestamp = Date.now();
+    this.form.moder_id    = `${prefix}${date}${timestamp}`;
+    this.form.reg_number  = this.form.moder_id;
+
+    // 거래처 목록 조회
+    try {
+      const { data } = await axios.get('/api/m_clients');
+      this.clients = data;
+    } catch (e) {
+      console.error('거래처 목록 조회 실패', e);
+      alert('거래처 목록을 불러오는 중 오류가 발생했습니다.');
+    }
+
+    // 자재 목록 조회
+    try {
+      const { data } = await axios.get('/api/materials/stock');
+      this.materials = data;
+    } catch (e) {
+      console.error('자재 목록 조회 실패', e);
+      alert('자재 목록을 불러오는 중 오류가 발생했습니다.');
+    }
   }
 };
 </script>
+
+
+<style scoped>
+.table th,
+.table td {
+  vertical-align: middle;
+}
+</style>

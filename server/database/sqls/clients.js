@@ -12,6 +12,7 @@ SELECT
     FROM client AS c
     JOIN common_codes AS com
     ON c.code_values = com.code_values
+    WHERE com.code_values = 'E03'
     ORDER BY c.client_code
 `;
 
