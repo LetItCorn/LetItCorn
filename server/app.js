@@ -43,6 +43,7 @@
   const testQCRouter = require('./routers/testQc_router.js');
   const detailsRouter = require('./routers/prLogDt_router.js');
   const qulityRouter = require('./routers/pQcLog_router.js');
+  const processLogRouter = require('./routers/prLog_router.js');
   //자재
   const materialsRouter = require('./routers/materials_router.js');
   const materialQCRouter = require('./routers/material_qc_router.js');
@@ -97,6 +98,7 @@
   app.use('/api', testQCRouter);
   app.use('/api', detailsRouter);
   app.use('/api', qulityRouter);
+  app.use('/api', processLogRouter);
   //관리
   app.use('/api', userRouter);
   app.use('/api', itemRouter);
