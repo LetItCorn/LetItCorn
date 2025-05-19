@@ -1,7 +1,6 @@
-<!-- src/views/components/ProcessList.vue -->
 <template>
   <table class="table table-hover table-sm mb-0">
-    <thead class="thead-light sticky-top">
+    <thead>
       <tr>
         <th>공정코드</th>
         <th>공정명</th>
@@ -15,7 +14,7 @@
         :key="p.process_code"
         @click="$emit('select', p)"
         :class="{ 'table-active': p.process_code === selectedCode }"
-        style="cursor:pointer"
+        style="cursor: pointer"
       >
         <td>{{ p.process_code }}</td>
         <td>{{ p.process_name }}</td>
@@ -34,5 +33,23 @@ export default {
   name: 'ProcessList',
   props: ['processList', 'selectedCode'],
   emits: ['select']
-}
+};
 </script>
+
+<style scoped>
+/* 헤더 고정 */
+thead th {
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  z-index: 1;
+}
+
+/* 선택 강조 및 호버 */
+.table-active {
+  background-color: #d0ebff;
+}
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+</style>

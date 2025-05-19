@@ -108,7 +108,13 @@ const saveItem = async (item) => {
 // 4) 품목 삭제
 const deleteItem = async (itemCode) => {
   try {
-    return await mariaDB.query('itemDelete', [itemCode]);
+    let res = await mariaDB.query('itemDelete', [itemCode]);
+    let result = await mariaDB.query('flowsDelete', [itemCode]);
+    if (res.affectedRows > 0 && result.affectedRows > 0) {
+      return { success: true, message: '품목 삭제 성공' };
+    } else {
+      return { success: false, message: '품목 삭제 실패' };
+    }
   } catch (err) {
     console.error('deleteItem error', err);
     throw err;

@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid p-0" style="height:100vh;">
+  <div class="container-fluid py-3 d-flex flex-column vh-100">
     <!-- 상단 필터 -->
     <BomFilter
       v-model="searchItemCode"
@@ -8,25 +8,38 @@
     />
 
     <!-- BOM 리스트 & 구성품 리스트 -->
-    <div class="row g-3 m-0" style="height:90vh;">
-      <div class="col-md-6 h-100">
-        <BomList
-          :bomList="bomList"
-          :selectedBom="selectedBom"
-          @select="selectBom"
-          @add="openBomModal"
-          @delete="deleteBom"
-        />
+    <div class="row g-3 flex-grow-1" style="height: 70vh;">
+      <!-- 좌측: BOM 리스트 -->
+      <div class="col-md-6 h-100 d-flex flex-column">
+        <div class="card list-card flex-fill">
+          <div class="card-header py-2"><strong>BOM 리스트</strong></div>
+          <div class="card-body p-0 list-scroll flex-grow-1">
+            <BomList
+              :bomList="bomList"
+              :selectedBom="selectedBom"
+              @select="selectBom"
+              @add="openBomModal"
+              @delete="deleteBom"
+            />
+          </div>
+        </div>
       </div>
-      <div class="col-md-6 h-100">
-        <BomComponents
-          :compList="compList"
-          :selectedBom="selectedBom"
-          :selectedComp="selectedComp"
-          @select="selectComp"
-          @openComp="openCompModal"
-          @deleteComp="deleteComp"
-        />
+
+      <!-- 우측: 구성품 리스트 -->
+      <div class="col-md-6 h-100 d-flex flex-column">
+        <div class="card list-card flex-fill">
+          <div class="card-header py-2"><strong>구성품 리스트</strong></div>
+          <div class="card-body p-0 list-scroll flex-grow-1">
+            <BomComponents
+              :compList="compList"
+              :selectedBom="selectedBom"
+              :selectedComp="selectedComp"
+              @select="selectComp"
+              @openComp="openCompModal"
+              @deleteComp="deleteComp"
+            />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -90,7 +103,6 @@ export default {
     this.loadMaterials();
   },
   methods: {
-    /* BOM 목록 */
     async loadBoms() {
       const { data } = await axios.get('/api/boms', {
         params: { itemCode: this.searchItemCode.trim() }
@@ -107,8 +119,6 @@ export default {
       this.selectedBom = bom;
       this.loadComps(bom.bom_id);
     },
-
-    /* 구성품 */
     async loadComps(bomId) {
       const { data } = await axios.get(`/api/boms/${bomId}/components`);
       this.compList = data;
@@ -117,8 +127,6 @@ export default {
     selectComp(comp) {
       this.selectedComp = comp;
     },
-
-    /* BOM 등록 */
     async openBomModal() {
       const { data } = await axios.get('/api/boms/bomitemsList');
       this.bomItemsList = data;
@@ -137,14 +145,10 @@ export default {
       if (!this.selectedBom) return;
       axios.delete(`/api/boms/${this.selectedBom.bom_id}`).then(this.loadBoms);
     },
-
-    /* 자재 목록 */
     async loadMaterials() {
       const { data } = await axios.get('/api/materials');
       this.materialsList = data;
     },
-
-    /* 구성품 등록/수정 */
     openCompModal(comp = null) {
       this.editComp = !!comp;
       this.compForm = comp
@@ -182,3 +186,18 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.list-card   { display: flex; flex-direction: column; height: 100%; }
+.list-scroll { overflow: auto; }
+
+table thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+}
+
+.table-hover tbody tr:hover { background-color: #f8f9fa; }
+.table-active { background-color: #d0ebff; }
+</style>

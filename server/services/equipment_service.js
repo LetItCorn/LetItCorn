@@ -139,7 +139,15 @@ const saveEquipment = async (equipment) => {
 // ─────────────────────────────────────────────
 const deleteEquipment = async (equipmentCode) => {
   try {
-    return await mariaDB.query('equipmentDelete', [equipmentCode]);
+    // 1. 설비코드로 점검이력 전체 삭제 (이게 반드시 먼저 실행되어야 함)
+    await mariaDB.query('equipmentDelete', [equipmentCode]);
+    // 2. 설비 삭제
+    let res =  await mariaDB.query('inspectionDelete', [equipmentCode]);
+    if (res.affectedRows > 0) {
+      return { success: true, message: '설비 삭제 성공' };
+    } else {
+      return { success: false, message: '설비 삭제 실패' };
+    }
   } catch (err) {
     console.error('deleteEquipment error', err);
     throw err;

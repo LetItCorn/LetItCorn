@@ -1,10 +1,10 @@
 <template>
   <div class="card h-100 d-flex flex-column">
-    <div class="card-body p-2 d-flex flex-column flex-fill">
+      <!-- 💡 스크롤 가능한 테이블 영역 -->
       <div class="table-responsive flex-fill overflow-auto">
         <table class="table table-hover table-sm mb-0">
-          <thead class="thead-light sticky-top">
-            <tr>
+          <thead>
+            <tr class="sticky-header">
               <th>순번</th>
               <th>자재코드</th>
               <th>자재명</th>
@@ -32,6 +32,8 @@
           </tbody>
         </table>
       </div>
+
+      <!-- 버튼 영역 -->
       <div class="mt-2 d-flex justify-content-end">
         <button
           @click="$emit('openComp', selectedComp)"
@@ -50,7 +52,6 @@
           삭제
         </button>
       </div>
-    </div>
   </div>
 </template>
 
@@ -69,10 +70,17 @@ export default {
 .table-active {
   background-color: #d0ebff;
 }
-.sticky-top th {
+
+/* ✅ 헤더 고정 */
+.sticky-header th {
   position: sticky;
   top: 0;
-  background: #fff;
-  z-index: 10;
+  background: #f8f9fa;
+  z-index: 1;
+}
+
+/* 행 hover 효과 */
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
 }
 </style>

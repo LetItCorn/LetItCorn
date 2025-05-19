@@ -1,10 +1,16 @@
 <template>
   <div class="card h-100 d-flex flex-column">
-    <div class="card-body p-2 d-flex flex-column flex-fill">
+   
+      <!-- 💡 리스트 스크롤 영역 -->
       <div class="table-responsive flex-fill overflow-auto">
         <table class="table table-hover table-sm mb-0">
-          <thead class="thead-light sticky-top">
-            <tr><th>BOM ID</th><th>품목코드</th><th>품목명</th><th>등록일</th></tr>
+          <thead class="thead-light">
+            <tr class="sticky-header">
+              <th>BOM ID</th>
+              <th>품목코드</th>
+              <th>품목명</th>
+              <th>등록일</th>
+            </tr>
           </thead>
           <tbody>
             <tr
@@ -25,11 +31,13 @@
           </tbody>
         </table>
       </div>
+
+      <!-- 버튼 영역 -->
       <div class="mt-2 d-flex justify-content-end">
         <button @click="$emit('add')" class="btn btn-sm btn-warning me-1" style="width:100px;">등록</button>
         <button @click="$emit('delete')" class="btn btn-sm btn-danger" :disabled="!selectedBom" style="width:100px;">삭제</button>
       </div>
-    </div>
+   
   </div>
 </template>
 
@@ -47,10 +55,17 @@ export default {
 .table-active {
   background-color: #d0ebff;
 }
-.sticky-top th {
+
+/* 🧷 헤더 고정 (thead-light는 Bootstrap 클래스) */
+.sticky-header th {
   position: sticky;
   top: 0;
-  background: #fff;
-  z-index: 10;
+  background: #f8f9fa;
+  z-index: 1;
+}
+
+/* 줄 hover 스타일 */
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
 }
 </style>

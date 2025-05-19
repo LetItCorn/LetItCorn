@@ -1,5 +1,3 @@
-// server/database/sqls/employees.js
-
 // 1) 전체 조회 + 조건별 검색 (emp_id, emp_name, role_code 모두 옵션)
 const employeesList = `
   SELECT emp_id
@@ -13,14 +11,14 @@ const employeesList = `
        , user_gender
        , role_code
        , status_code
-       , DATE_FORMAT( hire_date , '%Y-%m-%d') AS hire_date
-       , DATE_FORMAT( retire_date , '%Y-%m-%d') AS retire_date
+       , DATE_FORMAT(hire_date , '%Y-%m-%d') AS hire_date
+       , DATE_FORMAT(retire_date , '%Y-%m-%d') AS retire_date
   FROM employees
   WHERE 1=1
     AND (? = '' OR emp_id    LIKE CONCAT('%', ?, '%'))
     AND (? = '' OR emp_name  LIKE CONCAT('%', ?, '%'))
     AND (? = '' OR role_code = ?)
-  ORDER BY emp_id
+  ORDER BY CAST(SUBSTRING(emp_id, 4) AS UNSIGNED)
 `;
 
 // 1-a) ID로만 조회 (LIKE 검색)
@@ -40,7 +38,7 @@ const employeesById = `
        , retire_date
   FROM employees
   WHERE emp_id LIKE CONCAT('%', ?, '%')
-  ORDER BY emp_id
+  ORDER BY CAST(SUBSTRING(emp_id, 4) AS UNSIGNED)
 `;
 
 // 1-b) 이름으로만 조회 (LIKE 검색)
@@ -60,7 +58,7 @@ const employeesByName = `
        , retire_date
   FROM employees
   WHERE emp_name LIKE CONCAT('%', ?, '%')
-  ORDER BY emp_id
+  ORDER BY CAST(SUBSTRING(emp_id, 4) AS UNSIGNED)
 `;
 
 // 1-c) 역할 코드로만 조회
@@ -80,7 +78,7 @@ const employeesByRole = `
        , retire_date
   FROM employees
   WHERE role_code = ?
-  ORDER BY emp_id
+  ORDER BY CAST(SUBSTRING(emp_id, 4) AS UNSIGNED)
 `;
 
 // 2) 단건 조회 (emp_id 기준)
@@ -118,11 +116,11 @@ const employeeInsert = `
     status_code,
     hire_date,
     retire_date
-)
-VALUES (
-    ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-)
-ON DUPLICATE KEY UPDATE
+  )
+  VALUES (
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+  )
+  ON DUPLICATE KEY UPDATE
     emp_name     = VALUES(emp_name),
     user_id      = VALUES(user_id),
     user_passd   = VALUES(user_passd),
@@ -135,7 +133,6 @@ ON DUPLICATE KEY UPDATE
     status_code  = VALUES(status_code),
     hire_date    = VALUES(hire_date),
     retire_date  = VALUES(retire_date);
-
 `;
 
 // 4) 수정 (UPDATE)
@@ -162,20 +159,19 @@ const employeeDelete = `
    WHERE emp_id = ?
 `;
 
-
 const userCode = `
-    SELECT * FROM common_codes WHERE CODE_GROUP = 'AA'
+  SELECT * FROM common_codes WHERE code_group = 'AA'
 `;
+
 const workCode = `
-    SELECT * FROM common_codes WHERE CODE_GROUP = 'BB'
+  SELECT * FROM common_codes WHERE code_group = 'BB'
 `;
 
 const selectEmployeeEmpId = `
-    SELECT
-  CONCAT('EMP', LPAD(IFNULL(MAX(CAST(SUBSTRING(emp_id, 4) AS UNSIGNED)), 0) + 1, 3, '0')) AS next_emp_id
-FROM employees;
+  SELECT
+    CONCAT('EMP', LPAD(IFNULL(MAX(CAST(SUBSTRING(emp_id, 4) AS UNSIGNED)), 0) + 1, 3, '0')) AS next_emp_id
+  FROM employees
 `;
-
 
 module.exports = {
   employeesList,
