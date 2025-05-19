@@ -16,6 +16,8 @@
     maxAge : 60000 // 유효기간(밀리세컨초 기준)
     }
   });
+  const publicPath = path.join(__dirname, 'public');
+  app.use(express.static(publicPath));
 
   // Session 설정 등록
   app.use(sessionSetting);
