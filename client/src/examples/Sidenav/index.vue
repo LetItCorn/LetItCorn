@@ -23,7 +23,7 @@
           alt="main_logo"
         /> -->
         <span class="ms-6"> <!--nav 로고-->
-          <img src="Logo.png" alt="logo" class="nav-logo"/> 
+          <img src="logo.png" alt="logo" class="nav-logo"/> 
         </span>
       </a>
     </div>
