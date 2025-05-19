@@ -127,9 +127,6 @@ export default {
 
           isd.test_stat = result === 'pass' ? '적합' : '부적합';
 
-          if(isd.test_stat === '부적합' && oldStatus !== '부적합'){
-            this.showFailureWarning();
-          }
         }
       } catch (error) {
         console.error('검사 기준값을 확인하는 중 오류 발생:', error);
@@ -140,20 +137,24 @@ export default {
         });
       }
     },
-    showFailureWarning() {
-      Swal.fire({
-          icon: 'error',
-          title: '품질 검사 부적합',
-          text: '품질 검사 재검이 필요합니다.'
-        });
-    },
     async confirmCompleteInspection() {
       if(!this.checkinputresult()){
         return;
       }
+
+      const hasFailure = this.inspectionData.some(item => item.test_stat === '부적합');
+
+      if(hasFailure){
+        Swal.fire({
+          icon: 'error',
+          title: '품질 검사 부적합',
+          text: '품질 검사 재검이 필요합니다.'
+        });
+        return;
+      }
       const result = await Swal.fire({
         title: '검사 완료',
-        text: '검사를 완료하시겠습니까?',
+        text: '판정결과 적합입니다. 검사 완료 하시겠어요?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: '확인',
@@ -164,7 +165,7 @@ export default {
           await this.submitInspection();
           await Swal.fire({
             title: '완료',
-            text: '검사가 성공적으로 완료되었습니다.',
+            text: '검사가 성공적으로 완료되었어요.',
             icon: 'success'
           });
           this.$emit('complete', this.orders);
@@ -179,20 +180,30 @@ export default {
         }
       }
     },
-    // 검사 결과 서버 전송
     async submitInspection() {
-      const payload = this.orders.flatMap(order =>
-        this.inspectionData.map(item => ({
-          test_no:   item.test_no,
-          inst_no:   order.inst_no,
-          lot_cnt:   order.lot_cnt,
-          qc_date:   new Date().toISOString().slice(0, 10),
+      try {
+        // 검사 데이터 준비 - orders의 첫 번째 항목을 기준으로 생성
+        const order = this.orders[0]; // 첫 번째 주문 정보만 사용
+        
+        const payload = this.inspectionData.map(item => ({
+          test_no: item.test_no,
+          inst_no: order.inst_no,
+          lot_cnt: order.lot_cnt,
+          qc_date: new Date().toISOString().slice(0, 10),
           qc_result: item.test_stat === '적합' ? 'PASS' : 'FAIL',
           inspector: this.$session ? this.$session.userId : 'unknown',
-          test_res:  item.test_res
-        }))
-      );
-      await axios.post('/api/qfproduct/inspection', payload);
+          test_res: item.test_res,
+          process_code: order.process_code || 'PC999'
+        }));
+        
+        // API 호출
+        const response = await axios.post('/api/qfproduct/inspection', payload);
+        
+        return response.data;
+      } catch (error) {
+        console.error('검사 저장 중 오류 발생:', error);
+        throw error;
+      }
     },
     close() {
       this.inspectionData = [];
