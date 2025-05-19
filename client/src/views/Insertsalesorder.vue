@@ -15,10 +15,10 @@
     
     <!-- 주문서 등록 form -->
     <div class="form-container">
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label>주문번호</label>
         <input type="text" v-model="orderData.sorderCode" readonly>
-      </div>
+      </div> -->
       
       <div class="form-group">
         <label>거래처명</label>

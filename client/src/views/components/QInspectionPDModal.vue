@@ -1,64 +1,65 @@
-<!-- 완제품 품질검사 모달입니다. --> <!-- 완제품 품질검사 모달입니다. -->
-<!-- 완제품 품질검사 모달입니다. --> <!-- 완제품 품질검사 모달입니다. -->
-<!-- 완제품 품질검사 모달입니다. --> <!-- 완제품 품질검사 모달입니다. -->
-<!-- 완제품 품질검사 모달입니다. --> <!-- 완제품 품질검사 모달입니다. -->
-<!-- 완제품 품질검사 모달입니다. --> <!-- 완제품 품질검사 모달입니다. -->
-
 <template>
-    <!-- 검사 모달 -->
-    <div v-if="visible" class="modal" @click.self="close">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <div class="modal-title">
-              <h3>품질검사</h3>
-            </div>
+  <!-- 검사 모달 -->
+  <div v-if="visible" class="modal" @click.self="close">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">
+            <h3>품질검사</h3>
           </div>
-          <div class="modal-body">
-            <div class="inspection-table">
-              <table class="table table-bordered text-center mb-0">
-                <thead>
-                  <tr>
-                    <th>검사번호</th>
-                    <th>검사항목</th>
-                    <th>기준값</th>
-                    <th>측정값</th>
-                    <th>단위</th>
-                    <th>판정</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="isd in inspectionData" :key="isd.test_no">
-                    <td>{{ isd.test_no }}</td>
-                    <td>{{ isd.test_feild }}</td>
-                    <td>{{ isd.test_stand }}</td>
-                    <td><input type="text"
-                        v-model="isd.test_res"
-                        placeholder="수치값 입력"
-                        @input="checkQuality(isd)"
-                        >
-                    </td>
-                    <td>{{ isd.unit }}</td>
-                    <td>{{ isd.test_stat }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+        </div>
+        <div class="modal-body">
+          <div class="inspection-table">
+            <table class="table table-bordered text-center mb-0">
+              <thead>
+                <tr>
+                  <th>검사번호</th>
+                  <th>검사항목</th>
+                  <th>기준값</th>
+                  <th>측정값</th>
+                  <th>단위</th>
+                  <th>판정</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="isd in inspectionData" :key="isd.test_no">
+                  <td>{{ isd.test_no }}</td>
+                  <td>{{ isd.test_feild }}</td>
+                  <td>{{ isd.test_stand }}</td>
+                  <td>
+                    <input
+                      type="text"
+                      v-model="isd.test_res"
+                      placeholder="수치값 입력"
+                      @input="checkQuality(isd)"
+                    />
+                  </td>
+                  <td>{{ isd.unit }}</td>
+                  <td>{{ isd.test_stat }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-success" @click="completeInspection">검사 완료</button>
-          <button class="btn btn-secondary" @click="close">닫기</button>
+          <button class="btn btn-success" @click="confirmCompleteInspection">
+            검사 완료
+          </button>
+          <button class="btn btn-secondary" @click="close">
+            닫기
+          </button>
         </div>
       </div>
     </div>
+  </div>
 </template>
+
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { checkQc } from '@/utils/checkQc';
 
-  export default {
+export default {
   name: 'QInspectionPDModal',
   props: {
     visible: Boolean,
@@ -71,7 +72,7 @@ import { checkQc } from '@/utils/checkQc';
     return {
       inspectionData: [],
       isLoading: false,
-    }
+    };
   },
   watch: {
     visible(newVal) {
@@ -88,7 +89,7 @@ import { checkQc } from '@/utils/checkQc';
         this.inspectionData = response.data.map(item => ({
           ...item,
           test_res: '',
-          test_stat: '',
+          test_stat: ''
         }));
       } catch (error) {
         console.error('검사항목 리스트를 가져오는 중 오류 발생:', error);
@@ -99,17 +100,36 @@ import { checkQc } from '@/utils/checkQc';
         });
       }
     },
+    checkinputresult(){
+      const EmptyInput = this.inspectionData.some(item => !item.test_res);
+
+      if(EmptyInput){
+        Swal.fire({
+          icon: 'error',
+          title: '측정값 입력 확인 필요',
+          text: '측정값 입력이 빠진것 같아요.'
+        });
+        return false;
+      }
+
+      return true;
+    },
     // 품질검사 판정함수
-    checkQuality(isd){
-      // 측정값이 입력되지 않았을 때
-      if(!isd.test_res || isd.test_res === ''){
+    checkQuality(isd) {
+      if (!isd.test_res) {
         isd.test_stat = '';
         return;
       }
-      try{
-        if(isd.test_stand && isd.test_stand.includes('~')){
+      try {
+        if (isd.test_stand && isd.test_stand.includes('~')) {
           const result = checkQc(isd.test_res, isd.test_stand);
+          const oldStatus = isd.test_stat; // 판정
+
           isd.test_stat = result === 'pass' ? '적합' : '부적합';
+
+          if(isd.test_stat === '부적합' && oldStatus !== '부적합'){
+            this.showFailureWarning();
+          }
         }
       } catch (error) {
         console.error('검사 기준값을 확인하는 중 오류 발생:', error);
@@ -120,30 +140,68 @@ import { checkQc } from '@/utils/checkQc';
         });
       }
     },
-    close() {
-      this.inspectionData = [];
-      this.$emit('close');
-    },
-    completeInspection() {
+    showFailureWarning() {
       Swal.fire({
+          icon: 'error',
+          title: '품질 검사 부적합',
+          text: '품질 검사 재검이 필요합니다.'
+        });
+    },
+    async confirmCompleteInspection() {
+      if(!this.checkinputresult()){
+        return;
+      }
+      const result = await Swal.fire({
         title: '검사 완료',
         text: '검사를 완료하시겠습니까?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: '확인',
         cancelButtonText: '취소'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.submitInspection();
-        }
       });
-      // 검사 완료 로직
-      this.$emit('complete', this.orders);
-      this.close();
+      if (result.isConfirmed) {
+        try {
+          await this.submitInspection();
+          await Swal.fire({
+            title: '완료',
+            text: '검사가 성공적으로 완료되었습니다.',
+            icon: 'success'
+          });
+          this.$emit('complete', this.orders);
+          this.close();
+        } catch (error) {
+          console.error('검사 저장 중 오류 발생:', error);
+          Swal.fire({
+            icon: 'error',
+            title: '저장 실패',
+            text: '검사 결과 저장에 실패했습니다.'
+          });
+        }
+      }
+    },
+    // 검사 결과 서버 전송
+    async submitInspection() {
+      const payload = this.orders.flatMap(order =>
+        this.inspectionData.map(item => ({
+          test_no:   item.test_no,
+          inst_no:   order.inst_no,
+          lot_cnt:   order.lot_cnt,
+          qc_date:   new Date().toISOString().slice(0, 10),
+          qc_result: item.test_stat === '적합' ? 'PASS' : 'FAIL',
+          inspector: this.$session ? this.$session.userId : 'unknown',
+          test_res:  item.test_res
+        }))
+      );
+      await axios.post('/api/qfproduct/inspection', payload);
+    },
+    close() {
+      this.inspectionData = [];
+      this.$emit('close');
     }
-  },
-}
+  }
+};
 </script>
+
 <style scoped>
 .modal {
   position: fixed;
@@ -155,7 +213,7 @@ import { checkQc } from '@/utils/checkQc';
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 1000;
 }
 .modal-dialog {
   width: 80vw;
