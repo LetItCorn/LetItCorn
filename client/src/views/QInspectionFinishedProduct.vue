@@ -40,10 +40,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="qfpd in qfproduct" :key="qfpd.inst_no">
+          <tr v-for="qfpd in qfproduct" :key="qfpd.inst_head">
             <td><input type="checkbox" v-model="qfpd.selected"></td>
-            <td>{{ qfpd.inst_no }}</td>
-            <td>{{ qfpd.plan_no }}</td>
+            <td>{{ qfpd.inst_head }}</td>
+            <td>{{ qfpd.plans_head }}</td>
             <td>{{ qfpd.lot_cnt }}</td>
             <td>{{ qfpd.item_name }}</td>
             <td>{{ qfpd.iord_no }}</td>
@@ -120,7 +120,7 @@
     openInspectionModal() {
       console.log('showInspectionModal called'); // 호출 확인
       this.showInspectionModal = true;
-      console.log('InspectionModalVisible:', this.InspectionModalVisible); // 상태 변경 확인
+      console.log('showInspectionModal:', this.showInspectionModal); // 상태 변경 확인
     },
   }
 };
@@ -199,66 +199,5 @@ th {
 
 td {
   background-color: #fff;
-}
-
-.modal {
-  position: fixed;
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 99 !important;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 30px;
-  border-radius: 8px;
-  max-width: 500px;
-  width: 100%;
-  color: black;
-}
-
-.modal-title h3 {
-  color: #000;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-}
-
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: white;
-  font-size: 14px;
-}
-
-
-.form-group input[readonly] {
-  background-color: #f5f5f5;
-  color: #666;
-}
-
-.date-range {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
 }
 </style>

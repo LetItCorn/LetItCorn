@@ -4,13 +4,13 @@ module.exports = {
   // 임시로 J01 => 대기 원래는 J04 => 생산완료
   selectQFinishedProductList:
   `
-  SELECT i.inst_no,
-        p.plan_no,
-        i.lot_cnt,
-        i.item_name,
-        i.iord_no,
-        ph.plan_end,
-        cc.code_name
+  SELECT DISTINCT i.inst_head,
+                  p.plans_head,
+                  i.lot_cnt,
+                  i.item_name,
+                  i.iord_no,
+                  ph.plan_end,
+                  cc.code_name
   FROM inst_header as ih
   JOIN plan_header as ph
     ON ih.plans_head = ph.plans_head
@@ -20,8 +20,8 @@ module.exports = {
     on ih.plans_head = p.plans_head
   JOIN common_codes as cc
     on ih.inst_stat = cc.code_values
-  WHERE ih.inst_stat = 'J01'
-  ORDER BY inst_no asc, plan_no asc
+  WHERE ih.inst_stat = 'J04'
+  ORDER BY i.inst_head
   `,
 
   // 검사 항목 리스트
