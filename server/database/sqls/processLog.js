@@ -13,7 +13,7 @@ const selectInst =
   FROM inst_header h JOIN inst i
                       ON  h.inst_head = i.inst_head
   WHERE inst_stat = 'J02'
-  AND out_od = 'Y'`
+  AND out_od = 'N'`
 ;
 
 // 선택한 품목의 공정흐름도 호출

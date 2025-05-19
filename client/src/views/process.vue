@@ -143,23 +143,33 @@ export default {
   },
   // 마지막 공정의 품질검사가 끝났을때 최상단에 위치한 grid의 진행상태와 현 생산량을 바꾼다
   async setResQty(){
-     const updated = this.rowData.map(row => ({ ...row }));  
-  let cnt = 1;
+    console.log(this.rowData.map(item => ({ ...item })));
+    console.log([...this.rowData]);
+    const updated = this.rowData.map(item => ({ ...item }));
+     console.log(updated);
+  let cnt = 0;
   for (let i = 0; i < updated.length; i++) {
-    if (updated[i].state === '종료') cnt++;
     if (updated[i].lot_cnt === this.inst.lot_cnt) {
       updated[i].ac_cnt = this.processes.ac_cnt;
+      updated[i].cur_cnt = this.processes.ac_cnt;
       updated[i].state = '종료';
     }
+    if (updated[i].state === '종료') {
+      cnt++;}
   }
-  this.rowData = updated; 
-    if(this.rowData.length = cnt){
-      let res = await axios.put('api/updateInHead',this.instHead)
+  this.rowData = updated;   
+    console.log('rowData:', this.rowData);
+  console.log('updated:', updated);
+  console.log('cnt:' ,cnt);
+    if(this.rowData.length === cnt){
+
+      console.log(this.instHead);
+      let res = await axios.put('api/updateInHead',{instHead : this.instHead})
                            .catch(err=>{
                             console.log(err);
                            })
                            console.log("결과");
-                           console.log(res.data);
+                           console.log(res);
     }
 
   },
