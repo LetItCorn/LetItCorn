@@ -1,18 +1,24 @@
 // server/database/sqls/outbound_candidates_inst.js
 
-// 생산지시 기반 LOT 출고 후보 조회
-// — 필요수량은 inst.iord_no(지시수량) × BOM 구성 수량
-// — LOT 정보는 서브쿼리로만 조회 (없으면 NULL)
 const selectOutboundCandidatesByInstHead = `
 SELECT
   bc.mater_code,
   m.mater_name,
   bc.unit_code                 AS unit,
 
-  /* 지시수량(iord_no) * BOM 필요수량 */
-  (bc.quantity * id.iord_no)   AS required_qty,
+  /* 소수점 없이 정수로 반올림된 필요수량 */
+  ROUND(
+    CASE
+      -- 밀리리터(ml)와 그램(g)은 1,000으로 나눠서 L 또는 kg 단위로 환산
+      WHEN bc.unit_code IN ('U04','U02') 
+      THEN (bc.quantity * id.iord_no) / 1000
+      
+      -- 그 외, 리터(L)와 킬로그램(kg)은 그대로
+      ELSE (bc.quantity * id.iord_no)
+    END
+  , 0)                          AS required_qty,
 
-  /* 가장 오래된 유효 LOT ID (없으면 NULL) */
+  /* LOT 정보 (가장 오래된 유효 LOT) */
   (
     SELECT i2.min_id
     FROM m_inbound i2
@@ -22,7 +28,6 @@ SELECT
     LIMIT 1
   ) AS lot_cnt,
 
-  /* 가장 오래된 유효 LOT 번호 (없으면 NULL) */
   (
     SELECT i2.mater_lot
     FROM m_inbound i2
