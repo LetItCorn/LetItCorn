@@ -2,7 +2,7 @@
   <div class="checkwfpdhistory-container">
     <div class="header-container">
       <div class="main-title">
-        <h2>완제품 입출고 이력 조회</h2>
+        <h2>완제품 입∙출고 이력 조회</h2>
       </div>
     </div>
   </div>
