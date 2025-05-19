@@ -45,6 +45,7 @@ import "@vuepic/vue-datepicker/dist/main.css";
 import { AgGridVue } from "ag-grid-vue3";
 import OrderSelectModal from "@/views/components/OrderModal.vue";
 import axios from "axios";
+import dayjs from "dayjs";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
@@ -59,6 +60,8 @@ export default {
       searchDate: new Date(),
       minDate: new Date("2024-01-01"),
       maxDate: new Date("2035-01-01"),
+      startDate: new Date(),
+      endDate: new Date(),
       gridRef: null,
       columnDefs: [],
     };
@@ -138,8 +141,8 @@ export default {
 
       const payload = {
         header: {
-          plan_start: this.selectedOrder[0]?.plan_start || "",
-          plan_end: this.selectedOrder[0]?.plan_end || "",
+          plan_start: dayjs(this.startDate).format("YYYY-MM-DD"),
+          plan_end: dayjs(this.endDate).format("YYYY-MM-DD"), 
           plan_stat: "K01",
           plans_reg: this.formatDate(new Date()),
           planer: userStore.user.id || "관리자",
