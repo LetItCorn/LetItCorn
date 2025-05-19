@@ -75,51 +75,56 @@
   const employeeRouter = require('./routers/employee_router.js');
 
   // 기본 라우팅
-  app.get('/', (req, res)=>{
-    res.send('Welcome!!');
-  })
+ app.get("/", function (req, res, next) {
+  res.sendFile(path.join(__dirname, "./public", "index.html"));
+});
   // 라우터 모듈 등록
   //생산
-  app.use('/', planRouter);
-  app.use('/', plansRouter);
-  app.use('/', instRouter);
-  app.use('/', instsRouter);
-  app.use('/', instModalRouter);
-  app.use('/', modalRouter);
+  app.use('/api', planRouter);
+  app.use('/api', plansRouter);
+  app.use('/api', instRouter);
+  app.use('/api', instsRouter);
+  app.use('/api', instModalRouter);
+  app.use('/api', modalRouter);
   //공정
-  app.use('/', processRouter);
-  app.use('/', testQCRouter);
-  app.use('/', detailsRouter);
-  app.use('/', qulityRouter);
+  app.use('/api', processRouter);
+  app.use('/api', testQCRouter);
+  app.use('/api', detailsRouter);
+  app.use('/api', qulityRouter);
   //관리
-  app.use('/', userRouter);
-  app.use('/', itemRouter);
-  app.use('/', materialMainRouter);
-  app.use('/', bomRouter);
-  app.use('/', equipmentRouter);
-  app.use('/', processDefRouter);
-  app.use('/', defectCodesRouter);
-  app.use('/', commonCodesRouter);
-  app.use('/', employeeRouter);   
+  app.use('/api', userRouter);
+  app.use('/api', itemRouter);
+  app.use('/api', materialMainRouter);
+  app.use('/api', bomRouter);
+  app.use('/api', equipmentRouter);
+  app.use('/api', processDefRouter);
+  app.use('/api', defectCodesRouter);
+  app.use('/api', commonCodesRouter);
+  app.use('/api', employeeRouter);   
   //영업
-  app.use('/', SoRouter);
-  app.use('/', IsoRouter);
-  app.use('/', IsqtRouter);
-  app.use('/', CustomerRouter);
-  app.use('/', FinishedProductRouter);
-  app.use('/', CheckWFpdhistory);
-  app.use('/', QInspectionFproductRouter);
+  app.use('/api', SoRouter);
+  app.use('/api', IsoRouter);
+  app.use('/api', IsqtRouter);
+  app.use('/api', CustomerRouter);
+  app.use('/api', FinishedProductRouter);
+  app.use('/api', CheckWFpdhistory);
+  app.use('/api', QInspectionFproductRouter);
   //자재
-  app.use('/', materialsRouter);
-  app.use('/', lotRouter);
-  app.use('/', outboundRouter);
-  app.use('/', materialQCRouter);
-  app.use('/', mOrderRouter);
-  app.use('/', inboundRouter);
-  app.use('/', qcRouter);
-  app.use('/', movementRouter);  
-  app.use('/', qcHistoryRouter);
-  app.use('/', mReturnsRouter);
-  app.use('/', instHeaderRouter );
-  app.use('/', clientsRouter);
-  app.use('/', instructionsRouter);
+  app.use('/api', materialsRouter);
+  app.use('/api', lotRouter);
+  app.use('/api', outboundRouter);
+  app.use('/api', materialQCRouter);
+  app.use('/api', mOrderRouter);
+  app.use('/api', inboundRouter);
+  app.use('/api', qcRouter);
+  app.use('/api', movementRouter);  
+  app.use('/api', qcHistoryRouter);
+  app.use('/api', mReturnsRouter);
+  app.use('/api', instHeaderRouter );
+  app.use('/api', clientsRouter);
+  app.use('/api', instructionsRouter);
+
+  
+app.get("/", function (req, res, next) {
+  res.sendFile(path.join(__dirname, "./public", "index.html"));
+});
