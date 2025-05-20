@@ -45,6 +45,7 @@ import axios from 'axios';
 import proController from '@/components/proController.vue';
 import { useProcess } from '@/store/processStat';
 import { mapActions, mapState } from 'pinia';
+import Swal from 'sweetalert2';
 export default {
   data() {
     return {
@@ -95,9 +96,17 @@ export default {
         .catch(err => {
           console.log(err);
         })
-      // console.log(res.data);
-      this.rowData = res.data
-      this.instHead = res.data[0]['inst_head']
+      if(res.data.length > 0 ){
+        console.log(res);
+        this.rowData = res.data
+        this.instHead = res.data[0]['inst_head']
+      }else{
+        Swal.fire({
+              icon: "error",
+              title: "지시 내려진 공정이 없습니다!",
+              text: `자재가 불출된 생산지시가 없습니다. `,
+             });
+      }
     },
     // 선택한 생산지시의 품목에 일치하는 공정흐름 업뎃
     async getInstData(data){

@@ -24,7 +24,7 @@ const convertObjToQuery = (target, selected = []) => {
         queryWhere += `${columnName} = '${columnValue}' ${selected[i] ?? ''}`
       }
       // 완성되 where 절의 조건을 객체 형식으로 반환.
-      return { serchKeyword : queryWhere };
+      return { searchKeyword : queryWhere };
   }
 
 
