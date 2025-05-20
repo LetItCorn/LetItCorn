@@ -21,7 +21,7 @@
       <!-- 리스트 -->
       <div class="col-md-7 h-100 d-flex flex-column">
         <div class="card list-card flex-fill">
-          <div class="card-header py-2"><strong>공정 리스트</strong></div>
+          <div class="card-header py-2 fs-4"><strong>공정 리스트</strong></div>
           <div class="card-body p-0 list-scroll flex-grow-1">
             <ProcessList
               :processList="processList"
@@ -35,7 +35,7 @@
       <!-- 상세 -->
       <div class="col-md-5 h-100 d-flex flex-column">
         <div class="card flex-fill d-flex flex-column">
-          <div class="card-header py-2"><strong>공정 상세 정보</strong></div>
+          <div class="card-header py-2 fs-4"><strong>공정 상세 정보</strong></div>
           <div class="card-body overflow-auto">
             <ProcessDetail
               :process="selected"
@@ -53,6 +53,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import ProcessFilter from './components/ProcessFilter.vue';
 import ProcessList from './components/ProcessList.vue';
 import ProcessDetail from './components/ProcessDetail.vue';
@@ -120,24 +121,50 @@ export default {
       };
     },
     async onSave() {
-      if (!this.selected.process_name) return alert('공정명을 입력하세요.');
-      try {
-        await axios.post('/api/processes', this.selected);
-        await this.loadProcesses();
-      } catch (err) {
-        console.error('onSave error', err);
-        alert('저장 중 오류가 발생했습니다.');
-      }
-    },
+  const process = this.selected;
+
+  if (!process.process_name) {
+    return Swal.fire('입력 오류', '공정명을 입력하세요.', 'warning');
+  }
+  if (process.duration_min === '' || process.duration_min === null || process.duration_min === undefined) {
+    return Swal.fire('입력 오류', '소요시간을 입력하세요.', 'warning');
+  }
+  if (!process.unit_code) {
+    return Swal.fire('입력 오류', '단위코드를 선택하세요.', 'warning');
+  }
+
+  try {
+    await axios.post('/api/processes', process);
+    await this.loadProcesses();
+    Swal.fire('성공', '공정이 저장되었습니다.', 'success');
+  } catch (err) {
+    console.error('onSave error', err);
+    Swal.fire('오류', '저장 중 오류가 발생했습니다.', 'error');
+  }
+},
     async onDelete() {
-      if (!this.selected.process_code) return alert('삭제할 공정을 선택하세요!');
-      if (!confirm('정말 삭제하시겠습니까?')) return;
+      if (!this.selected.process_code) {
+        return Swal.fire('삭제 불가', '삭제할 공정을 선택하세요!', 'warning');
+      }
+
+      const result = await Swal.fire({
+        title: '정말 삭제하시겠습니까?',
+        text: '해당 공정을 삭제합니다.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+      });
+
+      if (!result.isConfirmed) return;
+
       try {
         await axios.delete(`/api/processes/${this.selected.process_code}`);
         await this.loadProcesses();
+        Swal.fire('삭제 완료', '공정이 삭제되었습니다.', 'success');
       } catch (err) {
         console.error('onDelete error', err);
-        alert('삭제 중 오류가 발생했습니다.');
+        Swal.fire('오류', '삭제 중 오류가 발생했습니다.', 'error');
       }
     }
   }

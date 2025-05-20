@@ -20,6 +20,11 @@ async function findAllOrderSummary() {
   return await db.query('selectQcOrderSummary', []);
 }
 
+// 추가: 발주서별 이력 삭제 서비스
+async function deleteHistoryByOrder(moder_id) {
+  const res = await db.query('deleteQcHistoryByOrder', [moder_id]);
+  return res && res.affectedRows > 0;
+}
 
 
 module.exports = {
@@ -27,4 +32,5 @@ module.exports = {
   findSelectedQCHistory,
   deleteQC,
   findAllOrderSummary,
+  deleteHistoryByOrder
 };

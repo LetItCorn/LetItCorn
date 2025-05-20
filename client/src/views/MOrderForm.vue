@@ -2,7 +2,6 @@
 <template>
   <div class="container py-4">
     <h2 class="text-center mb-4">발주서 등록</h2>
-
     <!-- 기본 정보 & 등록 정보 카드 -->
     <div class="row mb-4">
       <!-- 기본 정보 카드 -->
@@ -261,10 +260,7 @@
           </table>
         </div>
         <div class="p-2 text-end">
-          <button
-            @click="addRow"
-            class="btn btn-outline-primary btn-sm"
-          >
+          <button @click="addRow" class="btn btn-outline-primary btn-sm">
             행 추가
           </button>
         </div>
@@ -280,10 +276,7 @@
       >
         등록
       </button>
-      <button
-        @click="$router.push({ name: 'MOrdersList' })"
-        class="btn btn-danger"
-      >
+      <button @click="$router.push({ name: 'MOrdersList' })" class="btn btn-danger">
         취소
       </button>
     </div>
@@ -334,27 +327,24 @@ export default {
     totalTax()    { return this.rows.reduce((sum, r) => sum + r.tax_amount, 0); },
     canSubmit()   { return this.form.moder_id && this.form.client_code && this.rows.some(r => r.mater_code); }
   },
-
-  // ← 이 부분을 추가하세요.
   watch: {
     'form.client_code'(newCode) {
       const client = this.clients.find(c => c.client_code === newCode);
       if (client) {
         this.form.partner_name  = client.client_name;
-        this.form.ceo_name      = client.client_ceo;      // DB 필드명에 맞춰 사용
+        this.form.ceo_name      = client.client_ceo;      // 실제 필드명에 맞춰 조정
         this.form.address       = client.client_address;
         this.form.business_type = client.code_name;
         this.form.contact       = client.client_phone;
       } else {
-        this.form.partner_name = '';
-        this.form.ceo_name     = '';
-        this.form.address      = '';
-        this.form.business_type= '';
-        this.form.contact      = '';
+        this.form.partner_name  = '';
+        this.form.ceo_name      = '';
+        this.form.address       = '';
+        this.form.business_type = '';
+        this.form.contact       = '';
       }
     }
   },
-
   methods: {
     formatCurrency(val) {
       return val != null ? val.toLocaleString() : '0';
@@ -385,24 +375,28 @@ export default {
     },
     async submitForm() {
       try {
-        const header = {
-          ...this.form,
-          moder_date: useDates.dateFormat(this.form.moder_date, this.dateFormat),
-          due_date:   useDates.dateFormat(this.form.due_date,   this.dateFormat)
-        };
-        const details = this.rows
-          .filter(r => r.mater_code)
-          .map(r => ({
-            mater_code:    r.mater_code,
-            product_name:  this.materials.find(m => m.mater_code === r.mater_code)?.mater_name || '',
-            spec:           r.spec,
-            unit:           '',
-            qty:            r.qty,
-            unit_price:     r.unit_price,
-            supply_amount:  r.supply_amount,
-            tax_amount:     r.tax_amount
-          }));
-        await axios.post('/api/m_orders', { header, details });
+        const md = useDates.dateFormat(this.form.moder_date, this.dateFormat);
+        const dd = useDates.dateFormat(this.form.due_date, this.dateFormat);
+        await axios.post('/api/m_orders', {
+          header: {
+            ...this.form,
+            receiver: this.form.client_code,
+            moder_date: md,
+            due_date: dd
+          },
+          details: this.rows
+            .filter(r => r.mater_code)
+            .map(r => ({
+              mater_code:    r.mater_code,
+              product_name:  this.materials.find(m => m.mater_code === r.mater_code)?.mater_name || '',
+              spec:          r.spec,
+              unit:          r.unit,
+              qty:           r.qty,
+              unit_price:    r.unit_price,
+              supply_amount: r.supply_amount,
+              tax_amount:    r.tax_amount
+            }))
+        });
         this.$router.push({ name: 'MOrdersList' });
       } catch (err) {
         console.error('발주서 등록 실패:', err.response?.data || err);
@@ -410,14 +404,32 @@ export default {
       }
     }
   },
-
   async created() {
-    // 발주ID 및 등록번호 자동 생성
-    const prefix    = 'MORD';
-    const date      = useDates.dateFormat(new Date(), 'yyyyMMdd');
-    const timestamp = Date.now();
-    this.form.moder_id    = `${prefix}${date}${timestamp}`;
-    this.form.reg_number  = this.form.moder_id;
+    // 발주ID 및 등록번호 자동 생성 (MORD + 날짜 + 순번)
+    const prefix = 'MO';
+    const date   = useDates.dateFormat(new Date(), 'MMdd');
+
+    // 오늘 날짜로 시작되는 기존 발주서 ID 조회
+    let seq = 1;
+    try {
+      const { data: list } = await axios.get('/api/m_orders');
+      const todayIds = list
+      .map(o => o.moder_id)
+      .filter(id => id.startsWith(prefix + date));
+      if (todayIds.length) {
+        const nums = todayIds.map(id => 
+          parseInt(id.slice((prefix + date).length), 10)
+        );
+        seq = Math.max(...nums) + 1;
+      }
+    } catch (e) {
+      console.error('발주서 목록 조회 오류', e);
+    }
+
+    // 순번을 4자리로 고정 (0001, 0002, ...)
+    const seqStr = String(seq).padStart(3, '0');
+    this.form.moder_id   = `${prefix}${date}${seqStr}`;
+    this.form.reg_number = this.form.moder_id;
 
     // 거래처 목록 조회
     try {
@@ -428,7 +440,7 @@ export default {
       alert('거래처 목록을 불러오는 중 오류가 발생했습니다.');
     }
 
-    // 자재 목록 조회
+    // 자재 목록 조회 (spec, m_price 포함)
     try {
       const { data } = await axios.get('/api/materials/stock');
       this.materials = data;
@@ -439,7 +451,6 @@ export default {
   }
 };
 </script>
-
 
 <style scoped>
 .table th,

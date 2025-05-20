@@ -52,6 +52,7 @@ const semiOutbound   = require('./sqls/semi_outbound.js');
 const semiQc = require('./sqls/semi_qc.js');
 const semiInboundSql = require('./sqls/semi_inbound.js');
 const semiProductSql = require('./sqls/semi_product.js');
+const qcMgr = require('./sqls/qcMgr.js')
 
 
 
@@ -108,4 +109,6 @@ module.exports = {
   ...semiOutbound,
   ...semiQc,
   ...semiInboundSql,
+  ...qcMgr,
+  ...semiProductSql,
 }

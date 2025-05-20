@@ -3,20 +3,20 @@
   <form @submit.prevent class="d-flex flex-column gap-3">
     <div>
       <label class="form-label">공정코드</label>
-      <input v-model="process.process_code" class="form-control form-control-sm" readonly />
+      <input v-model="process.process_code" class="form-control " readonly />
     </div>
     <div>
       <label class="form-label">공정명</label>
-      <input v-model="process.process_name" class="form-control form-control-sm" />
+      <input v-model="process.process_name" class="form-control " />
     </div>
     <div>
       <label class="form-label">소요시간(분)</label>
-      <input v-model.number="process.duration_min" type="number" min="0" class="form-control form-control-sm" />
+      <input v-model.number="process.duration_min" type="number" min="0" class="form-control " />
     </div>
     <div>
       <label class="form-label">단위</label>
       <select v-model="process.unit_code" class="form-select form-select-sm">
-        <option value="">선택</option>
+        <option value="">-- 선택하세요 --</option>
         <option v-for="unit in unitList" :key="unit.code_values" :value="unit.code_values">
           {{ unit.code_name }}
         </option>

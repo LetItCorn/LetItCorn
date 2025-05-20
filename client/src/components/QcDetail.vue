@@ -3,22 +3,19 @@
   <div class="d-flex flex-column">
     <div class="mb-2">
       <label class="form-label">결함코드</label>
-      <input v-model="defect.defect_code" readonly class="form-control  " />
+      <input v-model="defect.test_no" readonly class="form-control " />
     </div>
     <div class="mb-2">
-      <label class="form-label">유형</label>
-      <input v-model="defect.defect_type" class="form-control  " />
+      <label class="form-label">검사이름</label>
+      <input v-model="defect.test_feild" class="form-control " />
     </div>
     <div class="mb-2">
-      <label class="form-label">사용여부</label>
-      <select v-model="defect.is_used" class="form-select form-select-sm">
-        <option value="Y">Y</option>
-        <option value="N">N</option>
-      </select>
+      <label class="form-label">기준</label>
+      <input v-model="defect.defect_type" class="form-control " />
+      <input v-model="defect.defect_type" class=" " />
     </div>
     <div class="mb-2">
-      <label class="form-label">생성일자</label>
-      <input v-model="defect.created_date" type="date" class="form-control  " />
+      
     </div>
 
     <div class="mt-auto d-flex gap-2">
@@ -31,7 +28,7 @@
 
 <script>
 export default {
-  name: 'DefectDetail',
+  name: 'QcDetail',
   props: ['defect'],
   emits: ['create', 'delete', 'clear']
 }

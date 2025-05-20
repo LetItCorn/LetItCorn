@@ -5,8 +5,8 @@
       <div>
         <div v-for="(label, key) in fields" :key="key" class="form-group mb-2">
           <label>{{ label }}</label>
-          <input v-if="key !== 'use_yn'" v-model="modelValue[key]" class="form-control form-control-sm" />
-          <select v-else v-model="modelValue.use_yn" class="form-control form-control-sm">
+          <input v-if="key !== 'use_yn'" v-model="modelValue[key]" class="form-control  " />
+          <select v-else v-model="modelValue.use_yn" class="form-control  ">
             <option value="Y">Y</option>
             <option value="N">N</option>
           </select>

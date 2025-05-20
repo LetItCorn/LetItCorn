@@ -5,7 +5,7 @@
   const session = require('express-session');
 
   // Session 설정 객체
-  let sessionSetting = session({
+  let sessionSetting = session({  
     secret : '$#@1235TSecdx', // 암호화 키
     resave : false, // 세션을 언제나 저장할 건지
     saveUninitialized : true, // 세션에 저장할 내역이 없어도 처음부터 세션 생성여부
@@ -44,6 +44,7 @@
   const detailsRouter = require('./routers/prLogDt_router.js');
   const qulityRouter = require('./routers/pQcLog_router.js');
   const processLogRouter = require('./routers/prLog_router.js');
+  const qcMgrRouter = require('./routers/qcMgr_router.js')
   //자재
   const materialsRouter = require('./routers/materials_router.js');
   const materialQCRouter = require('./routers/material_qc_router.js');
@@ -108,7 +109,8 @@
   app.use('/api', processDefRouter);
   app.use('/api', defectCodesRouter);
   app.use('/api', commonCodesRouter);
-  app.use('/api', employeeRouter);   
+  app.use('/api', employeeRouter);  
+  app.use('/api', qcMgrRouter) 
   //영업
   app.use('/api', SoRouter);
   app.use('/api', IsoRouter);
@@ -134,7 +136,7 @@
   app.use('/api', semiOutboundRouter);
   app.use('/api', semiQcRouter);
   app.use('/api', semiInboundRouter);
-  
-app.get("/", function (req, res, next) {
-  res.sendFile(path.join(__dirname, "./public", "index.html"));
+
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "./public", "index.html"));
 });

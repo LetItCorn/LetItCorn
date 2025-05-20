@@ -45,6 +45,7 @@ import Machin from "@/views/Machin.vue";
 import Fault from "@/views/Fault.vue";
 import SemiOutbound from "@/views/SemiOutbound.vue";
 import SemiInbound from '@/views/SemiInbound.vue';
+import QcMng from "@/views/QcMng.vue";
 
 const routes = [
   {
@@ -302,6 +303,10 @@ const routes = [
     path: '/semi-inbound',
     name: 'SemiInbound',
     component: SemiInbound
+  },{
+    path: '/QcMng',
+    name: 'QcMng',
+    component: QcMng
   },
 ];
 

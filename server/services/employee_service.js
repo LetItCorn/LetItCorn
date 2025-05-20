@@ -12,7 +12,7 @@ const findEmployees = async ({ id = '', name = '', role = '' } = {}) => {
     id,   id,    // emp_id 필터
     name, name,  // emp_name 필터
     role, role   // role_code 필터
-  ];
+  ];console.log(params);
   try {
     return await mariaDB.query('employeesList', params);
   } catch (err) {
