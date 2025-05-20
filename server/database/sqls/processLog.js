@@ -73,7 +73,7 @@ const getQcTest = `
          ,'' AS pr_status
          ,test_stand
          ,'' AS test_res
-         ,unit
+         ,unit_name
   FROM test_qc
   WHERE test_target = ?
 `

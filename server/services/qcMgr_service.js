@@ -11,7 +11,28 @@ const getQcList = async (searchList) =>{
                             })
   return result
 }
+const getOptions = async () =>{
+  let result = await mariadb.query('getOptions')
+                            .catch(err=>{
+                              console.log(err);
+                            })
+  return result
+}
+const mergeQcData = async (data) =>{
+  const sortData = ['test_no','test_feild','test_stand','test_target','unit_name']
+  let sortedData = convertObjToAry(data,sortData)
+  
+  let result = await mariadb.query('setQc',sortedData)
+                            .catch(err=>{
+                              console.log(err);
+                            })
+
+  return result
+}
 
 module.exports ={
   getQcList,
+  getOptions,
+  mergeQcData,
+
 }

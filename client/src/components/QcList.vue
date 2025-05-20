@@ -23,7 +23,7 @@
         <td>{{ def.test_stand }}</td>
         <td>{{ def.test_target }}</td>
         <td>{{ def.process_name }}</td>
-        <td>{{ def.unit }}</td>
+        <td>{{ def.unit_name }}</td>
       </tr>
       <tr v-if="!list.length">
         <td colspan="4" class="text-center py-4">데이터가 없습니다.</td>
