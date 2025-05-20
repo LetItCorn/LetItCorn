@@ -24,10 +24,6 @@ const menuConfig = {
       path: 'QInspectionFinishedproduct'
     },
     {
-      name: "완제품 입고 등록",
-      path: 'InsertFinishedProduct'
-    },
-    {
       name: "완제품 입∙출고이력 조회",
       path: 'CheckWFpdHistory'
     }

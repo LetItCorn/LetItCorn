@@ -5,8 +5,10 @@ module.exports = {
   selectQFinishedProductList:
   `
   SELECT DISTINCT i.inst_head,
+                  i.inst_no,
                   p.plans_head,
                   i.lot_cnt,
+                  i.item_code,
                   i.item_name,
                   i.iord_no,
                   ph.plan_end,
@@ -21,8 +23,9 @@ module.exports = {
   JOIN common_codes as cc
     on ih.inst_stat = cc.code_values
   WHERE ih.inst_stat = 'J04'
-  ORDER BY i.inst_head
+  ORDER BY i.inst_head, plans_head, lot_cnt
   `,
+  // C01로 바뀌어야함 완제품, C02 반제품
 
   // 검사 항목 리스트
   InspectionFProductList:
@@ -32,7 +35,47 @@ module.exports = {
         test_stand,
         unit
   FROM   test_qc
-  WHERE  (test_no = 'QC016' or test_no = 'QC017' or test_no = 'QC018')
+  WHERE  test_target = 'PC000'
   ORDER BY test_no
+  `,
+  // test_target = 'PC000'
+
+  UpdateStat:
   `
+  UPDATE inst_header
+  SET inst_stat = 'C01'
+  WHERE inst_head = (
+    SELECT inst_head
+    FROM inst
+    WHERE inst_no = ?
+  )
+  `,
+
+  // 지시 정보 조회
+  getInstInfo:
+  `
+  SELECT i.item_code, i.iord_no, ih.inst_head
+  FROM inst as i
+  JOIN inst_header as ih
+    ON i.inst_head = ih.inst_head
+  WHERE i.inst_no = ?
+  `,
+
+  // 재고 업데이트
+  UpdateFinishedStock:
+  `
+  UPDATE finishedproduct
+  SET current_stock = current_stock + ?
+  WHERE item_code = ?
+  `,
+
+    // 완제품 재고 조회
+  selectFproductList:
+  `SELECT fp.item_code,
+          i.item_name,
+          fp.current_stock
+    FROM finishedproduct AS fp
+  JOIN items AS i
+    ON fp.item_code = i.item_code
+  ORDER BY fp.item_code`
 };

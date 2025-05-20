@@ -58,6 +58,7 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { checkQc } from '@/utils/checkQc';
+import { useUserStore } from '@/store/user';
 
 export default {
   name: 'QInspectionPDModal',
@@ -72,6 +73,7 @@ export default {
     return {
       inspectionData: [],
       isLoading: false,
+      store: useUserStore(),
     };
   },
   watch: {
@@ -123,7 +125,6 @@ export default {
       try {
         if (isd.test_stand && isd.test_stand.includes('~')) {
           const result = checkQc(isd.test_res, isd.test_stand);
-          const oldStatus = isd.test_stat; // 판정
 
           isd.test_stat = result === 'pass' ? '적합' : '부적합';
 
@@ -184,17 +185,22 @@ export default {
       try {
         // 검사 데이터 준비 - orders의 첫 번째 항목을 기준으로 생성
         const order = this.orders[0]; // 첫 번째 주문 정보만 사용
+
+        const empName = this.store.empName || 'unknown';  
         
         const payload = this.inspectionData.map(item => ({
           test_no: item.test_no,
           inst_no: order.inst_no,
           lot_cnt: order.lot_cnt,
           qc_date: new Date().toISOString().slice(0, 10),
-          qc_result: item.test_stat === '적합' ? 'PASS' : 'FAIL',
-          inspector: this.$session ? this.$session.userId : 'unknown',
+          qc_result: item.test_stat === '적합' ? 'pass' : 'fail',
+          inspector: empName,
           test_res: item.test_res,
-          process_code: order.process_code || 'PC999'
+          process_code: order.process_code || 'PC999',
+          unit: item.unit || ''
         }));
+
+        console.log('검사 확인자 : ', empName);
         
         // API 호출
         const response = await axios.post('/api/qfproduct/inspection', payload);
