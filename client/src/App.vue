@@ -1,6 +1,5 @@
 <!-- client/src/App.vue -->
 <template>
-  ====<br>
   <sidenav :custom_class="store.color" :class="['fixed-start']" v-if="store.showSidenav" />
   <main class="main-content position-relative max-height-vh-100 h-100 overflow-x-hidden">
     <!-- nav -->
