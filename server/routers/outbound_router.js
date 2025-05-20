@@ -47,22 +47,14 @@ router.post('/m_outbound', async (req, res) => {
 });
 
 /**
- * 4) 생산지시 기반 출고 일괄 처리
+ * 4) 생산지시 기반 출고 일괄 처리 (단일 트랜잭션)
  *    POST /m_outbound/instruction
  */
 router.post('/m_outbound/instruction', async (req, res) => {
   try {
     const { inst_head, records } = req.body;
-    const results = [];
-
-    for (const r of records) {
-      const info = { inst_head, ...r };
-      const result = await svc.addOutbound(info);
-      results.push(result);
-    }
-
-    const success = results.every(r => r.isSuccess);
-    return res.json({ success, results });
+    const result = await svc.addBulkOutbound(inst_head, records);
+    return res.json(result);
   } catch (err) {
     console.error('일괄 출고 처리 오류:', err);
     return res.status(500).json({ error: '일괄 출고 처리 중 오류가 발생했습니다.' });

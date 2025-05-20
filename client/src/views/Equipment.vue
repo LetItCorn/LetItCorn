@@ -21,7 +21,7 @@
       <!-- 좌측: 장비 리스트 -->
       <div class="col-md-8 h-100 d-flex flex-column">
         <div class="card list-card flex-fill">
-          <div class="card-header py-2"><strong>장비 리스트</strong></div>
+          <div class="card-header py-2 fs-4"><strong>장비 리스트</strong></div>
           <div class="card-body p-0 list-scroll flex-grow-1">
             <EquipmentList
               :equipmentList="equipmentList"
@@ -35,7 +35,7 @@
       <!-- 우측: 상세 + 점검이력 -->
       <div class="col-md-4 h-100 d-flex flex-column">
         <div class="card flex-fill mb-2">
-          <div class="card-header py-2"><strong>장비 상세 정보</strong></div>
+          <div class="card-header py-2 fs-4"><strong>장비 상세 정보</strong></div>
           <div class="card-body overflow-auto">
             <EquipmentDetail
               :eq="selected"
@@ -68,6 +68,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import EquipmentFilter from './components/EquipmentFilter.vue';
 import EquipmentList from './components/EquipmentList.vue';
 import EquipmentDetail from './components/EquipmentDetail.vue';
@@ -152,24 +153,63 @@ export default {
       }
     },
     async onCreate() {
-      if (!this.selected.equipment_name) return alert('장비명을 입력하세요.');
-      if (!this.selected.equipment_type) return alert('유형코드를 선택하세요.');
-      if (!this.selected.unit_code) return alert('단위코드를 선택하세요.');
-      try {
-        await axios.post('/api/equipments', this.selected);
-        await this.loadEquipments();
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    async onDelete() {
+  const eq = this.selected;
+
+  if (!eq.equipment_name) {
+    return Swal.fire('입력 오류', '장비명을 입력하세요.', 'warning');
+  }
+  if (!eq.equipment_type) {
+    return Swal.fire('입력 오류', '유형코드를 선택하세요.', 'warning');
+  }
+  if (!eq.install_date) {
+    return Swal.fire('입력 오류', '설치일을 입력하세요.', 'warning');
+  }
+  if (!eq.manufacturer) {
+    return Swal.fire('입력 오류', '제조사를 입력하세요.', 'warning');
+  }
+  if (!eq.next_inspection_dt) {
+    return Swal.fire('입력 오류', '다음 점검일을 입력하세요.', 'warning');
+  }
+  if (!eq.is_suitable) {
+    return Swal.fire('입력 오류', '적합 여부를 선택하세요.', 'warning');
+  }
+  if (!eq.unit_code) {
+    return Swal.fire('입력 오류', '단위코드를 선택하세요.', 'warning');
+  }
+if (eq.qty === '' || eq.qty == null) {
+  return Swal.fire('입력 오류', '용량을 입력하세요.', 'warning');
+}
+
+  try {
+    await axios.post('/api/equipments', eq);
+    await this.loadEquipments();
+    Swal.fire('성공', '장비가 등록/수정되었습니다.', 'success');
+  } catch (err) {
+    console.error('onCreate error', err);
+    Swal.fire('오류', '등록 중 오류가 발생했습니다.', 'error');
+  }
+},
+ async onDelete() {
       if (!this.selected.equipment_code) return;
-      if (!confirm('삭제하시겠습니까?')) return;
+
+      const result = await Swal.fire({
+        title: '삭제하시겠습니까?',
+        text: '해당 장비 정보를 삭제합니다.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+      });
+
+      if (!result.isConfirmed) return;
+
       try {
         await axios.delete(`/api/equipments/${this.selected.equipment_code}`);
         await this.loadEquipments();
+        Swal.fire('삭제 완료', '장비가 삭제되었습니다.', 'success');
       } catch (err) {
         console.error(err);
+        Swal.fire('오류', '삭제 중 오류가 발생했습니다.', 'error');
       }
     },
     async loadInspections(equipmentCode) {
@@ -198,33 +238,58 @@ export default {
         equipment_code: this.selected.equipment_code
       });
     },
-    async saveInspection(ins) {
-      if (!ins.inspector_id) return alert('점검자를 입력하세요.');
-      if (!ins.inspection_date) return alert('점검일을 입력하세요.');
-      try {
-        const res = await axios.post('/api/equipments/saveInspection', ins);
-        if (res.data.next_id) ins.inspection_id = res.data.next_id;
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    async deleteInspection(ins) {
-      if (!ins.inspection_id) {
-        this.inspectionList = this.inspectionList.filter((i) => i !== ins);
-        return;
-      }
-      if (!confirm('삭제하시겠습니까?')) return;
-      try {
-        await axios.post('/api/equipments/deleteInspection', {
-          inspection_id: ins.inspection_id
-        });
-        this.inspectionList = this.inspectionList.filter(
-          (i) => i.inspection_id !== ins.inspection_id
-        );
-      } catch (err) {
-        console.error(err);
-      }
+   async saveInspection(ins) {
+  if (!ins.inspector_id) {
+    return Swal.fire('입력 오류', '점검자를 입력하세요.', 'warning');
+  }
+  if (!ins.inspection_date) {
+    return Swal.fire('입력 오류', '점검일을 입력하세요.', 'warning');
+  }
+
+  try {
+    const res = await axios.post('/api/equipments/saveInspection', ins);
+    if (res.data.next_id) {
+      ins.inspection_id = res.data.next_id;
     }
+    Swal.fire('성공', '점검 이력이 저장되었습니다.', 'success');
+  } catch (err) {
+    console.error(err);
+    Swal.fire('오류', '점검 저장 중 오류가 발생했습니다.', 'error');
+  }
+},
+    
+async deleteInspection(ins) {
+  if (!ins.inspection_id) {
+    // 아직 저장되지 않은 새 행이라면 그냥 삭제
+    this.inspectionList = this.inspectionList.filter((i) => i !== ins);
+    return;
+  }
+
+  const result = await Swal.fire({
+    title: '삭제하시겠습니까?',
+    text: '해당 점검 이력을 삭제합니다.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: '삭제',
+    cancelButtonText: '취소'
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    await axios.post('/api/equipments/deleteInspection', {
+      inspection_id: ins.inspection_id
+    });
+    this.inspectionList = this.inspectionList.filter(
+      (i) => i.inspection_id !== ins.inspection_id
+    );
+    Swal.fire('삭제 완료', '점검 이력이 삭제되었습니다.', 'success');
+  } catch (err) {
+    console.error(err);
+    Swal.fire('오류', '삭제 중 오류가 발생했습니다.', 'error');
+  }
+}
+
   }
 };
 </script>

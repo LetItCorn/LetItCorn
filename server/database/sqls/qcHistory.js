@@ -57,11 +57,17 @@ GROUP BY q.moder_id, h.moder_date
 ORDER BY h.moder_date DESC
 `;
 
+// 추가: 발주서별 품질 검사 이력 일괄 삭제 SQL
+const deleteQcHistoryByOrder = `
+DELETE FROM qc_inspections
+WHERE moder_id = ?
+`;
 
 
 module.exports = {
   selectQCHistory,
   selectSelectedQCHistory,
   deleteQCHistory,
-  selectQcOrderSummary
+  selectQcOrderSummary,
+  deleteQcHistoryByOrder
 };

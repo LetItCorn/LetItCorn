@@ -9,7 +9,7 @@
             <div class="ms-auto d-flex align-items-center">
               <!-- 필터 유형 -->
               <select v-model="searchType"
-                      class="form-control form-control-sm me-2 border"
+                      class="form-control  me-2 border"
                       style="width:120px">
                 <option value="">[선택 없음]</option>
                 <option value="code">품목코드</option>
@@ -19,7 +19,7 @@
               <!-- 필터 값 -->
               <input v-model="searchValue"
                      :placeholder="filterPlaceholder"
-                     class="form-control form-control-sm me-2 border"
+                     class="form-control  me-2 border"
                      style="width:200px" />
               <!-- 버튼 -->
               <button @click="loadItems"
@@ -39,7 +39,7 @@
       <!-- 2-1) 리스트 카드 -->
       <div class="col-md-8 h-100 d-flex flex-column">
         <div class="card list-card flex-fill">
-          <div class="card-header py-2"><strong>품목 리스트</strong></div>
+          <div class="card-header py-2 fs-4"><strong>품목 리스트</strong></div>
           <div class="card-body p-0 list-scroll flex-grow-1">
             <table class="table table-sm table-hover mb-0">
               <thead>
@@ -76,27 +76,27 @@
       <div class="col-md-4 h-100 d-flex flex-column">
         <!-- 상세 카드 -->
         <div class="card flex-fill mb-2 d-flex flex-column">
-          <div class="card-header py-2"><strong>품목 상세</strong></div>
+          <div class="card-header py-2 fs-4"><strong>품목 상세</strong></div>
           <div class="card-body d-flex flex-column">
             <div class="row gx-2 gy-2 flex-fill">
               <!-- 코드 -->
               <div class="col-6">
                 <label class="form-label mb-1">품목코드</label>
                 <input v-model="selected.item_code"
-                       class="form-control form-control-sm"
+                       class="form-control "
                        readonly />
               </div>
               <!-- 이름 -->
               <div class="col-6">
                 <label class="form-label mb-1">품목명</label>
                 <input v-model="selected.item_name"
-                       class="form-control form-control-sm" />
+                       class="form-control " />
               </div>
               <!-- 구분 -->
               <div class="col-6">
                 <label class="form-label mb-1">구분</label>
                 <select v-model="selected.item_type"
-                        class="form-control form-control-sm">
+                        class="form-control ">
                   <option disabled value="">-- 선택하세요 --</option>
                   <option v-for="code in codeList"
                           :key="code.code_values"
@@ -109,13 +109,13 @@
               <div class="col-6">
                 <label class="form-label mb-1">수량</label>
                 <input v-model="selected.qty"
-                       class="form-control form-control-sm" />
+                       class="form-control " />
               </div>
               <!-- 단위 -->
               <div class="col-6">
                 <label class="form-label mb-1">단위</label>
                 <select v-model="selected.unit_code"
-                        class="form-control form-control-sm">
+                        class="form-control ">
                   <option disabled value="">-- 선택하세요 --</option>
                   <option v-for="unit in unitList"
                           :key="unit.code_values"
@@ -144,7 +144,7 @@
         <!-- 공정 흐름 카드 -->
         <div class="card" style="height:45%;">
           <div class="card-header py-2 d-flex justify-content-between align-items-center">
-            <span>공정 흐름</span>
+            <span class="fs-4">공정 흐름</span>
             <div class="btn-group btn-group-sm">
               <button class="btn btn-outline-primary" @click="addProcessFlow">추가</button>
               <button class="btn btn-outline-danger"  @click="deleteProcessItem">삭제</button>
@@ -171,7 +171,7 @@
                       <td>{{ group.process_name }}</td>
                       <td>
                         <input :value="`${group.duration_min}분`"
-                               class="form-control form-control-sm text-center no-gray" readonly />
+                               class="form-control  text-center no-gray" readonly />
                       </td>
                     </template>
                     <!-- 추가 행 -->
@@ -206,6 +206,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'Item',
@@ -313,22 +314,50 @@ export default {
       this.selectedSeq = null;
       this.selectProcessItem = {};
     },
-    async saveItem() {
-      try {
-        await axios.post('/api/items', this.selected);
-        await this.loadItems();
-      } catch (err) {
-        console.error('saveItem error', err);
-      }
-    },
+async saveItem() {
+  const item = this.selected;
+
+  // 필수 입력값 검사
+  if (!item.item_name) {
+    return Swal.fire('입력 오류', '품목명을 입력하세요.', 'warning');
+  }
+  if (!item.item_type) {
+    return Swal.fire('입력 오류', '구분을 선택하세요.', 'warning');
+  }
+  if (!item.qty) {
+    return Swal.fire('입력 오류', '수량을 입력하세요.', 'warning');
+  }
+  if (!item.unit_code) {
+    return Swal.fire('입력 오류', '단위를 선택하세요.', 'warning');
+  }
+
+  try {
+    await axios.post('/api/items', item);
+    await this.loadItems();
+    Swal.fire('성공', '품목이 등록/수정되었습니다.', 'success');
+  } catch (err) {
+    console.error('saveItem error', err);
+    Swal.fire('오류', '등록 중 오류가 발생했습니다.', 'error');
+  }
+},
     async deleteItem() {
       if (!this.selected.item_code) return;
-      if (!confirm('정말 삭제하시겠습니까?')) return;
+      const result = await Swal.fire({
+        title: '정말 삭제하시겠습니까?',
+        text: '삭제된 품목은 복구할 수 없습니다.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+      });
+      if (!result.isConfirmed) return;
       try {
         await axios.delete(`/api/items/${this.selected.item_code}`);
         await this.loadItems();
+        Swal.fire('삭제 완료', '품목이 삭제되었습니다.', 'success');
       } catch (err) {
         console.error('deleteItem error', err);
+        Swal.fire('오류', '삭제 중 오류가 발생했습니다.', 'error');
       }
     },
 
@@ -355,11 +384,11 @@ export default {
         duration_min: ''
       });
     },
-    async saveProcessFlows() {
+async saveProcessFlows() {
       try {
         const newFlows = this.itemProcessFlowsList.filter(f => f.isAdding);
         if (!newFlows.length) {
-          alert('추가된 공정이 없습니다.');
+          Swal.fire('안내', '추가된 공정이 없습니다.', 'info');
           return;
         }
         await axios.post('/api/items/saveProcessFlows', {
@@ -370,13 +399,23 @@ export default {
           }))
         });
         await this.fetchProcessFlows(this.selected.item_code);
+        Swal.fire('성공', '공정 흐름이 저장되었습니다.', 'success');
       } catch (err) {
         console.error('saveProcessFlows error', err);
+        Swal.fire('오류', '공정 저장 중 오류가 발생했습니다.', 'error');
       }
     },
-    async deleteProcessItem() {
+ async deleteProcessItem() {
       if (!this.selectProcessItem.sequence_order) return;
-      if (!confirm('선택한 공정을 삭제하시겠습니까?')) return;
+      const result = await Swal.fire({
+        title: '공정을 삭제하시겠습니까?',
+        text: '삭제된 공정은 복구할 수 없습니다.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+      });
+      if (!result.isConfirmed) return;
       try {
         await axios.post('/api/items/deleteProcessItem', {
           process_header: this.selectProcessItem.process_header,
@@ -384,8 +423,10 @@ export default {
           sequence_order: this.selectProcessItem.sequence_order
         });
         await this.fetchProcessFlows(this.selected.item_code);
+        Swal.fire('삭제 완료', '공정이 삭제되었습니다.', 'success');
       } catch (err) {
         console.error('deleteProcessItem error', err);
+        Swal.fire('오류', '공정 삭제 중 오류가 발생했습니다.', 'error');
       }
     },
     async processesList() {

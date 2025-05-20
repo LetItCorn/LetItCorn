@@ -2,8 +2,8 @@
   <div class="card h-100 d-flex flex-column">
    
       <!-- 💡 리스트 스크롤 영역 -->
-      <div class="table-responsive flex-fill overflow-auto">
-        <table class="table table-hover table-sm mb-0">
+      <div class="table-responsive flex-fill overflow-auto p-2">
+        <table class="table table-hover table-sm ">
           <thead class="thead-light">
             <tr class="sticky-header">
               <th>BOM ID</th>
@@ -23,7 +23,7 @@
               <td>{{ bom.bom_id }}</td>
               <td>{{ bom.item_code }}</td>
               <td>{{ bom.item_name }}</td>
-              <td>{{ bom.registered_date }}</td>
+              <td >{{dateFormat(bom.registered_date) }}</td>
             </tr>
             <tr v-if="bomList.length === 0">
               <td colspan="4" class="text-center py-4">데이터가 없습니다.</td>
@@ -42,12 +42,18 @@
 </template>
 
 <script>
+import useDates from '@/utils/useDates';
 export default {
   name: 'BomList',
   props: {
     bomList: Array,
     selectedBom: Object
+  },
+ methods:{
+  dateFormat(value){
+ return useDates.dateFormat(value, 'yyyy-MM-dd')
   }
+ }
 };
 </script>
 

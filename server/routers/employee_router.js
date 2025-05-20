@@ -33,9 +33,11 @@ router.get('/employees/workCode', async (req, res) => {
  *    GET /employees?id=EMP01&name=홍길동&role=A01
  */
 router.get('/employees', async (req, res) => {
-  const { id = '', name = '', role = '' } = req.query;
+  const data = {...req.query};
+  console.log('id, name, role');
+  console.log(data);
   try {
-    const list = await employeeService.findEmployees({ id, name, role });
+    const list = await employeeService.findEmployees(data);
     res.json(list);
   } catch (err) {
     console.error('GET /employees error:', err);

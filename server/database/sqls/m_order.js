@@ -1,6 +1,6 @@
 // M_ORDER 테이블 관련 SQL 정의
 
-/* 전체 목록 */
+// 전체 목록
 const selectMOrderList = `
 SELECT
   h.moder_id,
@@ -17,9 +17,10 @@ SELECT
   h.contact,
 
   d.mater_code,
+  m.mater_name,
   d.qty                              AS moder_qty,
 
-  /* ── 누적 입고수량 계산 ── */
+  /* 누적 입고수량 */
   IFNULL((
     SELECT SUM(i.min_qty)
       FROM m_inbound i
@@ -27,29 +28,26 @@ SELECT
       AND i.mater_code = d.mater_code
   ), 0)                              AS received_qty,
 
-  /* ── 입고 상태 계산 ── */
+  /* 입고 상태 */
   CASE
-    WHEN
-      IFNULL((
-        SELECT SUM(i.min_qty)
-          FROM m_inbound i
-          WHERE i.moder_id   = h.moder_id
-          AND i.mater_code = d.mater_code
-      ),0) = 0
-    THEN 'PENDING'                   -- 전혀 입고되지 않음
-    WHEN
-      IFNULL((
-        SELECT SUM(i.min_qty)
-          FROM m_inbound i
-          WHERE i.moder_id   = h.moder_id
-          AND i.mater_code = d.mater_code
-      ),0) < d.qty
-    THEN 'PARTIAL'                   -- 일부 입고
-    ELSE 'COMPLETE'                  -- 전량 입고
-  END                                 AS inbound_status
+    WHEN IFNULL((
+      SELECT SUM(i.min_qty)
+        FROM m_inbound i
+        WHERE i.moder_id   = h.moder_id
+        AND i.mater_code = d.mater_code
+    ),0) = 0 THEN 'PENDING'
+    WHEN IFNULL((
+      SELECT SUM(i.min_qty)
+        FROM m_inbound i
+        WHERE i.moder_id   = h.moder_id
+        AND i.mater_code = d.mater_code
+    ),0) < d.qty THEN 'PARTIAL'
+    ELSE 'COMPLETE'
+  END AS inbound_status
 
-FROM m_order         h            -- 헤더
-JOIN m_order_detail  d ON d.moder_id = h.moder_id
+FROM m_order        h
+JOIN m_order_detail d ON d.moder_id = h.moder_id
+JOIN material       m ON m.mater_code = d.mater_code
 ORDER BY h.moder_date DESC, h.moder_id, d.mater_code;
 `;
 

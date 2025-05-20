@@ -21,7 +21,7 @@
       <!-- 2-1) 자재 리스트 -->
       <div class="col-md-7 h-100 d-flex flex-column">
         <div class="card list-card flex-fill">
-          <div class="card-header py-2"><strong>자재 리스트</strong></div>
+          <div class="card-header py-2 fs-4"><strong>자재 리스트</strong></div>
           <div class="card-body p-0 list-scroll flex-grow-1">
             <MaterialList
               :materialList="materialList"
@@ -35,7 +35,7 @@
       <!-- 2-2) 자재 상세 -->
       <div class="col-md-5 h-100 d-flex flex-column">
         <div class="card flex-fill">
-          <div class="card-header py-2"><strong>자재 상세 정보</strong></div>
+          <div class="card-header py-2 fs-4"><strong>자재 상세 정보</strong></div>
           <div class="card-body overflow-auto">
             <MaterialDetail
               :mat="selected"
@@ -53,6 +53,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import MaterialFilter from './components/MaterialFilter.vue';
 import MaterialList from './components/MaterialList.vue';
 import MaterialDetail from './components/MaterialDetail.vue';
@@ -134,31 +135,56 @@ export default {
         current_stock: 0
       };
     },
-    async onCreate() {
-      if (!this.selected.mater_name) {
-        alert('자재명을 입력하세요.');
-        return;
-      }
-      try {
-        await axios.post('/api/materialmains', this.selected);
-        await this.loadMaterials();
-      } catch (err) {
-        console.error('onCreate error', err);
-      }
-    },
-    async onDelete() {
+async onCreate() {
+  const mat = this.selected;
+
+  if (!mat.mater_name) {
+    return Swal.fire('입력 오류', '자재명을 입력하세요.', 'warning');
+  }
+  if (!mat.unit_code) {
+    return Swal.fire('입력 오류', '단위를 선택하세요.', 'warning');
+  }
+    if (!mat.m_price || isNaN(mat.m_price) || mat.m_price < 0) {
+    return Swal.fire('입력 오류', '단가를 올바르게 입력하세요.', 'warning');
+  }
+  if (!mat.safe_stock || isNaN(mat.safe_stock) || mat.safe_stock < 0) {
+    return Swal.fire('입력 오류', '안전재고를 올바르게 입력하세요.', 'warning');
+  }
+
+
+  try {
+    await axios.post('/api/materialmains', mat);
+    await this.loadMaterials();
+    Swal.fire('성공', '자재가 등록/수정되었습니다.', 'success');
+  } catch (err) {
+    console.error('onCreate error', err);
+    Swal.fire('오류', '등록 중 오류가 발생했습니다.', 'error');
+  }
+},
+ async onDelete() {
       if (!this.selected.mater_code) {
-        alert('먼저 삭제할 행을 선택하세요!');
-        return;
+        return Swal.fire('삭제 불가', '먼저 삭제할 행을 선택하세요!', 'warning');
       }
-      if (!confirm('정말 삭제하시겠습니까?')) return;
+
+      const result = await Swal.fire({
+        title: '정말 삭제하시겠습니까?',
+        text: '삭제된 자재는 복구할 수 없습니다.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+      });
+
+      if (!result.isConfirmed) return;
+
       try {
         await axios.delete(`/api/materialmains/${this.selected.mater_code}`);
         await this.loadMaterials();
         this.clearDetail();
+        Swal.fire('삭제 완료', '자재가 삭제되었습니다.', 'success');
       } catch (err) {
         console.error('onDelete error', err);
-        alert('삭제 중 오류가 발생했습니다');
+        Swal.fire('오류', '삭제 중 오류가 발생했습니다.', 'error');
       }
     }
   }
