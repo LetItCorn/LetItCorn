@@ -7,8 +7,10 @@
           <h5>{{ item_name }} 공정기록 상세</h5>
         </div>
         <div class="col-1 text-end">
-  <button class="btn-close" @click="clickLayout">X</button>
-</div>
+            <button class="btn btn-light" @click="clickLayout">
+              <i class="bi bi-x-lg fs-2"></i>
+            </button>
+          </div>
         <div class="col-1">
         </div>
       </div>
@@ -26,6 +28,7 @@ import 'ag-grid-community'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 import * as XLSX from 'xlsx';
 import axios from 'axios';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 export default {
   components: {},
   props: {
