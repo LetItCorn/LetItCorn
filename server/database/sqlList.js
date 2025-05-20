@@ -46,7 +46,6 @@ const instructionsOpen = require('./sqls/instructions_open.js');
 const materialmains = require('./sqls/materialmains.js');
 const finishedproduct = require('./sqls/finishedproduct.js');
 const checkwfpdhistory = require('./sqls/checkwfpdhistory.js');
-const insertfproduct = require('./sqls/insertfinishedproduct.js');
 const qinspectionfproduct = require('./sqls/qinspectionfinishedproduct.js');
 const processLog = require('./sqls/prLog.js');
 const semiOutbound   = require('./sqls/semi_outbound.js');
@@ -105,7 +104,6 @@ module.exports = {
   ...materialmains,
   ...finishedproduct,
   ...checkwfpdhistory,
-  ...insertfproduct,
   ...qinspectionfproduct,
   ...processLog,
   ...semiOutbound,

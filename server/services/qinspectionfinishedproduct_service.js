@@ -1,8 +1,6 @@
 const mariadb = require("../database/mapper.js");
 const { convertObjToAry } = require('../utils/converts.js');
 
-// finishedproduct 앞에 q를 붙였습니다.
-
 // J04 생산완료 전체 조회
 const findAllQFinishedProduct = async () => {
     let list = await mariadb.query('selectQFinishedProductList')
@@ -17,7 +15,7 @@ const inspectionQFProductList = async () => {
     return list;
 }
 
-// 품질 검사 결과 저장 - INSERTQCLOG 프로시저를 각 항목마다 별도로 호출
+// 품질 검사 결과 저장 및 상태 업데이트
 const saveInspectionResult = async (payload) => {
     let conn;
     try {
@@ -29,12 +27,14 @@ const saveInspectionResult = async (payload) => {
         // 첫 번째 항목의 정보 추출
         const firstItem = payload[0];
         const mainInfo = {
-            inst_no: firstItem.inst_no,
+            inst_no: firstItem.inst_no, // 지시 번호
             lot_cnt: firstItem.lot_cnt,
             process_code: firstItem.process_code || 'PC999',
             qc_date: firstItem.qc_date || new Date().toISOString().slice(0, 10),
             inspector: firstItem.inspector || 'unknown'
         };
+        
+        console.log('검사자 정보:', mainInfo.inspector);
         
         // 각 검사 항목에 대해 프로시저 호출
         for (const item of payload) {
@@ -51,10 +51,61 @@ const saveInspectionResult = async (payload) => {
             
             // INSERTQCLOG 프로시저 호출 - 각 항목마다 별도로 호출
             await conn.query('CALL INSERTQCLOG(?, ?, ?, ?, ?, ?, ?)', params);
+            
+            console.log(`항목 ${item.test_no} 저장 완료`);
+        }
+        
+        // inst_header 테이블의 inst_stat 업데이트 (J04 -> C01) 및 재고 업데이트
+        if (mainInfo.inst_no) {
+            // 1. 지시 정보 가져오기 (item_code와 iord_qty)
+            // 직접 SQL 쿼리 사용
+            const instResult = await conn.query(`
+                SELECT i.item_code, i.iord_no, ih.inst_head
+                FROM inst as i
+                JOIN inst_header as ih
+                    ON i.inst_head = ih.inst_head
+                WHERE i.inst_no = ?
+            `, [mainInfo.inst_no]);
+            
+            if (instResult && instResult.length > 0) {
+                const { item_code, iord_no, inst_head } = instResult[0];
+                
+                console.log(`지시 정보: item_code=${item_code}, iord_no=${iord_no}, inst_head=${inst_head}`);
+                
+                // 2. inst_header 상태 업데이트 (J04 -> C01)
+                // 직접 SQL 쿼리 사용
+                const updateResult = await conn.query(`
+                    UPDATE inst_header
+                    SET inst_stat = 'C01'
+                    WHERE lot_cnt = ?
+                `, [mainInfo.lot_cnt]);
+                
+                if (updateResult.affectedRows === 0) {
+                    console.warn('업데이트할 inst_header 레코드를 찾을 수 없습니다:', mainInfo.lot_cnt);
+                } else {
+                    console.log(`상태 업데이트 완료: J04 -> C01 (inst_no: ${mainInfo.lot_cnt})`);
+                    
+                    // 3. finishedproduct 테이블의 current_stock 업데이트
+                    // 직접 SQL 쿼리 사용
+                    await conn.query(`
+                        UPDATE finishedproduct
+                        SET current_stock = current_stock + ?
+                        WHERE item_code = ?
+                    `, [iord_no, item_code]);
+                    
+                    console.log(`재고 업데이트 완료: item_code=${item_code}, 추가 수량=${iord_no}`);
+                }
+            } else {
+                console.warn(`지시 정보를 찾을 수 없습니다: inst_no=${mainInfo.inst_no}`);
+            }
+        } else {
+            console.warn('inst_no가 제공되지 않아 상태 업데이트 및 재고 업데이트를 건너뜁니다.');
         }
         
         // 트랜잭션 커밋
         await conn.commit();
+        
+        console.log('모든 항목 저장 및 상태 업데이트 완료');
         
         return { success: true, message: '검사 결과가 저장되었습니다.' };
     } catch (err) {

@@ -5,7 +5,7 @@
         <h2>완제품 목록</h2>
       </div>
       <div class="action-buttons">
-        <button class="btn btn-reroad" @click="fetchAllCustomer">초기화</button>
+        <button class="btn btn-reroad" @click="fetchAllFinishedProduct">초기화</button>
       </div>
     </div>
 
@@ -21,7 +21,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="fpd in fproduct" :key="fpd.client_code">
+          <tr v-for="fpd in fproduct" :key="fpd.item_code">
             <td><input type="checkbox" v-model="fpd.selected"></td>
             <td>{{ fpd.item_code }}</td>
             <td>{{ fpd.item_name }}</td>

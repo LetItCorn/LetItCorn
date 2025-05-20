@@ -1,3 +1,5 @@
+// 라우터에 상태 업데이트 엔드포인트 추가
+
 const express = require('express');
 const router = express.Router();
 const QInspectionFproduct = require('../services/qinspectionfinishedproduct_service.js');
@@ -22,10 +24,10 @@ router.get('/qfproduct/inspection', async (req, res) => {
     }
 });
 
-// 품질 검사 결과 저장 (기존 API)
+// 품질 검사 결과 저장 및 상태 업데이트
 router.post('/qfproduct/inspection', async (req, res) => {
     try {
-        // 필수 필드 검증
+        // 데이터 검증
         if (!req.body || !Array.isArray(req.body) || req.body.length === 0) {
             return res.status(400).send({ error: '유효하지 않은 데이터 형식입니다.' });
         }
@@ -38,21 +40,4 @@ router.post('/qfproduct/inspection', async (req, res) => {
     }
 });
 
-// MySQL 프로시저 호출을 위한 라우터 추가
-router.post('/qfproduct/callProcedure', async (req, res) => {
-    const { procedureName, params } = req.body;
-    
-    if (procedureName !== 'INSERTQCLOG') {
-        return res.status(400).send({ error: '허용되지 않은 프로시저입니다.' });
-    }
-    
-    try {
-        // 서비스 계층의 메소드 호출
-        const result = await QInspectionFproduct.callInsertQcLogProcedure(params);
-        res.send(result);
-    } catch (err) {
-        console.error('프로시저 호출 중 오류 발생:', err);
-        res.status(500).send({ error: '프로시저 실행 중 오류가 발생했습니다.' });
-    }
-});
 module.exports = router;
