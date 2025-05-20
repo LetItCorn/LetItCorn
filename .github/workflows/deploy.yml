@@ -45,9 +45,9 @@ jobs:
             cd ~/LetItCorn
             git pull origin main
             cd server
-            npm ci
-            pm2 restart app || pm2 start app.js --name "app"
-            pm2 save
+            /root/.nvm/versions/node/v22.14.0/bin/npm ci
+            /root/.nvm/versions/node/v22.14.0/bin/pm2 restart app || /root/.nvm/versions/node/v22.14.0/bin/pm2 start app.js --name "app"
+            /root/.nvm/versions/node/v22.14.0/bin/pm2 save
           EOF
 
         echo '== build end ==='
