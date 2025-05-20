@@ -39,7 +39,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in filteredOrders" :key="item.moder_id">
+          <tr v-for="item in pagedOrders" :key="item.moder_id">
             <td>
               <input type="checkbox" v-model="selected" :value="item.moder_id" />
             </td>
@@ -51,14 +51,14 @@
                 class="fw-bold"
                 :class="{
                   'text-success': item.overall_result === 'PASS',
-                  'text-danger': item.overall_result === 'FAIL'
+                  'text-danger':  item.overall_result === 'FAIL'
                 }"
               >
                 {{ item.overall_result }}
               </span>
             </td>
           </tr>
-          <tr v-if="filteredOrders.length === 0">
+          <tr v-if="!filteredOrders.length">
             <td colspan="5" class="text-muted">조회된 발주서가 없습니다.</td>
           </tr>
         </tbody>
@@ -117,7 +117,7 @@ export default {
     },
     allSelected() {
       return (
-        this.pagedOrders.length &&
+        this.pagedOrders.length > 0 &&
         this.pagedOrders.every(o => this.selected.includes(o.moder_id))
       );
     }
@@ -149,7 +149,7 @@ export default {
       try {
         await Promise.all(
           this.selected.map(id =>
-            axios.delete(`/api/qc_inspections/order/${id}`)
+            axios.delete(`/api/qc_order_summary/${id}`)
           )
         );
         await this.reload();
@@ -180,9 +180,13 @@ export default {
       }
     },
     async reload() {
-      const res = await axios.get('/api/qc_order_summary');
-      this.orders = Array.isArray(res.data) ? res.data : [];
-      this.selected = [];
+      try {
+        const res = await axios.get('/api/qc_order_summary');
+        this.orders = Array.isArray(res.data) ? res.data : [];
+        this.selected = [];
+      } catch (e) {
+        console.error('이력 재조회 실패', e);
+      }
     }
   }
 };

@@ -61,4 +61,14 @@ router.post('/qc_order_summary/export', async (req, res, next) => {
     }
   });
 
+  // 발주서별 품질검사 이력 일괄 삭제 엔드포인트
+router.delete('/qc_order_summary/:moder_id', async (req, res, next) => {
+  try {
+    const success = await qcService.deleteHistoryByOrder(req.params.moder_id);
+    res.json({ success });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
