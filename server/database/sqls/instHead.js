@@ -46,12 +46,13 @@ const selectInstHeaderById=
   END AS process_header_label,
   i.out_od,
   ih.inster,
-  ih.inst_stat
+  i.ins_stat
 FROM inst i
 JOIN inst_header ih ON i.inst_head = ih.inst_head
 LEFT JOIN plan_header ph ON ih.plans_head = ph.plans_head
 LEFT JOIN plans p ON p.plans_head = ph.plans_head AND p.item_code = i.item_code
-WHERE i.inst_no = ?`;
+WHERE ih.inst_head = (SELECT inst_head FROM inst WHERE inst_no = ?)
+ORDER BY i.inst_no`;
 
 const updateInstHead=
 `UPDATE inst_head

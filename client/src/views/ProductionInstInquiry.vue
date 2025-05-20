@@ -2,62 +2,80 @@
   <!--생산 지시 조회-->
   <div class="inquiry-header">
     <div class="filter-row">
-  <div class="date-range">
-  <label>일자</label>
-  <Datepicker v-model="startDate" :format="'yy-MM-dd'" /> 
-  <span>~</span> 
-  <Datepicker v-model="endDate" :format="'yy-MM-dd'" />
-  </div>
-  <div class="button-group-inline">
-  <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="fetchPlanInst">조회</button>
-  <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="modifyPlan">수정</button>
-  <button class="bg-blue-500 px-3 py-1 rounded text-black" @click="deletePlan">삭제</button>
-  </div>
-</div>
-<div class="grid-wrapper">
-<!--생산지시정보-->
-  <ag-grid-vue
-  class="ag-theme-alpine"
-  style="width: 100%; height: 400px"
-  ref="mainGridRef"
-  :columnDefs="instColumnDefs"
-  :rowData="planInst"
-  rowSelection="multiple"
-  @rowSelectionChanged="handleRowSelection"
-  @rowClicked="handleRowClick"
-  :defaultColDef="defaultColDef"/>
+      <div class="date-range">
+        <label>일자</label>
+        <Datepicker v-model="startDate" :format="'yy-MM-dd'" />
+        <span>~</span>
+        <Datepicker v-model="endDate" :format="'yy-MM-dd'" />
+      </div>
+      <div class="button-group-inline">
+        <button
+          class="bg-blue-500 px-3 py-1 rounded text-black"
+          @click="fetchPlanInst"
+        >
+          조회
+        </button>
+        <button
+          class="bg-blue-500 px-3 py-1 rounded text-black"
+          @click="modifyPlan"
+        >
+          수정
+        </button>
+        <button
+          class="bg-blue-500 px-3 py-1 rounded text-black"
+          @click="deletePlan"
+        >
+          삭제
+        </button>
+      </div>
+    </div>
+    <div class="grid-wrapper">
+      <!--생산지시정보-->
+      <ag-grid-vue
+        class="ag-theme-alpine"
+        style="width: 100%; height: 400px"
+        ref="mainGridRef"
+        :columnDefs="instColumnDefs"
+        :rowData="planInst"
+        rowSelection="multiple"
+        @rowSelectionChanged="handleRowSelection"
+        @rowClicked="handleRowClick"
+        :defaultColDef="defaultColDef"
+      />
 
-  <!--상세정보-->
-  <ag-grid-vue
-  class="ag-theme-alpine"
-  style="width: 100%; height: 300px"
-  ref="detailGridRef"
-  :columnDefs="detailColumnDefs"
-  :rowData="detailList"
-  rowSelection="single"/>
-</div>
-</div>
+      <!--상세정보-->
+      <ag-grid-vue
+        class="ag-theme-alpine"
+        style="width: 100%; height: 300px"
+        ref="detailGridRef"
+        :columnDefs="detailColumnDefs"
+        :rowData="detailList"
+        @rowClicked="handleDetailRowClick"
+        rowSelection="single"
+      />
+    </div>
+  </div>
 </template>
 
 <script setup>
 //composition api 해보겠습니다이
-import { onMounted, ref } from 'vue'
-import axios from 'axios'
-import Datepicker from "@vuepic/vue-datepicker"
-import { AgGridVue } from 'ag-grid-vue3'
+import { onMounted, ref } from "vue";
+import axios from "axios";
+import Datepicker from "@vuepic/vue-datepicker";
+import { AgGridVue } from "ag-grid-vue3";
 import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css"
+import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useInstStore } from "@/store/inst";
-import { useRouter } from "vue-router"
+import { useRouter } from "vue-router";
 import { useRoute } from "vue-router";
-import { storeToRefs } from 'pinia'
-import dayjs from 'dayjs'
+import { storeToRefs } from "pinia";
+import dayjs from "dayjs";
 import Swal from "sweetalert2";
-import { ModuleRegistry, ClientSideRowModelModule } from 'ag-grid-community';
+import { ModuleRegistry, ClientSideRowModelModule } from "ag-grid-community";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 const router = useRouter();
-const route = useRoute(); 
+const route = useRoute();
 const productionInstStore = useInstStore();
 const { selectedInst, selectedQueryPlans } = storeToRefs(productionInstStore);
 // 날짜 검색 조건
@@ -70,49 +88,71 @@ const mainGridRef = ref(null);
 // 그리드 데이터와 컬럼 정의
 const gridRef = ref(null);
 const gridApi = ref(null);
+const selectedDetailRow = ref(null);
 const instColumnDefs = [
-  {field: "select",
+  {
+    field: "select",
     checkboxSelection: true,
     headerCheckboxSelection: true,
     pinned: "left",
-    width: 50,},
+    width: 50,
+  },
   { field: "inst_no", headerName: "생산지시번호", flex: 2 },
   { field: "plan_no", headerName: "생산계획번호", flex: 2 },
   { field: "item_name", headerName: "품목명", flex: 2 },
-  { field: "plan_end", headerName: "생산종료일", flex: 2, valueFormatter: (params) => {
-    return params.value ? dayjs(params.value).format("YYYY-MM-DD") : ""; }},
-  { field: "inster", headerName: "담당자", flex: 1},
-  {field: "ins_stat_label", headerName: "지시상태", flex: 1}
-  ];
+  {
+    field: "plan_end",
+    headerName: "생산종료일",
+    flex: 2,
+    valueFormatter: (params) => {
+      return params.value ? dayjs(params.value).format("YYYY-MM-DD") : "";
+    },
+  },
+  { field: "inster", headerName: "담당자", flex: 1 },
+  { field: "ins_stat_label", headerName: "지시상태", flex: 1 },
+];
 const detailColumnDefs = [
-{ field: "inst_no", headerName: "생산지시번호", flex: 2 },
-{ field: "plan_no", headerName: "생산계획번호", flex: 2 },
-{ field: "item_name", headerName: "품목명", flex: 2 },
-{ field: "plans_vol", headerName: "생산계획량", flex: 1 },
-{ field: "iord_no", headerName: "지시수량", flex:1 },
-{ field: "plan_start", headerName: "생산시작일", flex:1,valueFormatter: (params) => {
-  return params.value ? dayjs(params.value).format("YYYY-MM-DD") : "";} },
-{ field: "plan_end", headerName: "생산종료일", flex: 1, valueFormatter: (params) => {
-  return params.value ? dayjs(params.value).format("YYYY-MM-DD") : "";} },
-{ field: "process_header_label", headerName: "공정", flex: 1}
-]; 
+  { field: "inst_no", headerName: "생산지시번호", flex: 2 },
+  { field: "plan_no", headerName: "생산계획번호", flex: 2 },
+  { field: "item_name", headerName: "품목명", flex: 2 },
+  { field: "plans_vol", headerName: "생산계획량", flex: 1 },
+  { field: "iord_no", headerName: "지시수량", flex: 1 },
+  {
+    field: "plan_start",
+    headerName: "생산시작일",
+    flex: 1,
+    valueFormatter: (params) => {
+      return params.value ? dayjs(params.value).format("YYYY-MM-DD") : "";
+    },
+  },
+  {
+    field: "plan_end",
+    headerName: "생산종료일",
+    flex: 1,
+    valueFormatter: (params) => {
+      return params.value ? dayjs(params.value).format("YYYY-MM-DD") : "";
+    },
+  },
+  { field: "process_header_label", headerName: "공정", flex: 1 },
+];
 
-onMounted(async ()=> {
+onMounted(async () => {
   if (route.query.refreshed === "1") {
     await fetchPlanInst();
     router.replace({ name: "ProductionInstInquiry" });
   }
-})
+});
 
-const handleRowSelection = async() => {
+const handleRowSelection = async () => {
   const selectedNodes = mainGridRef.value.api.getSelectedNodes();
-  const selectedData = selectedNodes.map(node => node.data);
+  const selectedData = selectedNodes.map((node) => node.data);
   console.log("선택된 항목:", selectedData);
   productionInstStore.setSelectedQueryPlans(selectedData);
-   //체크된 row가 하나라면 상세정보 조회도 자동 수행
-   if (selectedData.length === 1) {
+  //체크된 row가 하나라면 상세정보 조회도 자동 수행
+  if (selectedData.length === 1) {
     const instNo = selectedData[0].inst_no;
     productionInstStore.setSelectedInst(selectedData[0]);
+    selectedDetailRow.value = null;
 
     try {
       const res = await axios.get(`/api/instHead/${instNo}`);
@@ -127,24 +167,29 @@ const handleRowSelection = async() => {
     productionInstStore.setSelectedInst(null);
   }
 };
-const handleRowClick = async (event)=>{  
-  let instNo = event.data.inst_no;
-  productionInstStore.setSelectedInst(event.data);
-  productionInstStore.setSelectedQueryPlans([event.data]);
-  try{
-  let res = await axios.get(`/api/instHead/${instNo}`)
-  console.log("디테일 응답:", res.data);
-  detailList.value = res.data;
+const handleRowClick = async (event) => {
+  const children = event.data._children || [event.data];
+  let instNo = children[0].inst_no;
+  productionInstStore.setSelectedInst(children[0]); // 첫 번째 기준으로 수정 진입 가능하게
+  productionInstStore.setSelectedQueryPlans([event.data]); // 상단 체크 처리
+  try {
+    let res = await axios.get(`/api/instHead/${instNo}`);
+    console.log("디테일 응답:", res.data);
+    detailList.value = res.data;
+  } catch (err) {
+    console.log(err);
   }
-  catch(err){ 
-  console.log(err);
-  }
-}
+};
 const defaultColDef = {
   sortable: true,
 };
 
-//조회 
+const handleDetailRowClick = (event) => {
+  selectedDetailRow.value = event.data;
+  productionInstStore.setSelectedDetailRow(event.data);
+};
+
+//조회
 const fetchPlanInst = async () => {
   //백엔드에 날짜변환
   const formattedStart = startDate.value
@@ -157,7 +202,7 @@ const fetchPlanInst = async () => {
   if (!formattedStart || !formattedEnd) {
     Swal.fire({
       icon: "question",
-      title:"조회 시작일과 종료일을 모두 선택해주세요.",
+      title: "조회 시작일과 종료일을 모두 선택해주세요.",
     });
     return;
   }
@@ -174,75 +219,106 @@ const fetchPlanInst = async () => {
     console.log("응답 내용:", res.data);
 
     if (!Array.isArray(res.data)) {
-    console.error("SQL 오류 발생 또는 응답이 배열이 아님:", res.data);
-    planInst.value = [];
-    Swal.fire({
-      icon: "error", 
-      title:"조회 중 오류가 발생했습니다.",
-    });
-    return;
-  }
+      console.error("SQL 오류 발생 또는 응답이 배열이 아님:", res.data);
+      planInst.value = [];
+      Swal.fire({
+        icon: "error",
+        title: "조회 중 오류가 발생했습니다.",
+      });
+      return;
+    }
 
-    planInst.value = res.data;
+    //inst_head 기준 그룹핑
+    const grouped = {};
+    res.data.forEach((item) => {
+      if (!grouped[item.inst_head]) {
+        grouped[item.inst_head] = { ...item, _children: [item] };
+      } else {
+        grouped[item.inst_head]._children.push(item);
+      }
+    });
+
+    //첫 품목명 + 외 n건으로 가공
+    planInst.value = Object.values(grouped).map((group) => {
+      const count = group._children.length;
+      return {
+        ...group,
+        item_name:
+          count > 1 ? `${group.item_name} 외 ${count - 1}건` : group.item_name,
+      };
+    });
     productionInstStore.setSelectedInst(null);
     detailList.value = [];
   } catch (err) {
     console.error("조회 오류:", err);
     planInst.value = [];
   }
-}
+};
 //수정
 const modifyPlan = () => {
   //다중선택방지
-  const selected = selectedQueryPlans.value;
-  if (selected.length > 1) {
+  if (selectedQueryPlans.value.length > 1) {
     return Swal.fire({
-      icon: "error", 
-      title:"수정은 한 건만 선택 가능합니다.",
+      icon: "error",
+      title: "수정은 한 건만 선택 가능합니다.",
     });
   }
-  //단일 선택 
-  const inst = selectedInst.value;
-  console.log("선택된 inst:", inst);
-  if (!inst) return Swal.fire({
-      icon: "question", 
-      title:"수정할 생산지시를 선택해주세요.",
+  //디테일 클릭 안 할 경우 수정 진입 불가
+  if (!selectedDetailRow.value) {
+    return Swal.fire({
+      icon: "question",
+      title: "하단 상세 항목을 클릭해주세요.",
     });
+  }
+
+  //단일 선택
+  const inst = selectedDetailRow.value;
+  console.log("수정 진입 inst:", inst);
+
   //지시상태 확인
   if (inst.ins_stat !== "J01") {
     return Swal.fire({
-      icon: "warning", 
-      title:`'${inst.inst_head}'은(는) 대기 상태가 아니므로 수정할 수 없습니다.`,
+      icon: "warning",
+      title: `'${inst.inst_head}'은(는) 대기 상태가 아니므로 수정할 수 없습니다.`,
     });
   }
-
-  router.push({ name: "ProductionInst", query: { mode: "modify", inst_no: selectedInst.value.inst_no, }, });
+  
+  productionInstStore.setSelectedQueryPlans([inst]);
+  router.push({
+    name: "ProductionInst",
+    query: { mode: "modify", inst_no: inst.inst_no },
+  });
 };
 //삭제
-const deletePlan = async()=>{  
+const deletePlan = async () => {
   if (selectedQueryPlans.value.length === 0) {
-  return Swal.fire({
-      icon: "error", 
-      title:"삭제할 계획을 선택해주세요.",
-    });
-}
-
-const invalid = selectedQueryPlans.value.find((instHead)=> instHead.ins_stat !== "J01");
-if (invalid){
-  console.log("삭제 대기상태: ", selectedQueryPlans.value.map((p) => p.ins_stat));
-  return Swal.fire({
-      icon: "warning", 
-      title:`'${invalid.inst_head}'은(는) 대기 상태가 아니므로 삭제할 수 없습니다.`,
+    return Swal.fire({
+      icon: "error",
+      title: "삭제할 계획을 선택해주세요.",
     });
   }
-for (const inst of selectedQueryPlans.value) {
+
+  const invalid = selectedQueryPlans.value.find(
+    (instHead) => instHead.ins_stat !== "J01"
+  );
+  if (invalid) {
+    console.log(
+      "삭제 대기상태: ",
+      selectedQueryPlans.value.map((p) => p.ins_stat)
+    );
+    return Swal.fire({
+      icon: "warning",
+      title: `'${invalid.inst_head}'은(는) 대기 상태가 아니므로 삭제할 수 없습니다.`,
+    });
+  }
+  for (const inst of selectedQueryPlans.value) {
     try {
       await axios.delete(`/api/instHead/${inst.inst_head}`);
     } catch (err) {
       console.error("삭제 실패:", err);
       return Swal.fire({ icon: "error", title: "삭제 중 오류 발생" });
     }
-  }  
+  }
   Swal.fire({ icon: "success", title: "삭제가 완료되었습니다." });
   await fetchPlanInst(); // 목록 새로고침
   productionInstStore.setSelectedQueryPlans([]);
@@ -264,7 +340,6 @@ for (const inst of selectedQueryPlans.value) {
   gap: 12px;
   margin-bottom: 20px;
 }
-
 
 .button-group-inline {
   display: flex;
