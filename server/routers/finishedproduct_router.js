@@ -4,6 +4,7 @@ const FinishedProductService = require('../services/finishedproduct_service.js')
 
 // 완제품 전체 조회
 router.get('/fproduct', async (req, res) => {
+    console.log('GET /api/fproduct 요청 수신');
     try {
         const fproductList = await FinishedProductService.findAllFinishedProduct();
         res.send(fproductList);

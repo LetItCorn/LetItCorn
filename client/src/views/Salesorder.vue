@@ -46,7 +46,7 @@
             <th>품목명</th>
             <th>납기일자</th>
             <th>주문수량</th>
-            <th>상태</th>
+            <th>주문상태</th>
             <th>작성자</th>
           </tr>
         </thead>
@@ -137,7 +137,54 @@
         </div>
       </div>
     </div>
+
+        <div v-if="shipmentModalVisible" class="modal" @click="closeModalOnBackgroundClick">
+      <div class="modal-content" @click.stop>
+        <div class="modal-title">
+          <h3>출고 등록</h3>
+        </div>
+        <div class="search-form">
+          <div class="form-group">
+            <label>주문번호</label>
+            <input type="text" v-model="shipmentParams.sorderCode" readonly>
+          </div>
+          <div class="form-group">
+            <label>거래처명</label>
+            <input type="text" v-model="shipmentParams.clientName" readonly>
+          </div>
+          <div class="form-group">
+            <label>품목명</label>
+            <input type="text" v-model="shipmentParams.itemName" readonly>
+          </div>
+          <div class="form-group">
+            <label>품목코드</label>
+            <input type="text" v-model="shipmentParams.itemCode" readonly>
+          </div>
+          <div class="form-group">
+            <label>주문수량</label>
+            <input type="number" v-model="shipmentParams.sorderCount" readonly>
+          </div>
+          <div class="form-group">
+            <label>현재 재고량</label>
+            <input type="number" v-model="shipmentParams.currentStock" readonly>
+          </div>
+          <div class="form-group">
+            <label>출고수량</label>
+            <input type="number" v-model.number="shipmentParams.shipmentQty" 
+                  :max="shipmentParams.currentStock" 
+                  :min="1">
+            <small v-if="shipmentParams.currentStock < shipmentParams.sorderCount" class="text-warning">
+              ※ 재고량이 주문수량보다 적습니다.
+            </small>
+          </div>
+          <button class="btn btn-primary" @click="registerShipment" 
+                  :disabled="shipmentParams.shipmentQty <= 0 || shipmentParams.shipmentQty > shipmentParams.currentStock">
+            출고 등록
+          </button>
+        </div>
+      </div>
   </div>
+</div>
 </template>
 
 <script>
@@ -153,6 +200,7 @@ export default {
       activeSort: '',
       searchModalVisible: false,
       updateModalVisible: false,
+      shipmentModalVisible: false, // 출고 모달 표시 여부
       selectAll: false,
       currentPage: 1,
       selectedOrder: null,
@@ -172,6 +220,17 @@ export default {
         sorderCount: '',
         deliveryDate: ''
       },
+      shipmentParams: {
+        sorderCode: '',
+        clientName: '',
+        itemCode: '',
+        itemName: '',
+        sorderCount: 0,
+        currentStock: 0,
+        shipmentQty: 0
+      },
+      // 제품 재고 정보
+      stockInfo: []
     };
   },
   computed: {
@@ -179,6 +238,7 @@ export default {
   },
   created() {
     this.fetchAllSalesOrders();
+    this.fetchAllFinishedProduct(); // 완제품 재고 정보 로드
   },
   methods: {
     async fetchAllSalesOrders() {
@@ -195,6 +255,23 @@ export default {
           icon: 'error',
           title: '데이터 로딩 실패',
           text: '주문서 목록을 불러오는데 실패했어요.'
+        });
+      }
+    },
+        // 완제품 재고 정보 가져오기
+    async fetchAllFinishedProduct() {
+      try {
+        console.log('완제품 재고 정보 가져오기 시도 - API 호출: /api/fproduct');
+        const response = await axios.get('/api/fproduct');
+        console.log('재고 API 응답:', response);
+        this.stockInfo = response.data;
+        console.log('로드된 재고 정보:', this.stockInfo);
+      } catch (error) {
+        console.error('완제품 재고 정보를 가져오는 중 오류 발생:', error);
+        Swal.fire({
+          icon: 'error',
+          title: '데이터 로딩 실패',
+          text: '완제품 재고 정보를 불러오는데 실패했어요.'
         });
       }
     },
@@ -427,11 +504,117 @@ export default {
         });
       }
     },
+       // 출고 등록 버튼 클릭 시
     insertSqt() {
+      const selectedOrders = this.salesOrders.filter(order => order.selected);
       
-      this.$router.push({ 
-        name: 'InsertSqt' 
-      });
+      if (selectedOrders.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: '출고할 주문서 체크가 빠진 것 같아요.',
+          text: '출고할 주문서를 하나만 선택해주세요.'
+        });
+        return;
+      }
+
+      if (selectedOrders.length > 1) {
+        Swal.fire({
+          icon: 'warning',
+          title: '출고할 주문서는 하나만 선택해주세요.',
+          text: '출고할 주문서를 하나만 선택해주세요.'
+        });
+        return;
+      }
+      
+      this.selectedOrder = selectedOrders[0];
+      
+      // 선택한 주문의 품목에 대한 재고 정보 확인
+      const stockItem = this.stockInfo.find(item => item.item_code === this.selectedOrder.item_code);
+      
+      if (!stockItem) {
+        Swal.fire({
+          icon: 'error',
+          title: '재고 정보 없음',
+          text: '선택한 주문의 품목에 대한 재고 정보를 찾을 수 없습니다.'
+        });
+        return;
+      }
+      
+      // 출고 모달에 표시할 데이터 설정
+      this.shipmentParams = {
+        sorderCode: this.selectedOrder.sorder_code,
+        clientName: this.selectedOrder.client_name,
+        itemCode: this.selectedOrder.item_code,
+        itemName: this.selectedOrder.item_name,
+        sorderCount: this.selectedOrder.sorder_count,
+        currentStock: stockItem.current_stock,
+        shipmentQty: Math.min(this.selectedOrder.sorder_count, stockItem.current_stock) // 주문량과 재고량 중 작은 값으로 초기화
+      };
+      
+      // 출고 모달 표시
+      this.shipmentModalVisible = true;
+    },
+    
+    // 출고 등록 처리
+    async registerShipment() {
+      // 출고 수량 검증
+      if (this.shipmentParams.shipmentQty <= 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: '출고 수량 오류',
+          text: '출고 수량은 0보다 커야 합니다.'
+        });
+        return;
+      }
+      
+      if (this.shipmentParams.shipmentQty > this.shipmentParams.currentStock) {
+        Swal.fire({
+          icon: 'warning',
+          title: '재고 부족',
+          text: '출고 수량이 현재 재고량보다 많습니다.'
+        });
+        return;
+      }
+      
+      try {
+        // 출고 처리 요청
+        const shipmentData = {
+          sorder_code: this.shipmentParams.sorderCode,
+          item_code: this.shipmentParams.itemCode,
+          shipment_qty: this.shipmentParams.shipmentQty,
+          emp_id: 'EMP02' // 실제 사용자 ID로 변경 필요
+        };
+        
+        const response = await axios.post('/api/salesorders/shipment', shipmentData);
+        
+        if (response.data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: '출고 등록 완료',
+            text: '출고가 성공적으로 등록되었습니다.'
+          });
+          
+          // 모달 닫기
+          this.shipmentModalVisible = false;
+          
+          // 주문서 목록 및 재고 정보 새로고침
+          this.fetchAllSalesOrders();
+          this.fetchAllFinishedProduct();
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: '출고 등록 실패',
+            text: response.data.message || '출고 등록 중 오류가 발생했습니다.'
+          });
+        }
+      } catch (error) {
+        console.error('출고 등록 중 오류 발생:', error);
+        Swal.fire({
+          icon: 'error',
+          title: '출고 등록 실패',
+          text: '출고 등록 중 오류가 발생했습니다.'
+        });
+      }
     },
     // 배경 클릭 시에만 모달 닫기
     closeModalOnBackgroundClick(event) {
@@ -444,6 +627,7 @@ export default {
         }
         this.searchModalVisible = false;
         this.updateModalVisible = false;
+        this.shipmentModalVisible = false; // 출고 모달도 닫기
       }
     },
   }
