@@ -4,7 +4,7 @@ const selectOutboundCandidatesByInstHead = `
 SELECT
   bc.mater_code,
   m.mater_name,
-  bc.unit_code                 AS unit,
+  get_code_name(bc.unit_code)                 AS unit,
 
   /* 소수점 없이 정수로 반올림된 필요수량 */
   ROUND(

@@ -1,3 +1,4 @@
+<!-- client/src/views/components/QInspectionPDModal.vue -->
 <template>
   <!-- 검사 모달 -->
   <div v-if="visible" class="modal" @click.self="close">
@@ -8,6 +9,8 @@
             <h3>품질검사</h3>
           </div>
         </div>
+
+        <!-- ────── 검사 항목 테이블 ────── -->
         <div class="modal-body">
           <div class="inspection-table">
             <table class="table table-bordered text-center mb-0">
@@ -41,6 +44,8 @@
             </table>
           </div>
         </div>
+
+        <!-- ────── 버튼 영역 ────── -->
         <div class="modal-footer">
           <button class="btn btn-success" @click="confirmCompleteInspection">
             검사 완료
@@ -56,7 +61,7 @@
 
 <script>
 import axios from 'axios';
-import Swal from 'sweetalert2';
+import Swal  from 'sweetalert2';
 import { checkQc } from '@/utils/checkQc';
 
 export default {
@@ -71,7 +76,7 @@ export default {
   data() {
     return {
       inspectionData: [],
-      isLoading: false,
+      isLoading: false
     };
   },
   watch: {
@@ -82,129 +87,118 @@ export default {
     }
   },
   methods: {
-    // 검사항목 리스트
+    /* ─────────────── API: 검사항목 가져오기 ─────────────── */
     async fetchInspectionList() {
       try {
-        const response = await axios.get('/api/qfproduct/inspection');
-        this.inspectionData = response.data.map(item => ({
+        const { data } = await axios.get('/api/qfproduct/inspection');
+        this.inspectionData = data.map(item => ({
           ...item,
-          test_res: '',
+          test_res : '',
           test_stat: ''
         }));
-      } catch (error) {
-        console.error('검사항목 리스트를 가져오는 중 오류 발생:', error);
-        Swal.fire({
-          icon: 'error',
-          title: '데이터 로딩 실패',
-          text: '검사항목 리스트를 불러오는데 실패했어요.'
-        });
+      } catch (e) {
+        console.error('검사항목 조회 오류:', e);
+        Swal.fire({ icon:'error', title:'데이터 로딩 실패', text:'검사항목 리스트를 불러오는데 실패했어요.' });
       }
     },
-    checkinputresult(){
-      const EmptyInput = this.inspectionData.some(item => !item.test_res);
 
-      if(EmptyInput){
-        Swal.fire({
-          icon: 'error',
-          title: '측정값 입력 확인 필요',
-          text: '측정값 입력이 빠진것 같아요.'
-        });
+    /* ─────────────── 입력값 누락 체크 ─────────────── */
+    checkinputresult() {
+      const empty = this.inspectionData.some(item => !item.test_res);
+      if (empty) {
+        Swal.fire({ icon:'error', title:'측정값 입력 확인', text:'측정값 입력이 빠졌어요.' });
         return false;
       }
-
       return true;
     },
-    // 품질검사 판정함수
+
+    /* ─────────────── 판정 계산 ─────────────── */
     checkQuality(isd) {
       if (!isd.test_res) {
         isd.test_stat = '';
         return;
       }
-      try {
-        if (isd.test_stand && isd.test_stand.includes('~')) {
-          const result = checkQc(isd.test_res, isd.test_stand);
-          const oldStatus = isd.test_stat; // 판정
-
-          isd.test_stat = result === 'pass' ? '적합' : '부적합';
-
-        }
-      } catch (error) {
-        console.error('검사 기준값을 확인하는 중 오류 발생:', error);
-        Swal.fire({
-          icon: 'error',
-          title: '검사 기준값 오류',
-          text: '검사 기준값을 확인해주세요.'
-        });
+      if (isd.test_stand.includes('~')) {
+        const result     = checkQc(isd.test_res, isd.test_stand);
+        isd.test_stat    = result === 'pass' ? '적합' : '부적합';
       }
     },
-    async confirmCompleteInspection() {
-      if(!this.checkinputresult()){
-        return;
-      }
 
-      const hasFailure = this.inspectionData.some(item => item.test_stat === '부적합');
-
-      if(hasFailure){
-        Swal.fire({
-          icon: 'error',
-          title: '품질 검사 부적합',
-          text: '품질 검사 재검이 필요합니다.'
-        });
-        return;
-      }
-      const result = await Swal.fire({
-        title: '검사 완료',
-        text: '판정결과 적합입니다. 검사 완료 하시겠어요?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: '확인',
-        cancelButtonText: '취소'
-      });
-      if (result.isConfirmed) {
-        try {
-          await this.submitInspection();
-          await Swal.fire({
-            title: '완료',
-            text: '검사가 성공적으로 완료되었어요.',
-            icon: 'success'
-          });
-          this.$emit('complete', this.orders);
-          this.close();
-        } catch (error) {
-          console.error('검사 저장 중 오류 발생:', error);
-          Swal.fire({
-            icon: 'error',
-            title: '저장 실패',
-            text: '검사 결과 저장에 실패했습니다.'
-          });
-        }
-      }
+    /* ─────────────── 입고 payload 생성 ─────────────── */
+    buildInboundPayload() {
+      const order     = this.orders[0];          // 첫 행 기준
+      const qtyPassed = order.iord_no;           // 지시수량 = 입고수량(필요 시 조정)
+      return {
+        pin_code   : 'PIN' + Date.now(),
+        porder_code: order.porder_code || '',
+        test_no    : 'QC_FIN',
+        lot_code   : order.lot_cnt,
+        prd_name   : order.item_name,
+        pin_date   : new Date().toISOString().slice(0,10),
+        manager    : this.$session ? this.$session.userId : 'unknown',
+        pin_type   : 'IN',
+        pro_stock  : 0,
+        pro_fqty    : qtyPassed,
+        item_code  : order.item_code || order.itemCode
+      };
     },
+
+    /* ─────────────── 검사 결과 저장 (기존 API) ─────────────── */
     async submitInspection() {
+      const order   = this.orders[0];
+      const payload = this.inspectionData.map(item => ({
+        test_no     : item.test_no,
+        inst_no     : order.inst_no,
+        lot_cnt     : order.lot_cnt,
+        qc_date     : new Date().toISOString().slice(0,10),
+        qc_result   : item.test_stat === '적합' ? 'PASS' : 'FAIL',
+        inspector   : this.$session ? this.$session.userId : 'unknown',
+        test_res    : item.test_res,
+        process_code: order.process_code || 'PC999'
+      }));
+      await axios.post('/api/qfproduct/inspection', payload);
+    },
+
+    /* ─────────────── 검사 통과 후 입고 + 상태변경 ─────────────── */
+    async afterInspectionSuccess() {
+      // ① 입고 기록 + 재고 증가
+      await axios.post('/api/product_in', this.buildInboundPayload());
+      // ② 지시상태 J04 → J05
+      await axios.patch(`/api/inst_header/${this.orders[0].inst_head}/finish`);
+    },
+
+    /* ───────────────  검사 완료 버튼 클릭 ─────────────── */
+    async confirmCompleteInspection() {
+      if (!this.checkinputresult()) return;
+      const hasFailure = this.inspectionData.some(i => i.test_stat === '부적합');
+      if (hasFailure) {
+        Swal.fire({ icon:'error', title:'품질검사 부적합', text:'품질 검사 재검이 필요합니다.' });
+        return;
+      }
+
+      const { isConfirmed } = await Swal.fire({
+        title:'검사 완료',
+        text :'판정결과 적합입니다. 검사 완료하시겠어요?',
+        icon :'warning',
+        showCancelButton:true,
+        confirmButtonText:'확인',
+        cancelButtonText :'취소'
+      });
+      if (!isConfirmed) return;
+
       try {
-        // 검사 데이터 준비 - orders의 첫 번째 항목을 기준으로 생성
-        const order = this.orders[0]; // 첫 번째 주문 정보만 사용
-        
-        const payload = this.inspectionData.map(item => ({
-          test_no: item.test_no,
-          inst_no: order.inst_no,
-          lot_cnt: order.lot_cnt,
-          qc_date: new Date().toISOString().slice(0, 10),
-          qc_result: item.test_stat === '적합' ? 'PASS' : 'FAIL',
-          inspector: this.$session ? this.$session.userId : 'unknown',
-          test_res: item.test_res,
-          process_code: order.process_code || 'PC999'
-        }));
-        
-        // API 호출
-        const response = await axios.post('/api/qfproduct/inspection', payload);
-        
-        return response.data;
-      } catch (error) {
-        console.error('검사 저장 중 오류 발생:', error);
-        throw error;
+        await this.submitInspection();      // 검사 로그 저장
+        await this.afterInspectionSuccess();// 입고 + 상태변경 + 재고 누적
+        await Swal.fire({ icon:'success', title:'완료', text:'검사가 성공적으로 완료됐어요!' });
+        this.$emit('complete', this.orders);
+        this.close();
+      } catch (e) {
+        console.error('검사 저장 오류:', e);
+        Swal.fire({ icon:'error', title:'저장 실패', text:'검사 결과 저장에 실패했습니다.' });
       }
     },
+
+    /* ─────────────── 모달 닫기 ─────────────── */
     close() {
       this.inspectionData = [];
       this.$emit('close');
@@ -214,6 +208,7 @@ export default {
 </script>
 
 <style scoped>
+/* (기존 스타일 그대로) */
 .modal {
   position: fixed;
   top: 0;
@@ -226,38 +221,12 @@ export default {
   justify-content: center;
   z-index: 1000;
 }
-.modal-dialog {
-  width: 80vw;
-  max-width: 900px;
-  margin: 0;
-}
+.modal-dialog { width: 80vw; max-width: 900px; margin:0; }
 .modal-content {
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 0.3rem;
-  overflow: hidden;
+  max-height: 80vh; display:flex; flex-direction:column;
+  background:#fff; border-radius:0.3rem; overflow:hidden;
 }
-.modal-header,
-.modal-footer {
-  padding: 0.75rem 1rem;
-  background: #f8f9fa;
-}
-.modal-body {
-  padding: 1rem;
-  overflow-y: auto;
-  flex: 1;
-}
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  line-height: 1;
-}
-.table th,
-.table td {
-  vertical-align: middle;
-  padding: 0.5rem 0.75rem;
-}
+.modal-header, .modal-footer { padding:0.75rem 1rem; background:#f8f9fa; }
+.modal-body   { padding:1rem; overflow-y:auto; flex:1; }
+.table th, .table td { vertical-align:middle; padding:0.5rem 0.75rem; }
 </style>

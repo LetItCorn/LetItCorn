@@ -110,4 +110,5 @@ module.exports = {
   ...semiOutbound,
   ...semiQc,
   ...semiInboundSql,
+  ...semiProductSql,
 }
