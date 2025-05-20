@@ -33,9 +33,14 @@ ON DUPLICATE KEY UPDATE
   test_target = VALUES(test_target),
   unit_name = VALUES(unit_name)`
 
+const delQc = `
+DELETE FROM test_qc
+WHERE test_no = ?
+`
+
 module.exports = {
   getQcList,
   getOptions,
   setQc,
-
+  delQc,
 }

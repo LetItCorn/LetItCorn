@@ -36,7 +36,7 @@
     <div class="mt-auto d-flex gap-2">
       <button @click="$emit('clear')" class="btn btn-outline-secondary flex-grow-1">초기화</button>
       <button @click="$emit('create')" class="btn btn-success flex-grow-1">등록</button>
-      <button @click="$emit('delete')" class="btn btn-danger flex-grow-1" :disabled="!defect.defect_code">삭제</button>
+      <button @click="$emit('delete')" class="btn btn-danger flex-grow-1" :disabled="!defect.test_no">삭제</button>
     </div>
   </div>
 </template>

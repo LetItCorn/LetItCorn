@@ -30,9 +30,18 @@ const mergeQcData = async (data) =>{
   return result
 }
 
+const delQc = async (data) =>{
+  const result = await mariadb.query('delQc',data)
+                              .catch(err=>{
+                                console.log(err);
+                              })
+  return result
+}
+
 module.exports ={
   getQcList,
   getOptions,
   mergeQcData,
+  delQc,
 
 }

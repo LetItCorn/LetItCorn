@@ -32,8 +32,16 @@ router.post('/mergeQcData', async (req,res)=>{
                                   console.log(err);
                                  })
   res.send(result)
-}
+})
 
-)
+router.delete('/delQc/:data', async (req,res)=>{
+  const data = req.params.data
+  console.log(data);
+  let result = await qcMgrService.delQc(data)
+                                .catch(err=>{
+                                  console.log(err);
+                                })
+  res.send(result)
+})
 
 module.exports = router;

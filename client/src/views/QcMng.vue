@@ -167,11 +167,21 @@ import Swal from 'sweetalert2';
       },
       async onDelete() {
         if (!this.hasSelection) return;
+        //Swal
         if (!confirm('정말 삭제하시겠습니까?')) return;
 
         try {
-          await axios.delete(`/api/defect_codes/${this.selected.defect_code}`);
-          await this.loadDefects();
+          let res = await axios.delete(`/api/defect_codes/${this.selected.defect_code}`);
+          if(res.data.affectedRows >0){
+            Swal.fire({
+                icon: "success",
+                title: "삭제완료!",
+                text: `삭제되었습니다!`,
+               
+              });
+              await this.loadDefects();
+          }
+          
         } catch (err) {
           console.error('onDelete error', err);
         }
