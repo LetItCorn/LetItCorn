@@ -16,4 +16,32 @@ console.log('test_no:', data.test_no);
   res.send(result);
 })
 
+router.get('/getOptions', async (req,res)=>{
+  const result = await qcMgrService.getOptions()
+                                   .catch(err=>{
+                                    console.log(err);
+                                   })
+  res.send(result)
+})
+
+router.post('/mergeQcData', async (req,res)=>{
+  const data = req.body
+  console.log(data);
+  let result = await qcMgrService.mergeQcData(data)
+                                 .catch(err=>{
+                                  console.log(err);
+                                 })
+  res.send(result)
+})
+
+router.delete('/delQc/:data', async (req,res)=>{
+  const data = req.params.data
+  console.log(data);
+  let result = await qcMgrService.delQc(data)
+                                .catch(err=>{
+                                  console.log(err);
+                                })
+  res.send(result)
+})
+
 module.exports = router;
