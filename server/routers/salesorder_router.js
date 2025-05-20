@@ -102,4 +102,36 @@
         }
     });
 
+    // 출고 이력 조회
+router.get('/salesorders/shipments', async (req, res) => {
+    try {
+        const shipmentList = await soService.findAllShipments();
+        res.send(shipmentList);
+    } catch (err) {
+        res.status(500).send({ error: '출고 이력을 불러오는데 실패했습니다.' });
+    }
+});
+
+// 출고 등록
+router.post('/salesorders/shipment', async (req, res) => {
+    try {
+        const shipmentData = req.body;
+        
+        // 필수 데이터 검증
+        if (!shipmentData.sorder_code || !shipmentData.item_code || 
+            !shipmentData.shipment_qty || shipmentData.shipment_qty <= 0) {
+            return res.status(400).send({ 
+                success: false, 
+                message: '유효하지 않은 데이터 형식입니다.' 
+            });
+        }
+        
+        const result = await soService.registerShipment(shipmentData);
+        res.send(result);
+    } catch (err) {
+        console.error('출고 등록 중 오류 발생:', err);
+        res.status(500).send({ success: false, message: '출고 등록에 실패했습니다.' });
+    }
+});
+
     module.exports = router;

@@ -4,7 +4,7 @@ module.exports = {
   // 임시로 J01 => 대기 원래는 J04 => 생산완료
   selectQFinishedProductList:
   `
-  SELECT DISTINCT i.inst_head,
+  SELECT DISTINCT ih.inst_head,
                   i.inst_no,
                   p.plans_head,
                   i.lot_cnt,
@@ -13,17 +13,17 @@ module.exports = {
                   i.iord_no,
                   ph.plan_end,
                   cc.code_name
-  FROM inst_header as ih
+  FROM inst as i
+  JOIN inst_header as ih
+    ON i.inst_head = ih.inst_head
   JOIN plan_header as ph
     ON ih.plans_head = ph.plans_head
-  JOIN inst as i
-    ON ih.inst_head = i.inst_head
   JOIN plans as p
     on ih.plans_head = p.plans_head
   JOIN common_codes as cc
-    on ih.inst_stat = cc.code_values
-  WHERE ih.inst_stat = 'J04'
-  ORDER BY i.inst_head, plans_head, lot_cnt
+    on i.ins_stat = cc.code_values
+  WHERE i.ins_stat = 'J04'
+  ORDER BY ih.inst_head, plans_head, lot_cnt
   `,
   // C01로 바뀌어야함 완제품, C02 반제품
 
@@ -33,7 +33,7 @@ module.exports = {
   SELECT test_no,
         test_feild,
         test_stand,
-        unit
+        unit_name
   FROM   test_qc
   WHERE  test_target = 'PC000'
   ORDER BY test_no

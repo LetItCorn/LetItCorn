@@ -34,7 +34,7 @@
                       @input="checkQuality(isd)"
                     />
                   </td>
-                  <td>{{ isd.unit }}</td>
+                  <td>{{ isd.unit_name }}</td>
                   <td>{{ isd.test_stat }}</td>
                 </tr>
               </tbody>
