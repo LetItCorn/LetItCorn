@@ -1,18 +1,24 @@
 <template>
   <div class="container-fluid py-3 d-flex flex-column vh-100">
     <!-- 상단 필터 -->
-    <BomFilter
-      v-model="searchItemCode"
-      @search="loadBoms"
-      @reset="resetFilter"
-    />
+    <div class="row mb-3">
+      <div class="col-12">
+        
+            <BomFilter
+              v-model="searchItemCode"
+              @search="loadBoms"
+              @reset="resetFilter"
+            />
+         
+      </div>
+    </div>
 
     <!-- BOM 리스트 & 구성품 리스트 -->
-    <div class="row g-3 flex-grow-1" style="height: 70vh;">
+    <div class="row flex-grow-1" style="height: 70vh;">
       <!-- 좌측: BOM 리스트 -->
-      <div class="col-md-6 h-100 d-flex flex-column">
+      <div class="col-md-6 h-100 d-flex flex-column pe-md-2">
         <div class="card list-card flex-fill">
-          <div class="card-header py-2"><strong>BOM 리스트</strong></div>
+          <div class="card-header py-2 fs-4"><strong>BOM 리스트</strong></div>
           <div class="card-body p-0 list-scroll flex-grow-1">
             <BomList
               :bomList="bomList"
@@ -26,9 +32,9 @@
       </div>
 
       <!-- 우측: 구성품 리스트 -->
-      <div class="col-md-6 h-100 d-flex flex-column">
+      <div class="col-md-6 h-100 d-flex flex-column ps-md-2">
         <div class="card list-card flex-fill">
-          <div class="card-header py-2"><strong>구성품 리스트</strong></div>
+          <div class="card-header py-2 fs-4"><strong>구성품 리스트</strong></div>
           <div class="card-body p-0 list-scroll flex-grow-1">
             <BomComponents
               :compList="compList"
@@ -67,11 +73,13 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import BomFilter from './components/BomFilter.vue';
 import BomList from './components/BomList.vue';
 import BomComponents from './components/BomComponents.vue';
 import BomModal from './components/BomModal.vue';
 import BomComponentModal from './components/BomComponentModal.vue';
+import useDates from '@/utils/useDates';
 
 export default {
   name: 'Bom',
@@ -141,10 +149,31 @@ export default {
       this.showBomModal = false;
       this.loadBoms();
     },
-    deleteBom() {
-      if (!this.selectedBom) return;
-      axios.delete(`/api/boms/${this.selectedBom.bom_id}`).then(this.loadBoms);
-    },
+   async deleteBom() {
+  if (!this.selectedBom) {
+    return Swal.fire('삭제 오류', '삭제할 BOM을 선택하세요.', 'warning');
+  }
+
+  const result = await Swal.fire({
+    title: '정말 삭제하시겠습니까?',
+    text: '삭제된 BOM은 복구할 수 없습니다.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: '삭제',
+    cancelButtonText: '취소'
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    await axios.delete(`/api/boms/${this.selectedBom.bom_id}`);
+    await this.loadBoms();
+    Swal.fire('삭제 완료', 'BOM이 삭제되었습니다.', 'success');
+  } catch (err) {
+    console.error('deleteBom error', err);
+    Swal.fire('오류', 'BOM 삭제 중 문제가 발생했습니다.', 'error');
+  }
+},
     async loadMaterials() {
       const { data } = await axios.get('/api/materials');
       this.materialsList = data;
@@ -176,13 +205,33 @@ export default {
       this.showCompModal = false;
       this.loadComps(bomId);
     },
-    deleteComp() {
-      if (!this.selectedComp) return;
-      const bomId = this.selectedBom.bom_id;
-      axios
-        .delete(`/api/boms/${bomId}/components/${this.selectedComp.item_seq_id}`)
-        .then(() => this.loadComps(bomId));
-    }
+    async deleteComp() {
+  if (!this.selectedComp) {
+    return Swal.fire('삭제 오류', '삭제할 구성품을 선택하세요.', 'warning');
+  }
+
+  const result = await Swal.fire({
+    title: '구성품 삭제',
+    text: '정말 삭제하시겠습니까? 삭제된 구성품은 복구할 수 없습니다.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: '삭제',
+    cancelButtonText: '취소'
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const bomId = this.selectedBom.bom_id;
+    await axios.delete(`/api/boms/${bomId}/components/${this.selectedComp.item_seq_id}`);
+    await this.loadComps(bomId);
+    this.selectedComp = null;
+    Swal.fire('삭제 완료', '구성품이 삭제되었습니다.', 'success');
+  } catch (err) {
+    console.error('deleteComp error', err);
+    Swal.fire('오류', '구성품 삭제 중 오류가 발생했습니다.', 'error');
+  }
+}
   }
 };
 </script>

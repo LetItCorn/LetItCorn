@@ -1,7 +1,7 @@
 <template>
   <div class="card h-100 d-flex flex-column">
       <!-- 💡 스크롤 가능한 테이블 영역 -->
-      <div class="table-responsive flex-fill overflow-auto">
+      <div class="table-responsive flex-fill overflow-auto p-2">
         <table class="table table-hover table-sm mb-0">
           <thead>
             <tr class="sticky-header">
