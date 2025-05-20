@@ -135,6 +135,6 @@
   app.use('/api', semiQcRouter);
   app.use('/api', semiInboundRouter);
   
-app.get("/", function (req, res, next) {
-  res.sendFile(path.join(__dirname, "./public", "index.html"));
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "./public", "index.html"));
 });
