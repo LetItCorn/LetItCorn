@@ -58,6 +58,7 @@ import { useInstStore } from "@/store/inst";
 import { useUserStore } from "@/store/user";
 import PlanSelectModal from "@/examples/ModalsExaple/InstModal.vue";
 import { useRoute } from "vue-router";
+import dayjs from "dayjs";
 import Swal from "sweetalert2";
 import axios from "axios";
 import router from "@/router";
@@ -105,6 +106,8 @@ onMounted(async () => {
       };
       const labelMapped = data.map((row) => ({
         ...row,
+        plan_start: dayjs(row.plan_start).format("YYYY-MM-DD"),
+        plan_end: dayjs(row.plan_end).format("YYYY-MM-DD"),
         plan_no: row.plan_no || "",
         process_header:
           processLabelMap[row.process_header] || row.process_header,
@@ -266,16 +269,9 @@ async function registerInst() {
       if (row.process_header in processCodeMap) {
         row.process_header = processCodeMap[row.process_header];
       }
-      // 날짜 처리 보정 (T 제거)
-      row.plan_start =
-        typeof row.plan_start === "string"
-          ? row.plan_start.split("T")[0]
-          : row.plan_start;
-
-      row.plan_end =
-        typeof row.plan_end === "string"
-          ? row.plan_end.split("T")[0]
-          : row.plan_end;
+      // 날짜 처리 보정 setHours(12) 중간시간 고정 처리
+      row.plan_start = dayjs(new Date(row.plan_start).setHours(12)).format("YYYY-MM-DD");
+      row.plan_end = dayjs(new Date(row.plan_end).setHours(12)).format("YYYY-MM-DD");
       row.item_code = row.item_code || "";
       row.item_name = row.item_name || "";
       row.plans_vol = row.plans_vol || "0";

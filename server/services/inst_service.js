@@ -145,8 +145,8 @@ const registerInst = async ({ header, details }) => {
      if (conn) conn.release();
    }
  };
-//수정
-const modifyInst = async (instNo, instInfo) => {
+ 
+ const modifyInst = async (instNo, instInfo) => {
   let conn;
   try {
     conn = await mariadb.getConnection();
@@ -166,22 +166,28 @@ const modifyInst = async (instNo, instInfo) => {
     }
     // inst 테이블 수정
     await conn.query(
-      "UPDATE inst SET lot_cnt = ?, iord_no = ?, process_header = ?, out_od = ? WHERE inst_no = ?",
-      [instInfo.lot_cnt, instInfo.iord_no, instInfo.process_header, instInfo.out_od, instNo]
+      `UPDATE inst 
+       SET lot_cnt = ?, item_name = ?, iord_no = ?, process_header = ?, out_od = ? 
+       WHERE inst_no = ?`,
+      [instInfo.lot_cnt, instInfo.item_name, instInfo.iord_no, instInfo.process_header, instInfo.out_od, instNo]
     );
-    // plan_header 날짜 동기화
+    // plan_header 날짜 동기화 (문자열 -> DATE 강제 변환)
     if (instInfo.plans_head) {
       await conn.query(
-        "UPDATE plan_header SET plan_start = ?, plan_end = ? WHERE plans_head = ?",
+        `UPDATE plan_header 
+         SET plan_start = STR_TO_DATE(?, '%Y-%m-%d'), 
+             plan_end = STR_TO_DATE(?, '%Y-%m-%d') 
+         WHERE plans_head = ?`,
         [instInfo.plan_start, instInfo.plan_end, instInfo.plans_head]
       );
-    // inst_header 날짜 동기화
-    await conn.query(
-      `UPDATE inst_header SET inst_start = ?
-       WHERE inst_head = (SELECT inst_head FROM inst WHERE inst_no = ?)`,
-      [instInfo.plan_start, instNo]
-    );
-  }
+      // inst_header 날짜 동기화 (문자열 -> DATE 강제 변환)
+      await conn.query(
+        `UPDATE inst_header 
+         SET inst_start = STR_TO_DATE(?, '%Y-%m-%d') 
+         WHERE inst_head = (SELECT inst_head FROM inst WHERE inst_no = ?)`,
+        [instInfo.plan_start, instNo]
+      );
+    }
     await conn.commit();
     return {
       isUpdated: true,
@@ -194,7 +200,6 @@ const modifyInst = async (instNo, instInfo) => {
     if (conn) conn.release();
   }
 };
-
 const removeInst = async (instNo) => {
   let result = await mariadb.query("deleteInst", instNo);
   return result;
