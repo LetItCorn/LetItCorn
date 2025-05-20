@@ -23,7 +23,7 @@
           type="number"
           min="1"
           v-model.number="form.quantity"
-          class="form-control form-control-sm"
+          class="form-control  "
         />
       </div>
 

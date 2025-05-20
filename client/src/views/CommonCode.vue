@@ -114,6 +114,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'CommonCode',
@@ -188,29 +189,40 @@ export default {
     /** 💾 저장(신규/수정) */
     async saveCode() {
       if (!this.selected.code_group || !this.selected.code_rear) {
-        alert('그룹·하위코드는 필수입니다.'); return;
+        return Swal.fire('입력 오류', '그룹·하위코드는 필수입니다.', 'warning');
       }
       try {
         await axios.post('/api/common_codes', this.selected);
         await this.loadCodes();
-        alert('저장 완료');
+        Swal.fire('성공', '코드가 저장되었습니다.', 'success');
       } catch (err) {
         console.error('saveCode error:', err);
-        alert('저장 실패');
+        Swal.fire('오류', '코드 저장 중 오류가 발생했습니다.', 'error');
       }
     },
     /** 🗑️ 삭제 */
     async deleteCode() {
       const { code_group, code_rear } = this.selected;
-      if (!confirm(`삭제하시겠습니까? (${code_group}-${code_rear})`)) return;
+
+      const result = await Swal.fire({
+        title: '삭제하시겠습니까?',
+        text: `(${code_group}-${code_rear}) 코드를 삭제합니다.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+      });
+
+      if (!result.isConfirmed) return;
+
       try {
         await axios.delete(`/api/common_codes/${code_group}/${code_rear}`);
         await this.loadCodes();
         this.clearDetail();
-        alert('삭제 완료');
+        Swal.fire('삭제 완료', '공통 코드가 삭제되었습니다.', 'success');
       } catch (err) {
         console.error('deleteCode error:', err);
-        alert('삭제 실패');
+        Swal.fire('오류', '삭제 중 오류가 발생했습니다.', 'error');
       }
     }
   }

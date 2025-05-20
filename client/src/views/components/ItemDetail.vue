@@ -3,15 +3,15 @@
   <div class="form-row flex-fill">
     <div class="form-group col-6">
       <label>품목코드</label>
-      <input v-model="item.item_code" class="form-control form-control-sm" readonly />
+      <input v-model="item.item_code" class="form-control" readonly />
     </div>
     <div class="form-group col-6">
       <label>품목명</label>
-      <input v-model="item.item_name" class="form-control form-control-sm" />
+      <input v-model="item.item_name" class="form-control " />
     </div>
     <div class="form-group col-6">
       <label>구분</label>
-      <select v-model="item.item_type" class="form-control form-control-sm">
+      <select v-model="item.item_type" class="form-control ">
         <option disabled value="">-- 선택하세요 --</option>
         <option v-for="code in codeList" :key="code.code_values" :value="code.code_values">
           {{ code.code_name }}
@@ -20,11 +20,11 @@
     </div>
     <div class="form-group col-6">
       <label>수량</label>
-      <input v-model="item.qty" class="form-control form-control-sm" />
+      <input v-model="item.qty" class="form-control " />
     </div>
     <div class="form-group col-6">
       <label>단위</label>
-      <select v-model="item.unit_code" class="form-control form-control-sm">
+      <select v-model="item.unit_code" class="form-control ">
         <option disabled value="">-- 선택하세요 --</option>
         <option v-for="unit in unitList" :key="unit.code_values" :value="unit.code_values">
           {{ unit.code_name }}
