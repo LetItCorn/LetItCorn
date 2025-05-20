@@ -58,6 +58,7 @@ import { useInstStore } from "@/store/inst";
 import { useUserStore } from "@/store/user";
 import PlanSelectModal from "@/examples/ModalsExaple/InstModal.vue";
 import { useRoute } from "vue-router";
+import dayjs from "dayjs";
 import Swal from "sweetalert2";
 import axios from "axios";
 import router from "@/router";
@@ -103,20 +104,29 @@ onMounted(async () => {
         Z01: "완공정",
         X01: "반공정",
       };
-      const labelMapped = data.map((row) => ({
-        ...row,
-        plan_no: row.plan_no || "",
+
+      const target = data.find((d) => d.inst_no === instNo);
+      if (!target) {
+        return Swal.fire({
+          icon: "error",
+          title: "해당 지시번호 데이터가 없습니다.",
+        });
+      }
+
+      const mapped = {
+        ...target,
+        plan_start: dayjs(target.plan_start).format("YYYY-MM-DD"),
+        plan_end: dayjs(target.plan_end).format("YYYY-MM-DD"),
+        plan_no: target.plan_no || "",
         process_header:
-          processLabelMap[row.process_header] || row.process_header,
-      }));
-      productionInstStore.setSelectedPlans(labelMapped);
-      console.log(labelMapped);
+          processLabelMap[target.process_header] || target.process_header,
+      };
+
+      productionInstStore.setSelectedPlans([mapped]);
+      console.log("수정 대상:", mapped);
     } catch (err) {
       console.error("수정용 데이터 조회 실패:", err);
-      Swal.fire({
-        icon: "error",
-        title: "지시 데이터 조회 중 오류 발생",
-      });
+      Swal.fire({ icon: "error", title: "지시 데이터 조회 중 오류 발생" });
     }
   }
 });
@@ -266,16 +276,13 @@ async function registerInst() {
       if (row.process_header in processCodeMap) {
         row.process_header = processCodeMap[row.process_header];
       }
-      // 날짜 처리 보정 (T 제거)
-      row.plan_start =
-        typeof row.plan_start === "string"
-          ? row.plan_start.split("T")[0]
-          : row.plan_start;
-
-      row.plan_end =
-        typeof row.plan_end === "string"
-          ? row.plan_end.split("T")[0]
-          : row.plan_end;
+      // 날짜 처리 보정 setHours(12) 중간시간 고정 처리
+      row.plan_start = dayjs(new Date(row.plan_start).setHours(12)).format(
+        "YYYY-MM-DD"
+      );
+      row.plan_end = dayjs(new Date(row.plan_end).setHours(12)).format(
+        "YYYY-MM-DD"
+      );
       row.item_code = row.item_code || "";
       row.item_name = row.item_name || "";
       row.plans_vol = row.plans_vol || "0";
@@ -284,6 +291,7 @@ async function registerInst() {
       row.out_od = row.out_od || "N";
 
       rowData.push(row);
+      console.log(`[${i}] 등록 대상 row:`, row);
     }
   }
   if (rowData.length === 0) {

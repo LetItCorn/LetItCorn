@@ -8,7 +8,8 @@ export const useInstStore = defineStore('inst', {
     planModalData: [],
     selectedPlans: [],
     selectedQueryPlans: [],
-    selectedInst : null //Instinquiry(조회)
+    selectedInst : null, //Instinquiry(조회)
+    selectedDetailRow: null,
   }),
 
   actions: {
@@ -41,6 +42,9 @@ export const useInstStore = defineStore('inst', {
     },
     setSelectedQueryPlans(data) {
       this.selectedQueryPlans = data;
+    },
+    setSelectedDetailRow(data) {
+      this.selectedDetailRow = data;
     },
     async registerInstData(data) {
       try {
