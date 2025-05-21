@@ -72,7 +72,14 @@ export default {
             });
             this.$router.replace("/dashboard");    
         } else {
-            alert(loginRes.message);
+            //alert(loginRes.message);
+            Swal.fire({
+            title : '사원정보 오류',
+            text : '아이디, 비밀번호를 확인하세요.',
+            icon : 'error',
+            confirmButtonText : '확인',
+            timer : 5000 // 5초 후 alert2 창 닫힘
+        });
         }
     },
     showInfoFinder(){ // sweetalert2
