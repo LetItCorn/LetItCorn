@@ -1,65 +1,73 @@
-// server/services/outbound_service.js
-
-const mariadb = require('../database/mapper.js');
-const sqlList = require('../database/sqls/mOutbound.js');
+/* eslint-disable camelcase */
+const mariadb         = require('../database/mapper.js');
 const materialService = require('./material_service.js');
 
-/**
- * 자재 출고 서비스
- */
+/*--------------------------------------------------------------
+  공통: 실제 출고 수행 (INSERT + 재고 차감)
+--------------------------------------------------------------*/
+async function doOutbound(conn, {
+  mout_id,
+  mater_code,
+  mout_qty,
+  mout_date,
+  mout_checker,
+  lot_cnt = null,
+  mater_lot = null
+}) {
+  // 1) m_outbound INSERT
+  await conn.query(
+    mariadb.selectedQuery('insertOutbound', [
+      mout_id,
+      mater_code,
+      mout_qty,
+      mout_date,
+      mout_checker,
+      lot_cnt,
+      mater_lot
+    ]),
+    [mout_id, mater_code, mout_qty, mout_date, mout_checker, lot_cnt, mater_lot]
+  );
 
-// 1) 전체 출고 이력 조회
-async function findAllOutbounds() {
-  return await mariadb.query('selectOutboundList');
-}
-
-// 2) 출고 후보 조회 (생산지시 기반)
-async function findOutboundCandidates(instHead) {
-  return await mariadb.query(
-    'selectOutboundCandidatesByInstHead',
-    [instHead]
+  // 2) material 재고 차감
+  await conn.query(
+    mariadb.selectedQuery('updateMaterialStockDeduct', [mout_qty, mater_code]),
+    [mout_qty, mater_code]
   );
 }
 
-// 3) 단건 출고 처리
-async function addOutbound(info) {
-  const {
-    inst_head,
-    mout_id,
-    mater_code,
-    mout_qty,
-    mout_date,
-    mout_checker,
-    lot_cnt,
-    mater_lot
-  } = info;
+/*--------------------------------------------------------------
+  1) 전체 출고 이력 조회
+--------------------------------------------------------------*/
+async function findAllOutbounds() {
+  return mariadb.query('selectOutboundList');
+}
 
-  // 1) 재고 검증
-  const material = await materialService.findMaterialByCode(mater_code);
-  if (!material) {
-    return { isSuccess: false, error: '존재하지 않는 자재' };
-  }
-  if (mout_qty > material.current_stock) {
+/*--------------------------------------------------------------
+  2) 출고 후보 조회 (생산지시 기반)
+--------------------------------------------------------------*/
+async function findOutboundCandidates(instHead) {
+  return mariadb.query('selectOutboundCandidatesByInstHead', [instHead]);
+}
+
+/*--------------------------------------------------------------
+  3) 단건 출고
+--------------------------------------------------------------*/
+async function addOutbound(info) {
+  const { inst_head, mater_code, mout_qty } = info;
+
+  /* ── 재고 검증 ────────────────────── */
+  const mat = await materialService.findMaterialByCode(mater_code);
+  if (!mat)                       return { isSuccess: false, error: '존재하지 않는 자재' };
+  if (mout_qty > mat.current_stock)
     return { isSuccess: false, error: '재고 부족' };
-  }
 
   const conn = await mariadb.getConnection();
   try {
     await conn.beginTransaction();
 
-    // 2) m_outbound INSERT
-    await conn.query(
-      sqlList.insertOutbound,
-      [mout_id, mater_code, mout_qty, mout_date, mout_checker, lot_cnt, mater_lot]
-    );
+    await doOutbound(conn, info);
 
-    // 3) material 재고 차감
-    await conn.query(
-      sqlList.updateMaterialStockDeduct,
-      [mout_qty, mater_code]
-    );
-
-    // 4) inst_header 상태 변경 (J01 → J02)
+    // 지시 상태 J01 → J02
     await conn.query(
       `UPDATE inst_header
          SET inst_stat = 'J02'
@@ -78,88 +86,52 @@ async function addOutbound(info) {
   }
 }
 
-// 4) 출고 롤백
-async function cancelOutbound(moutId) {
-  const conn = await mariadb.getConnection();
-  try {
-    await conn.beginTransaction();
-
-    // 기존 출고 내역 조회
-    const [row] = await conn.query(
-      sqlList.selectOutboundOne,
-      [moutId]
-    );
-    if (!row) {
-      await conn.rollback();
-      return false;
-    }
-
-    // 재고 복원
-    await conn.query(
-      sqlList.updateMaterialStockDeduct,
-      [-row.mout_qty, row.mater_code]
-    );
-
-    // 이력 삭제
-    await conn.query(
-      sqlList.deleteOutbound,
-      [moutId]
-    );
-
-    await conn.commit();
-    return true;
-  } catch (err) {
-    await conn.rollback();
-    throw err;
-  } finally {
-    conn.release();
-  }
-}
-
-// 5) 다건 출고 일괄 처리
+/*--------------------------------------------------------------
+  4) 다건 출고 (전수 검증, 실패 시 DB 변경 없음)
+--------------------------------------------------------------*/
 async function addBulkOutbound(inst_head, records) {
+  /* A. 사전 재고 검증 */
+  const needMap = new Map(); // mater_code → 필요 총수량
+  for (const r of records) {
+    needMap.set(r.mater_code, (needMap.get(r.mater_code) || 0) + r.mout_qty);
+  }
+
+  const errors = [];
+  for (const [code, need] of needMap) {
+    const mat = await materialService.findMaterialByCode(code);
+    if (!mat) {
+      errors.push({ mater_code: code, isSuccess: false, error: '존재하지 않는 자재' });
+    } else if (need > mat.current_stock) {
+      errors.push({
+        mater_code: code,
+        isSuccess: false,
+        error: `재고 ${mat.current_stock} < 필요 ${need}`
+      });
+    }
+  }
+
+  if (errors.length) {
+    return { success: false, results: errors };
+  }
+
+  /* B. 트랜잭션 출고 */
   const conn = await mariadb.getConnection();
   const results = [];
   try {
     await conn.beginTransaction();
 
     for (const r of records) {
-      const {
-        mout_id, mater_code, mout_qty,
-        mout_date, mout_checker, lot_cnt, mater_lot
-      } = r;
-
-      // 재고 검증
-      const material = await materialService.findMaterialByCode(mater_code);
-      if (!material) {
-        results.push({ ...r, isSuccess: false, error: '존재하지 않는 자재' });
-        continue;
-      }
-      if (mout_qty > material.current_stock) {
-        results.push({ ...r, isSuccess: false, error: '재고 부족' });
-        continue;
-      }
-
-      // INSERT & 차감
-      await conn.query(
-        sqlList.insertOutbound,
-        [mout_id, mater_code, mout_qty, mout_date, mout_checker, lot_cnt, mater_lot]
-      );
-      await conn.query(
-        sqlList.updateMaterialStockDeduct,
-        [mout_qty, mater_code]
-      );
-
-      // 상태 변경 (헤더)
-      await conn.query(
-        `UPDATE inst_header
-           SET inst_stat = 'J02'
-         WHERE inst_head = ? AND inst_stat = 'J01'`,
-        [inst_head]
-      );
-
+      await doOutbound(conn, r);
       results.push({ ...r, isSuccess: true });
     }
+
+    // 지시 상태 J02 처리 (한 번만)
+    await conn.query(
+      `UPDATE inst_header
+         SET inst_stat = 'J02'
+       WHERE inst_head = ? AND inst_stat = 'J01'`,
+      [inst_head]
+    );
 
     await conn.commit();
     return { success: true, results };
@@ -172,10 +144,59 @@ async function addBulkOutbound(inst_head, records) {
   }
 }
 
+/*--------------------------------------------------------------
+  5) 출고 롤백
+--------------------------------------------------------------*/
+async function cancelOutbound(moutId) {
+  const conn = await mariadb.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    // 기존 출고 레코드 확인
+    const [row] = await conn.query(
+      mariadb.selectedQuery('selectOutboundOne', [moutId]),
+      [moutId]
+    );
+    if (!row) {
+      await conn.rollback();
+      return false;
+    }
+
+    // LOT 사용량 복원
+    if (row.lot_cnt) {
+      await conn.query(
+        mariadb.selectedQuery('updateInboundOqty', [row.mout_qty, row.lot_cnt, row.mater_code]),
+        [row.mout_qty, row.lot_cnt, row.mater_code]
+      );
+    }
+
+    // 재고 복원
+    await conn.query(
+      mariadb.selectedQuery('updateMaterialStockDeduct', [-row.mout_qty, row.mater_code]),
+      [-row.mout_qty, row.mater_code]
+    );
+
+    // 출고 이력 삭제
+    await conn.query(
+      mariadb.selectedQuery('deleteOutbound', [moutId]),
+      [moutId]
+    );
+
+    await conn.commit();
+    return true;
+  } catch (err) {
+    await conn.rollback();
+    console.error('[Service] cancelOutbound ERROR', err);
+    return false;
+  } finally {
+    conn.release();
+  }
+}
+
 module.exports = {
   findAllOutbounds,
   findOutboundCandidates,
   addOutbound,
-  cancelOutbound,
-  addBulkOutbound
+  addBulkOutbound,
+  cancelOutbound
 };
