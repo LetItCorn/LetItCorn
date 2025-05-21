@@ -80,7 +80,7 @@
                   <tr v-for="r in materials" :key="r.mater_code">
                     <td>{{ r.mater_code }}</td>
                     <td class="text-start px-2">{{ r.mater_name }}</td>
-                    <td>{{ r.unit }}</td>
+                    <td>{{ r.unit_name }}</td>
                     <td>{{ r.required_qty }}</td>
                   </tr>
                   <tr v-if="!materials.length">

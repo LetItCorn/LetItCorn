@@ -197,7 +197,7 @@ export default {
           inspector: empName,
           test_res: item.test_res,
           process_code: order.process_code || 'PC999',
-          unit: item.unit || ''
+          unit_name: item.unit_name || ''
         }));
 
         console.log('검사 확인자 : ', empName);

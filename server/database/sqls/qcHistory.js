@@ -8,7 +8,7 @@ const selectQCHistory = `
    mater_code,
    test_field,
    test_stand,
-   unit,
+   unit_name,
    qc_result,
    DATE_FORMAT(qc_date, '%Y-%m-%d') AS qc_date,
    inspector

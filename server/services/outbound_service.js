@@ -1,6 +1,7 @@
 // server/services/outbound_service.js
 
-const mariadb         = require('../database/mapper.js');
+const mariadb = require('../database/mapper.js');
+const sqlList = require('../database/sqls/mOutbound.js');
 const materialService = require('./material_service.js');
 
 /**
@@ -14,7 +15,10 @@ async function findAllOutbounds() {
 
 // 2) 출고 후보 조회 (생산지시 기반)
 async function findOutboundCandidates(instHead) {
-  return await mariadb.query('selectOutboundCandidatesByInstHead', [instHead]);
+  return await mariadb.query(
+    'selectOutboundCandidatesByInstHead',
+    [instHead]
+  );
 }
 
 // 3) 단건 출고 처리
@@ -45,21 +49,13 @@ async function addOutbound(info) {
 
     // 2) m_outbound INSERT
     await conn.query(
-      mariadb.selectedQuery('insertOutbound', [
-        mout_id,
-        mater_code,
-        mout_qty,
-        mout_date,
-        mout_checker,
-        lot_cnt,
-        mater_lot
-      ]),
+      sqlList.insertOutbound,
       [mout_id, mater_code, mout_qty, mout_date, mout_checker, lot_cnt, mater_lot]
     );
 
     // 3) material 재고 차감
     await conn.query(
-      mariadb.selectedQuery('decreaseMaterialStock', [mout_qty, mater_code]),
+      sqlList.updateMaterialStockDeduct,
       [mout_qty, mater_code]
     );
 
@@ -88,9 +84,9 @@ async function cancelOutbound(moutId) {
   try {
     await conn.beginTransaction();
 
-    // 1) 기존 출고 내역 조회
+    // 기존 출고 내역 조회
     const [row] = await conn.query(
-      mariadb.selectedQuery('selectOutboundOne', [moutId]),
+      sqlList.selectOutboundOne,
       [moutId]
     );
     if (!row) {
@@ -98,25 +94,15 @@ async function cancelOutbound(moutId) {
       return false;
     }
 
-    // 2) m_inbound 수량 복원
+    // 재고 복원
     await conn.query(
-      `UPDATE m_inbound
-           SET min_oqty = min_oqty - ?
-         WHERE min_id = ? AND mater_code = ?`,
-      [row.mout_qty, row.lot_cnt, row.mater_code]
+      sqlList.updateMaterialStockDeduct,
+      [-row.mout_qty, row.mater_code]
     );
 
-    // 3) material 재고 복원
+    // 이력 삭제
     await conn.query(
-      `UPDATE material
-           SET current_stock = current_stock + ?
-         WHERE mater_code = ?`,
-      [row.mout_qty, row.mater_code]
-    );
-
-    // 4) m_outbound 레코드 삭제
-    await conn.query(
-      mariadb.selectedQuery('deleteOutbound', [moutId]),
+      sqlList.deleteOutbound,
       [moutId]
     );
 
@@ -130,23 +116,49 @@ async function cancelOutbound(moutId) {
   }
 }
 
-// 5) 다건 출고 일괄 처리 (단일 트랜잭션)
+// 5) 다건 출고 일괄 처리
 async function addBulkOutbound(inst_head, records) {
   const conn = await mariadb.getConnection();
+  const results = [];
   try {
     await conn.beginTransaction();
-    const results = [];
 
     for (const r of records) {
-      const info = { inst_head, ...r };
-      const singleResult = await addOutbound.call({
-        // bind this service context for nested addOutbound
-        findMaterialByCode: materialService.findMaterialByCode
-      }, info);
-      if (!singleResult.isSuccess) {
-        throw new Error(singleResult.error);
+      const {
+        mout_id, mater_code, mout_qty,
+        mout_date, mout_checker, lot_cnt, mater_lot
+      } = r;
+
+      // 재고 검증
+      const material = await materialService.findMaterialByCode(mater_code);
+      if (!material) {
+        results.push({ ...r, isSuccess: false, error: '존재하지 않는 자재' });
+        continue;
       }
-      results.push({ isSuccess: true, mout_id: info.mout_id });
+      if (mout_qty > material.current_stock) {
+        results.push({ ...r, isSuccess: false, error: '재고 부족' });
+        continue;
+      }
+
+      // INSERT & 차감
+      await conn.query(
+        sqlList.insertOutbound,
+        [mout_id, mater_code, mout_qty, mout_date, mout_checker, lot_cnt, mater_lot]
+      );
+      await conn.query(
+        sqlList.updateMaterialStockDeduct,
+        [mout_qty, mater_code]
+      );
+
+      // 상태 변경 (헤더)
+      await conn.query(
+        `UPDATE inst_header
+           SET inst_stat = 'J02'
+         WHERE inst_head = ? AND inst_stat = 'J01'`,
+        [inst_head]
+      );
+
+      results.push({ ...r, isSuccess: true });
     }
 
     await conn.commit();

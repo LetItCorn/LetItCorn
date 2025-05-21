@@ -10,7 +10,7 @@
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
-              <table class="table table-sm table-hover mb-0 text-center">
+              <table class="table table-sm table-bordered table-hover mb-0 text-center">
                 <thead class="table-secondary">
                   <tr>
                     <th style="width:1%"></th>
@@ -71,11 +71,11 @@
                   >
                     <td>{{ r.mater_code }}</td>
                     <td class="text-start px-2">{{ r.mater_name }}</td>
-                    <td>{{ r.unit }}</td>
+                    <td>{{ r.unit_name }}</td>
                     <td>{{ r.required_qty }}</td>
                   </tr>
                   <tr v-if="!bomRows.length">
-                    <td colspan="5" class="text-muted py-4">
+                    <td colspan="4" class="text-muted py-4">
                       왼쪽에서 생산지시를 선택하세요.
                     </td>
                   </tr>
@@ -146,33 +146,36 @@ export default {
 
       // 일괄 출고용 payload 생성
       const records = this.bomRows.map(r => ({
-        mout_id:      `${instHead}-${r.mater_code}-${Date.now()}`,
-        lot_cnt:      r.lot_cnt,
-        mater_code:   r.mater_code,
-        mout_qty:     r.required_qty,
-        mout_date:    today,
+        inst_head: instHead,
+        mout_id:    `${instHead}-${r.mater_code}-${Date.now()}`,
+        lot_cnt:    r.lot_cnt,
+        mater_code: r.mater_code,
+        mout_qty:   r.required_qty,
+        mout_date:  today,
         mout_checker: '현재사용자',
-        mater_lot:    r.mater_lot
+        mater_lot:  r.mater_lot
       }));
 
       try {
-        const res = await axios.post('/api/m_outbound/instruction', {
-          inst_head: instHead,
-          records
-        });
-        const { success, results } = res.data;
-
-        if (success) {
-          alert('자재 출고가 완료되었습니다.');
-          // 초기화 및 목록 갱신
-          this.selectedInst = '';
-          this.bomRows = [];
-          const tmp = await axios.get('/api/instructions/open');
-          this.instList = tmp.data;
-        } else {
-          const failed = results.find(r => !r.isSuccess);
-          alert(`출고 실패: ${failed.error || '알 수 없는 오류'}`);
+        const results = [];
+        for (const record of records) {
+          const res = await axios.post('/api/m_outbound', record);
+          results.push(res.data);
         }
+        // 실패한 항목 확인
+        const failed = results.filter(r => !r.isSuccess);
+        if (failed.length) {
+          alert(
+            `일부 출고 실패:\n${failed.map(f => `${f.mater_code}: ${f.error}`).join('\n')}`
+          );
+        } else {
+          alert('자재 출고가 모두 완료되었습니다.');
+        }
+        // 초기화 및 목록 갱신
+        this.selectedInst = '';
+        this.bomRows = [];
+        const tmp = await axios.get('/api/instructions/open');
+        this.instList = tmp.data;
       } catch (e) {
         console.error('서버 오류', e);
         alert('서버 에러가 발생했습니다.');
@@ -186,5 +189,10 @@ export default {
 .table th,
 .table td {
   vertical-align: middle;
+}
+
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid #adb5bd !important;
 }
 </style>

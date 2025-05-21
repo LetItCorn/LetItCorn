@@ -45,7 +45,7 @@ const saveInspectionResult = async (payload) => {
                 mainInfo.inspector, // str3: emp_id
                 item.qc_result, // str4: qc_stat
                 mainInfo.lot_cnt, // str5: lot_cnt
-                item.unit || '', // str6: unit
+                item.unit_name || '', // str6: unit_name
                 item.test_res // str7: res_log
             ];
             

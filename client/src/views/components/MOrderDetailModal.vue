@@ -47,7 +47,7 @@
                 <tr v-for="(d, i) in orderData.details" :key="i">
                   <td>{{ d.product_name }}</td>
                   <td>{{ d.spec }}</td>
-                  <td>{{ d.unit }}</td>
+                  <td>{{ d.unit_name }}</td>
                   <td>{{ d.qty }}</td>
                   <td>{{ formatNumber(d.unit_price) }}</td>
                   <td>{{ formatNumber(d.supply_amount) }}</td>

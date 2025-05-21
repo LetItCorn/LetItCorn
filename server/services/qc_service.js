@@ -21,7 +21,7 @@ async function addQCInspections(results, inspector) {
     const meta = metas.find(x => x.test_no === r.qc_no) || {};
     const params = [
       r.qc_no, r.moder_id, r.mater_code, qcDate, r.qc_result, inspector,
-      meta.test_field || '', meta.test_stand || '', meta.unit || ''
+      meta.test_field || '', meta.test_stand || '', meta.unit_name || ''
     ];
     await query('insertQC', params);
   }

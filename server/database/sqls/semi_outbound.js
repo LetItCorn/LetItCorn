@@ -28,7 +28,7 @@ const selectSemiOutboundMaterials = `
 SELECT
   bc.mater_code,
   m.mater_name,
-  bc.unit_code                 AS unit,
+  bc.unit_code                 AS unit_name,
   ROUND(bc.quantity * id.iord_no, 0) AS required_qty
 FROM inst             AS id
 JOIN boms             AS bo  ON bo.item_code = id.item_code
