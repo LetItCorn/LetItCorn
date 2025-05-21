@@ -53,7 +53,7 @@ const processInfo = `
   WHERE process_code = ?
 `;
 
-// 3) 등록 (MERGE)
+// 3) 등록/ 수정 (MERGE)
 const processInsert = `
   INSERT INTO processes (
     process_code,

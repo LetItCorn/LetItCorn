@@ -6,13 +6,16 @@ const mariaDB = require('../database/mapper.js');
  * 1) 전체조회 + 조건검색
  * @param {{id?:string,name?:string,role?:string}} filters
  */
-const findEmployees = async ({ id = '', name = '', role = '' } = {}) => {
+const findEmployees = async ({ id = '', name = '', user_id = '' } = {}) => { // 체 구조 분해 + 기본값 할당" 문법
+  // 구조 분해로 꺼내서 각각 변수처럼 사용
+  // 함수 인자로 객체 하나를 받는다
   // SQL의 (?='' OR ...) 절이 동작하려면 빈 문자열로 초기화 필요
   const params = [
     id,   id,    // emp_id 필터
     name, name,  // emp_name 필터
-    role, role   // role_code 필터
-  ];console.log(params);
+    user_id, user_id   // role_code 필터
+  ];
+  console.log(params);
   try {
     return await mariaDB.query('employeesList', params);
   } catch (err) {
