@@ -15,7 +15,7 @@
         </div>
       </div>
       <AgGridVue :rowData="rowData" :columnDefs="colDef" class="ag-theme-alpine" style="height: 50vh;"   />
-      <button class="btn btn-info" @click="saveXcel"></button>
+      <button class="btn btn-info" @click="saveXcel">엑셀파일 저장</button>
     </div>
   </div>
 </template>
