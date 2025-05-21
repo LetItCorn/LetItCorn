@@ -17,7 +17,7 @@ const employeesList = `
   WHERE 1=1
     AND (? = '' OR emp_id    LIKE CONCAT('%', ?, '%'))
     AND (? = '' OR emp_name  LIKE CONCAT('%', ?, '%'))
-    AND (? = '' OR role_code = ?)
+    AND (? = '' OR user_id   LIKE CONCAT('%', ?, '%'))
   ORDER BY CAST(SUBSTRING(emp_id, 4) AS UNSIGNED)
 `;
 

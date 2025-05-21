@@ -82,9 +82,9 @@ export default {
   methods: {
     async loadEmployees() {
       const params = {
-        empId: this.searchType === 'id' ? this.searchValue : '',
+        id: this.searchType === 'id' ? this.searchValue : '',
         name: this.searchType === 'name' ? this.searchValue : '',
-        userId: this.searchType === 'user' ? this.searchValue : ''
+        user_id: this.searchType === 'user' ? this.searchValue : ''  
       };
 
       try {
