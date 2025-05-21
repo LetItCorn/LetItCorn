@@ -62,7 +62,7 @@
         // 공정진행 순서 강제 pinia 에 seq정보 저장, 현재 메소드에서 검사,
         if(this.currentSeq > this.flowLength){
           Swal.fire({
-            icon: "error",
+            icon: "success",
             title: "전체공정이 완료되었습니다!",
             text: `${this.inst.item_name}의 전체공정이 완료되었습니다. `,
            });
