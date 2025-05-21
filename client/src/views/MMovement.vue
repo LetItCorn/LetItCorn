@@ -1,4 +1,3 @@
-<!-- client/src/views/MMovement.vue -->
 <template>
   <div class="container-fluid py-4">
     <h2 class="text-center mb-4">자재 입/출고 조회</h2>
@@ -37,8 +36,6 @@
                   {{ currentType === 'inbound' ? '입고일자' : '출고일자' }}
                 </th>
                 <th scope="col">담당자</th>
-                <th scope="col">LOT 카운트</th>
-                <th scope="col">LOT 번호</th>
               </tr>
             </thead>
             <tbody>
@@ -46,18 +43,14 @@
                 v-for="item in pagedList"
                 :key="(currentType === 'inbound' ? item.min_id : item.mout_id) + '-' + item.mater_code"
               >
-                <td>
-                  {{ currentType === 'inbound' ? item.min_id : item.mout_id }}
-                </td>
+                <td>{{ shortenId(currentType === 'inbound' ? item.min_id : item.mout_id) }}</td>
                 <td>{{ item.mater_code }}</td>
                 <td>{{ currentType === 'inbound' ? item.min_qty : item.mout_qty }}</td>
                 <td>{{ currentType === 'inbound' ? item.min_date : item.mout_date }}</td>
                 <td>{{ currentType === 'inbound' ? item.min_checker : item.mout_checker }}</td>
-                <td>{{ item.lot_cnt }}</td>
-                <td>{{ item.mater_lot }}</td>
               </tr>
               <tr v-if="!combinedList.length">
-                <td colspan="7" class="text-muted py-4">
+                <td colspan="5" class="text-muted py-4">
                   조회할 내역이 없습니다.
                 </td>
               </tr>
@@ -79,9 +72,7 @@
               :key="n"
               :class="{ active: n === currentPage }"
             >
-              <a class="page-link" href="#" @click.prevent="changePage(n)">
-                {{ n }}
-              </a>
+              <a class="page-link" href="#" @click.prevent="changePage(n)">{{ n }}</a>
             </li>
             <li class="page-item" :class="{ disabled: currentPage === pagesCount }">
               <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
@@ -137,11 +128,18 @@ export default {
     }
   },
   methods: {
+    // ID를 앞 8자리만 보여주고 뒤에 '...' 추가
+    shortenId(id) {
+      if (!id) return '';
+      const prefix = id.slice(0, 8);
+      const suffix = id.slice(-4);
+      return `${prefix}   ${suffix}`;
+    },
     async fetchMovement(type) {
       try {
         const res = await axios.get('/api/m_movement', { params: { type } });
         this.movementList = res.data;
-        this.currentPage = 1; // 타입 변경 시 페이지 초기화
+        this.currentPage = 1;
       } catch (err) {
         console.error('입/출고 조회 실패', err);
         alert('입/출고 조회 중 오류가 발생했습니다.');

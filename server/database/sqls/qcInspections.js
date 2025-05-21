@@ -1,7 +1,7 @@
 // server/database/sqls/qcInspections.js
 const insertQC = `
 INSERT INTO qc_inspections 
-  (qc_no, moder_id, mater_code, qc_date, qc_result, inspector, test_field, test_stand, unit)
+  (qc_no, moder_id, mater_code, qc_date, qc_result, inspector, test_field, test_stand, unit_name)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
@@ -11,7 +11,7 @@ SELECT
   test_no,
   test_feild    AS test_field,
   test_stand,
-  unit
+  unit_name
 FROM test_qc
 ORDER BY test_no
 `;

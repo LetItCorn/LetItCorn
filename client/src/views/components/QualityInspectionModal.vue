@@ -24,7 +24,7 @@
                   <td>{{ item.test_no }}</td>
                   <td>{{ item.test_field }}</td>
                   <td>{{ item.test_stand }}</td>
-                  <td>{{ item.unit }}</td>
+                  <td>{{ item.unit_name }}</td>
                   <td>
                     <input
                       v-model="item.test_res"
@@ -92,7 +92,7 @@ export default {
           test_no: item.test_no,
           test_field: item.test_field,
           test_stand: item.test_stand,
-          unit: item.unit,
+          unit_name: item.unit_name,
           test_res: '',
           test_stat: ''
         }));

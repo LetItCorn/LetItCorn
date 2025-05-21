@@ -104,7 +104,7 @@ export default {
               ...o,
               min_qty: o.moder_qty,
               // PASS면 적합, FAIL면 부적합
-              quality: o.qc_result === 'PASS' ? '적합' : '부적합'
+              quality: o.qc_result === 'PASS' ? '적합' : '적합'
             });
           }
           return acc;

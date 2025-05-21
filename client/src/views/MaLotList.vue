@@ -66,7 +66,7 @@
           <td>{{ d.line_no }}</td>
           <td><input v-model="d.product_name" class="form-control" /></td>
           <td><input v-model="d.spec"          class="form-control" /></td>
-          <td><input v-model="d.unit"          class="form-control" /></td>
+          <td><input v-model="d.unit_name"          class="form-control" /></td>
           <td><input v-model.number="d.qty"     type="number" class="form-control" /></td>
           <td><input v-model.number="d.unit_price" type="number" class="form-control" /></td>
           <td>{{ formatNumber(d.qty * d.unit_price) }}</td>
@@ -119,7 +119,7 @@ export default {
           line_no: i + 1,
           product_name: '',
           spec: '',
-          unit: '',
+          unit_name: '',
           qty: 0,
           unit_price: 0
         }))
@@ -158,7 +158,7 @@ export default {
             line_no:      d.line_no,
             product_name: d.product_name,
             spec:         d.spec,
-            unit:         d.unit,
+            unit_name:         d.unit_name,
             qty:          d.qty,
             unit_price:   d.unit_price,
             supply_amount: d.qty * d.unit_price

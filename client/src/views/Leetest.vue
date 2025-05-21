@@ -35,6 +35,7 @@
           </div>
         </div>
       </div>
+
       <!-- 자재 목록 테이블 -->
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -56,7 +57,7 @@
             </thead>
             <tbody>
               <tr
-                v-for="mat in filteredList"
+                v-for="mat in paginatedList"
                 :key="mat.mater_code"
                 :class="{ 'table-danger': mat.current_stock < mat.safe_stock }"
               >
@@ -68,22 +69,45 @@
                 <td>{{ mat.safe_stock }}</td>
                 <td>{{ mat.current_stock }}</td>
               </tr>
-              <tr v-if="!filteredList.length">
+              <tr v-if="!paginatedList.length">
                 <td colspan="6" class="text-muted py-4">조건에 맞는 자재가 없습니다.</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-      <!-- 발주 버튼 -->
-      <div class="card-footer text-end bg-light">
-        <button
-          class="btn btn-success"
-          :disabled="!selectedItems.length"
-          @click="$emit('order', selectedItems)"
-        >
-          발주
-        </button>
+
+      <!-- 페이지네이션 및 발주 버튼 -->
+      <div class="card-footer bg-light">
+        <nav v-if="totalPages > 1" aria-label="Page navigation">
+          <ul class="pagination justify-content-center mb-2">
+            <li
+              class="page-item"
+              :class="{ disabled: currentPage === 1 }"
+              @click="changePage(currentPage - 1)"
+            >
+              <a class="page-link" href="javascript:;">Previous</a>
+            </li>
+            <li
+              class="page-item"
+              v-for="page in totalPages"
+              :key="page"
+              :class="{ active: currentPage === page }"
+              @click="changePage(page)"
+            >
+              <a class="page-link" href="javascript:;">{{ page }}</a>
+            </li>
+            <li
+              class="page-item"
+              :class="{ disabled: currentPage === totalPages }"
+              @click="changePage(currentPage + 1)"
+            >
+              <a class="page-link" href="javascript:;">Next</a>
+            </li>
+          </ul>
+        </nav>
+        <div class="text-end">
+        </div>
       </div>
     </div>
   </div>
@@ -100,7 +124,9 @@ export default {
       filteredList: [],
       selectedItems: [],
       searchQuery: '',
-      lowStockOnly: false
+      lowStockOnly: false,
+      currentPage: 1,
+      pageSize: 10,
     };
   },
   computed: {
@@ -109,17 +135,22 @@ export default {
         this.filteredList.length > 0 &&
         this.selectedItems.length === this.filteredList.length
       );
-    }
+    },
+    totalPages() {
+      return Math.ceil(this.filteredList.length / this.pageSize);
+    },
+    paginatedList() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      return this.filteredList.slice(start, start + this.pageSize);
+    },
   },
   async created() {
     await this.fetchInventory();
   },
   methods: {
-    /* ▶ 자재 재고 요청 */
     async fetchInventory() {
       try {
         const res = await axios.get('/api/materials/stock');
-        /* ★ current_stock 필드가 없을 때(total_stock으로 온 경우) 보정 */
         this.inventoryList = Array.isArray(res.data)
           ? res.data.map(r => ({
               ...r,
@@ -132,32 +163,36 @@ export default {
         alert('자재 목록을 불러오는 중 오류가 발생했습니다.');
       }
     },
-
-    /* ▶ 필터 로직 (current_stock 사용) */
     applyFilters() {
       const q = this.searchQuery.trim().toLowerCase();
       this.filteredList = this.inventoryList.filter(item => {
         const code = (item.mater_code || '').toLowerCase();
         const name = (item.mater_name || '').toLowerCase();
-
         const matchesQuery = q ? code.includes(q) || name.includes(q) : true;
         const matchesLowStock = this.lowStockOnly
-          ? item.current_stock < item.safe_stock               /* ★ */
+          ? item.current_stock < item.safe_stock
           : true;
         return matchesQuery && matchesLowStock;
       });
       this.selectedItems = [];
+      this.currentPage = 1;
     },
-
     resetFilters() {
       this.searchQuery = '';
       this.lowStockOnly = false;
       this.applyFilters();
     },
     toggleAllSelection(evt) {
-      this.selectedItems = evt.target.checked ? [...this.filteredList] : [];
-    }
-  }
+      this.selectedItems = evt.target.checked
+        ? [...this.filteredList]
+        : [];
+    },
+    changePage(page) {
+      if (page < 1 || page > this.totalPages) return;
+      this.currentPage = page;
+      this.selectedItems = [];
+    },
+  },
 };
 </script>
 
