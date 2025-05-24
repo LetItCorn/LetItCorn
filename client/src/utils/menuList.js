@@ -63,7 +63,8 @@ const menuConfig = {
     "품질관리": [{
         name: "품질검사조회",
         path: 'QcLog'
-      }, {
+      }, 
+      {
         name: "불량관리",
         path: 'Fault'
       },
@@ -157,7 +158,11 @@ const menuConfig = {
       name: "BOM 관리",
       path: 'boms'
     }, ],
-    "공통코드": [{
+    "품질검사": [{
+      name: "품질검사 관리",
+      path: 'QcMng'
+    }, ],
+     "공통코드": [{
       name: "공통코드 관리",
       path: 'common_codes'
     }, ],

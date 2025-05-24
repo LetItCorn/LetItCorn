@@ -55,10 +55,9 @@ const saveInspectionResult = async (payload) => {
             console.log(`항목 ${item.test_no} 저장 완료`);
         }
         
-        // inst_header 테이블의 inst_stat 업데이트 (J04 -> C01) 및 재고 업데이트
+        // 상태 업데이트 및 재고 업데이트
         if (mainInfo.inst_no) {
-            // 1. 지시 정보 가져오기 (item_code와 iord_qty)
-            // 직접 SQL 쿼리 사용
+            // 1. 지시 정보 가져오기
             const instResult = await conn.query(`
                 SELECT i.item_code, i.iord_no, ih.inst_head
                 FROM inst as i
@@ -72,21 +71,19 @@ const saveInspectionResult = async (payload) => {
                 
                 console.log(`지시 정보: item_code=${item_code}, iord_no=${iord_no}, inst_head=${inst_head}`);
                 
-                // 2. inst_header 상태 업데이트 (J04 -> C01)
-                // 직접 SQL 쿼리 사용
-                const updateResult = await conn.query(`
-                    UPDATE inst_header
-                    SET inst_stat = 'C01'
-                    WHERE lot_cnt = ?
-                `, [mainInfo.lot_cnt]);
+                // 2. inst 테이블에서 특정 LOT 번호만 상태 업데이트 (컬럼명 수정: inst_stat -> ins_stat)
+                const updateInstResult = await conn.query(`
+                    UPDATE inst
+                    SET ins_stat = 'J05'
+                    WHERE inst_no = ? AND lot_cnt = ?
+                `, [mainInfo.inst_no, mainInfo.lot_cnt]);
                 
-                if (updateResult.affectedRows === 0) {
-                    console.warn('업데이트할 inst_header 레코드를 찾을 수 없습니다:', mainInfo.lot_cnt);
+                if (updateInstResult.affectedRows === 0) {
+                    console.warn('업데이트할 inst 레코드를 찾을 수 없습니다:', mainInfo.inst_no, mainInfo.lot_cnt);
                 } else {
-                    console.log(`상태 업데이트 완료: J04 -> C01 (inst_no: ${mainInfo.lot_cnt})`);
+                    console.log(`inst 상태 업데이트 완료: ins_stat = C01 (inst_no: ${mainInfo.inst_no}, lot_cnt: ${mainInfo.lot_cnt})`);
                     
                     // 3. finishedproduct 테이블의 current_stock 업데이트
-                    // 직접 SQL 쿼리 사용
                     await conn.query(`
                         UPDATE finishedproduct
                         SET current_stock = current_stock + ?

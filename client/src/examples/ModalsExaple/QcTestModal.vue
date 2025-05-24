@@ -43,7 +43,7 @@ export default {
       { field: 'test_stand', headerName: '검사기준', flex: 1 },
       { field: 'pr_status', headerName: '측정값', flex: 1, editable: true,},
       { field: 'test_res',  headerName: '결과', flex: 1},
-      { field: 'unit',  headerName: '단위', flex: 1},
+      { field: 'unit_name',  headerName: '단위', flex: 1},
       ]
     }
   },

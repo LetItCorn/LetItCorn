@@ -87,7 +87,7 @@ const getQcTest = async(data)=>{
 
 // 품질 검사 이력 저장 프로시저 실행
 const regQcLog = async(data)=>{
-  let selected = ['process_code','item_code','userId','test_res','lot_cnt','unit','pr_status']
+  let selected = ['process_code','item_code','userId','test_res','lot_cnt','unit_name','pr_status']
   let rows=0;
   let conn ; 
   let res
