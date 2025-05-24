@@ -8,19 +8,32 @@ const findByPlan = async (planNo) => {
 };
 
 const getNextPlanHead = async (conn, today) => {
-  const [result] = await conn.query(
-    `SELECT COUNT(*) AS count FROM plan_header WHERE plans_head LIKE ?`,
+  const [row] = await conn.query(
+    `SELECT MAX(plans_head) AS max_code FROM plan_header WHERE plans_head LIKE ?`,
     [`PPHN${today}%`]
   );
-  const count = result.count + 1;
-  return `PPHN${today}${count.toString().padStart(2, "0")}`;
+
+  let nextSeq = 1;
+  if (row.max_code) {
+    const currentSeq = parseInt(row.max_code.slice(-2), 10);
+    nextSeq = currentSeq + 1;
+  }
+
+  return `PPHN${today}${nextSeq.toString().padStart(2, "0")}`;
 };
 async function getNextPlanNo(conn, today) {
   const [row] = await conn.query(
-    `SELECT COUNT(*) as count FROM plans WHERE plan_no LIKE ?`,
+    `SELECT MAX(plan_no) AS max_code FROM plans WHERE plan_no LIKE ?`,
     [`PPN${today}%`]
   );
-  return row.count;
+
+  let nextSeq = 1;
+  if (row.max_code) {
+    const currentSeq = parseInt(row.max_code.slice(-2), 10); // 'PPN25052403' → 03
+    nextSeq = currentSeq + 1;
+  }
+
+  return nextSeq;
 }
 const addNewPlan = async ({ header, details }) => {
   let conn = await mariadb.getConnection();
